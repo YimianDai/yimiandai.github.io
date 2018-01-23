@@ -63,7 +63,19 @@
 <h3 id="5-1-Why-Phase？"><a href="#5-1-Why-Phase？" class="headerlink" title="5.1 Why Phase？"></a>5.1 Why Phase？</h3><p>虽然 Spatio-temporal saliency detection using phase spectrum of quaternion fourier transform 一文指出了相位才是 Spectral Residual 方法中能够检测显著性的关键，但文中给出的相位能够指示突变信号位置的解释很难让我信服，因为背景中也会有强边缘这样的突变信号，为何就没有反应在显著性图里呢？个人觉得真正要解释其本质原因，还是需要跟人眼视觉系统背后的生物机制联系起来。</p>
 <h3 id="5-2-How-to-plot-1D-Log-Spectrum-of-an-image"><a href="#5-2-How-to-plot-1D-Log-Spectrum-of-an-image" class="headerlink" title="5.2 How to plot 1D Log Spectrum of an image?"></a>5.2 How to plot 1D Log Spectrum of an image?</h3><p>还有一个让我困惑的问题是，<a href="http://ieeexplore.ieee.org/document/4270292/" target="_blank" rel="noopener">Saliency Detection: A Spectral Residual Approach</a> 一文中的 Figure 1、Figure 3 这样明明是图像的 Spectrum，照理应该是二维的，但其展示的一维的 Spectrum 究竟是怎么画出来的。唯一可以知道的线索是，该图是 $256 \times 256$ 大小的，而 Figure 1 中频率的上限就是 128，也就是说，信号的采样频率刚好是图像的尺寸，从而信号频谱的上限正好是采样率的一半。如果正在读此文的您知道如何画出 1D 的 Spectrum，请务必在评论中留言告诉我，谢谢~</p>
 <p>感谢您一直阅读到这里，如果我的文章有错误或不足之处，请务必在评论中留言指出，千万不用客气，万分感谢~</p>
-</div></div><div class="post-main post-comment"></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = '2016/12/18/Spectral-Residual/';
+var disqus_title = 'Spectral Residual 小记';
+var disqus_url = 'http://lowrank.science/2016/12/18/Spectral-Residual/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
     $(".fancybox").fancybox();
 });
 </script></body></html>
