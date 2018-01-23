@@ -1,0 +1,192 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on Correlation Filter-based Tracking | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Tracking/">Tracking</a></div><div class="post-time">2017-04-09</div></div></div><div class="container post-header"><h1>Notes on Correlation Filter-based Tracking</h1></div><div class="container post-content"><p>最近看了一点特征跟踪方面的资料，这篇日志是看下面这篇论文时的一点笔记。</p>
+<blockquote>
+<p>Chen Z, Hong Z, Tao D. An experimental survey on correlation filter-based tracking[J]. arXiv preprint arXiv:1509.05520, 2015.</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1. Introduction"></a>1. Introduction</h2><h4 id="跟踪有哪些难点："><a href="#跟踪有哪些难点：" class="headerlink" title="跟踪有哪些难点："></a>跟踪有哪些难点：</h4><ul>
+<li>illumination variations</li>
+<li>occlusions</li>
+<li>deformations</li>
+<li>rotations</li>
+</ul>
+<p>tracking 算法可以分成下面两类：</p>
+<ul>
+<li>generative models <ul>
+<li>Generative trackers perform tracking by searching the best-matching windows</li>
+</ul>
+</li>
+<li>discriminative models<ul>
+<li>discriminative methods learn to distinguish the target from backgrounds</li>
+<li>background information is advantageous for effective tracking, which <strong>suggests that discriminative methods are more competing.</strong> </li>
+<li>特别是  correlation ﬁlter-based discriminative trackers</li>
+</ul>
+</li>
+</ul>
+<h4 id="关于-correlation-filters"><a href="#关于-correlation-filters" class="headerlink" title="关于 correlation filters"></a>关于 correlation filters</h4><ul>
+<li>correlation filters are designed to <strong>produce correlation peaks for each interested target</strong> in the scene while <strong>yielding low responses to background</strong>, which are usually <strong>used as detectors of expected patterns</strong></li>
+<li><strong>the required training</strong> needs used to make them <strong>inappropriate for online tracking</strong>.</li>
+<li>MOSSE 的提出，改变了这种状况，Using an adaptive training scheme</li>
+<li>在 MOSSE 基础上，目前 state-of-the-art 的三种方法，SAMF [18]，DSST [19]，improved KCF [20]</li>
+<li>In general, training schemes of filters are extremely crucial in correlation filter- based tracking, and CFTs can be further improved by introducing better training schemes, <strong>extracting powerful features, relieving scaling issue, applying part-based tracking strategy and cooperating with long-term tracking</strong>. <ul>
+<li>training 对 correlation filter tracker 的性能很关键</li>
+</ul>
+</li>
+<li>下面这张表给出了 correlation fillter tracker 发展上的里程碑算法</li>
+</ul>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170407/110933125.png" alt="mark"></p>
+<h2 id="2-Correlation-filter-based-tracking-framework"><a href="#2-Correlation-filter-based-tracking-framework" class="headerlink" title="2. Correlation filter-based tracking framework"></a>2. Correlation filter-based tracking framework</h2><h4 id="correlation-ﬁlter-based-tracking-methods-的-general-framework"><a href="#correlation-ﬁlter-based-tracking-methods-的-general-framework" class="headerlink" title="correlation ﬁlter-based tracking methods 的 general framework"></a>correlation ﬁlter-based tracking methods 的 general framework</h4><ul>
+<li>Initially, correlation filter is <strong>trained with image patch cropped from a given position of the target at first frame.</strong></li>
+<li>Then in each subsequent time step, <strong>the patch at previous predicted position is cropped for detection.</strong></li>
+<li>Afterwards, as shown in Figure 1, <strong>various features can be extracted from the raw input data,</strong> and a cosine window is usually applied for smoothing the boundary effects.</li>
+<li>Subsequently, efﬁcient correlation operations are performed by replacing the exhausted convolutions with element-wise multiplications using Discrete Fourier Transform (DFT).</li>
+<li>Following the correlation procedure, a <strong>spatial confidence map</strong>, or response map, can be obtained using <strong>inverse FFT.</strong> The <strong>position with a maximum value in this map is then predicted as the new state of target.</strong></li>
+<li>Next, appearance at the estimated position is extracted for training and updating the correlation ﬁlter.<ul>
+<li>因为仅仅用到了 correlation filter 的 DFT，所以 training 和 updating procedures 都是在 <strong>频域</strong> 完成的</li>
+</ul>
+</li>
+</ul>
+<p>流程图如下：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/091542298.png" alt="mark"></p>
+<h4 id="FFT-加速"><a href="#FFT-加速" class="headerlink" title="FFT 加速"></a>FFT 加速</h4><p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/093238501.png" alt="mark"></p>
+<p>x 可以是 raw image patch 或者 extracted features，h 是 correlation filter，公式（1）说的就是 时域的卷积等于频域的乘积再做反变换</p>
+<h4 id="怎么训练的？"><a href="#怎么训练的？" class="headerlink" title="怎么训练的？"></a>怎么训练的？</h4><p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/093702257.png" alt="mark"></p>
+<p>由公式（2）反推出公式（3），在训练阶段，y 是 desired correlation output，这应该是标记好的，x 是给定的，$\hat{x}$ 可以用傅里叶变换算出来，所以公式（3）就是求得 correlation filter 的过程。</p>
+<ul>
+<li>问题是这不就一个样本的么？N 个样本的怎么弄？<ul>
+<li>不对，correlation filter 好像就是先标记 1 个样本的，然后更新，根据 detect 到的目标来更新，具体的看后面 updating scheme 那一块。</li>
+</ul>
+</li>
+</ul>
+<h4 id="some-issues-when-using-correlation-ﬁlter-based-tracking-framework"><a href="#some-issues-when-using-correlation-ﬁlter-based-tracking-framework" class="headerlink" title="some issues when using correlation ﬁlter-based tracking framework"></a>some issues when using correlation ﬁlter-based tracking framework</h4><ul>
+<li>First, <strong>training schemes are extremely crucial for CFTs</strong>. Since the <strong>target may change its appearance continuously</strong>, <strong>correlation filters should be adaptively trained and updated on-the-fly</strong> to adapt to the new appearance of target. <ul>
+<li>目标的外形会变，所以要能适应这种变化</li>
+</ul>
+</li>
+<li>Second, <strong>feature representing methods also greatly influence the performance.</strong> Although raw pixels can be directly used for detection, the tracker may be affected by various noises like illumination changes and motion blurs. More powerful features are sup- posed to be helpful. <ul>
+<li>CFT 本质是 特征跟踪，所以特征非常重要，要对各种干扰、变化都要鲁棒，选择feature 其实是灌水的一大途径，或者说 domain adaptation 吧</li>
+</ul>
+</li>
+<li>Moreover, <strong>how to adapt to the scales of target</strong> is another challenging problem for CFTs. Since the sizes of correlation filters are usually fixed in tracking, <strong>scale variations of the target</strong> cannot be handled well in these trackers. As a result, an effective scale estimation approach is supposed to complement this shortage of correlation filter- based tracking. <ul>
+<li>其实，一开始我觉得这一点还是跟上一点部分重合的，抽取 sacle-invariant 的特征不就行了，不过现在想想应该不同，这一点强调的应该是怎么从 framework 的层面来 handle，而不是仅仅在特征层面</li>
+</ul>
+</li>
+<li>Furthermore, long-term tracking is believed to be the weakness of many CFTs since they commonly lack the ability to re-locate the target after drifting. By cooperating with long-term tracking methods, CFTs can be much more robust in tracking.<ul>
+<li>long-term tracking，处理目标丢失的情况</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-Training-schemes-for-correlation-filters"><a href="#3-Training-schemes-for-correlation-filters" class="headerlink" title="3. Training schemes for correlation filters"></a>3. Training schemes for correlation filters</h2><p>correlation filters 的 training 手段很多很多，种类不同。</p>
+<h3 id="3-1-Traditional-Training-Methods"><a href="#3-1-Traditional-Training-Methods" class="headerlink" title="3.1 Traditional Training Methods"></a>3.1 Traditional Training Methods</h3><ul>
+<li>最简单的 case，自然是直接从 image 上面 crop 一块 template<ul>
+<li>但这样 crop 下来的 template 对 background 的 response 也会很高</li>
+</ul>
+</li>
+<li>很多方法都试图 suppressing responses to negative training samples while maintaining high response to the target，他们的差别在于怎么构造 correlation filter 方法的不同。</li>
+<li>Synthetic Discriminant Functions (SDF) [27], [32], Optimal Tradeoff Filters (OTF) [28] and Minimum Average Corre- lation Energy (MACE) [29] are <strong>trained with enforced hard constraints so that peaks would always be produced in the same height</strong>. </li>
+<li>On the contrary, <strong>hard constraints are believed to be unnecessary in other filters,</strong> such as Maximum Average Correlation Height (MACH) [30] and Unconstrained MACE (UMACE) [31]. These filters are <strong>trained by relaxing the hard constraints.</strong><ul>
+<li>怎么感觉这类和上面一类正好相反啊</li>
+</ul>
+</li>
+<li>Recently, a correlation filter, which is named as Average of Synthetic Exact Filters (ASEF) [34], <strong>averages all the trained exact filters to obtain a general one</strong>. </li>
+</ul>
+<h3 id="3-2-Adaptive-Correlation-Filters"><a href="#3-2-Adaptive-Correlation-Filters" class="headerlink" title="3.2 Adaptive Correlation Filters"></a>3.2 Adaptive Correlation Filters</h3><p>目的是 To train correlation ﬁlters more efﬁciently</p>
+<h4 id="3-2-1-Minimum-Output-Sum-of-Squared-Error-MOSSE"><a href="#3-2-1-Minimum-Output-Sum-of-Squared-Error-MOSSE" class="headerlink" title="3.2.1 Minimum Output Sum of Squared Error (MOSSE)"></a>3.2.1 Minimum Output Sum of Squared Error (MOSSE)</h4><ul>
+<li><p>MOSSE 的 Motivation 是 前面的公式（2）和公式（3）只是 一个 sample 的，如果能 involve 更多的 samples，那么 correlation filters 的 robustness 就会进一步提升。</p>
+</li>
+<li><p>MOSSE 的做法就是求一个 h，使得 actual correlation output 和 disired correlation output 之间的 square error 最小，这个 minimization problem 在 frequency domain 的表示形式为：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/102717419.png" alt="mark"></p>
+<p>那么， solution 就是</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/102757531.png" alt="mark"></p>
+</li>
+</ul>
+<h4 id="3-2-2-Regularized-ASEF-Average-of-Synthetic-Exact-Filters"><a href="#3-2-2-Regularized-ASEF-Average-of-Synthetic-Exact-Filters" class="headerlink" title="3.2.2 Regularized ASEF (Average of Synthetic Exact Filters)"></a>3.2.2 Regularized ASEF (Average of Synthetic Exact Filters)</h4><p>同 MOSSE 不同的是，ASEF 是 一次处理一个样本来求解公式（4）</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/103709455.png" alt="mark"></p>
+<p>然后再把公式（6）除出来的给累加起来求平均</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/103751880.png" alt="mark"></p>
+<p>所谓的 regularized ASEF 就是在公式（6）、（7）的分母上加了一个 regularization parameter $\epsilon$ 来防止分母接近于 0，有利于提供 stabilization。</p>
+<h3 id="3-3-Kernelized-Correlation-Filters"><a href="#3-3-Kernelized-Correlation-Filters" class="headerlink" title="3.3 Kernelized Correlation Filters"></a>3.3 Kernelized Correlation Filters</h3><ul>
+<li>是 ASEF 和 MOSSE 的成功激起了 correlation filter tracking 的成功，但 ASEF 和 MOSSE 的性能还是有限，因为本质上  <strong>ASEF and MOSSE ﬁlters can be viewed as simple linear classiﬁers.</strong></li>
+<li>KCF 的 Motivation 就是，taking advantage of kernel trick，使得 correlation filter 更加 powerful</li>
+<li><strong>Henriques （KCF 那篇 TPAMI 的作者）的贡献在于 提出  correlation ﬁlters 能够通过引入 Ridge Regression 和 circulant matrix 来被  be effectively kernelized</strong></li>
+</ul>
+<h4 id="3-3-1-Ridge-Regression-Problem"><a href="#3-3-1-Ridge-Regression-Problem" class="headerlink" title="3.3.1 Ridge Regression Problem"></a>3.3.1 Ridge Regression Problem</h4><p>虽然叫做 Kernelized Correlation Filters，但是 KCF 的贡献并不是说引入了 kernel trick，kernel trick 是很自然的事情，我觉得他的突破是将 原来两个图像块相关 得到另一个 同样大小的 confidence map 的问题，处理成了一个 Ridge Regression 问题，因为是 regression，一个样本最后当然只会有一个值，为了最后还是能够得到一个 矩阵的 confidence map，所以作者后面才要引入 circulant matrix</p>
+<p>regression，也就是 $f(x_i)=y_i$ ，KCF 采用 Regularized Least Squares (RLS)（也就是 Ridge Regression，脊回归） ，training problem 可以被写作：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/152942455.png" alt="mark"></p>
+<p>KCF 的 loss function 采用 quadratic loss，也就是</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/152233650.png" alt="mark"></p>
+<p>对于 function $f(x_i)$，KCF 用的是 linear operation $f(x_i) = <w, x_i=""> + b$</w,></p>
+<p>从而有，公式（8）的闭式解为：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/153242851.png" alt="mark"></p>
+<p>X 是 每行都是 一个 training sample 构成的 matrix</p>
+<p>引入 kernel function 来提升性能，把 input data x 引射到 non-linear-feature space $\psi(x)$ ，于是有</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/154330085.png" alt="mark"></p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/154342365.png" alt="mark"></p>
+<p>那么公式（8）的解，借助 kernel function</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/154502861.png" alt="mark"></p>
+<p>可以表示为：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/154606796.png" alt="mark"></p>
+<p>那么原来的线性函数 $f(x_i) = <w, x_i=""> + b$，就可以写成非线性的形式</w,></p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/155030318.png" alt="mark"></p>
+<h4 id="3-3-2-Circulant-Matrix"><a href="#3-3-2-Circulant-Matrix" class="headerlink" title="3.3.2 Circulant Matrix"></a>3.3.2 Circulant Matrix</h4><p>个人的理解是，为什么要用 Circulant Matrix 其实还是为了能够有足够的样本来支撑 kernel matrix，否则只有一个 sample 怎么弄呢？所以才要用 circulant</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/161607800.png" alt="mark"></p>
+<p>circulant matrix 有很多很好的性质，1）他们的 sum，product 和 inverse 都是 circulant 的，<strong>因此，公式（9）里面，除了最右边的 y 以外的部分也是 circulant 的。</strong>2）另外，一个 circulant matrix 可以 通过 base vector x 的 DFT 来实现<strong>对角化</strong> ，如下所示</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/161813701.png" alt="mark"></p>
+<p>F 是 DFT matrix。上面这两个性质配合，公式（9）就可以被简便地表示为</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/162250470.png" alt="mark"></p>
+<p>其更简便的频域的等价形式为</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/162423302.png" alt="mark"></p>
+<p>同理，$\alpha$ 也可以像公式（15）这样快速计算，只要其 kernel matrix K 是 circulant 的就行。那是不是 circulant 的呢？的确是的，这个在纸上写写马上就可以证明了。所以，另 k 为 the base vector of circulant matrix K，我们就有：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/163854606.png" alt="mark"></p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/163904577.png" alt="mark"></p>
+<p> kernel k is computed between $x$ and $x’$，上面我们讲的一直都是抽象的 kernel k，下面看下具体的 kernel k 的形式是怎么样的。</p>
+<h5 id="polynomial-kernel"><a href="#polynomial-kernel" class="headerlink" title="polynomial kernel"></a>polynomial kernel</h5><p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/165359975.png" alt="mark"></p>
+<p>上面这个公式是样本  $x$ and $x’$ 在 polynomial kernel spase 上的内积，是一个数值，具体到 KCF，新来的样本 $x’$ 与 circulant matrix X （移位而成的 n 个样本）在 polynomial kernel spase 上的内积向量可以表示为</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/165426743.png" alt="mark"></p>
+<h5 id="Gaussian-kernel"><a href="#Gaussian-kernel" class="headerlink" title="Gaussian kernel"></a>Gaussian kernel</h5><p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/165538197.png" alt="mark"></p>
+<p>同理，新来的样本 $x’$ 与 circulant matrix X （移位而成的 n 个样本）在 Gaussian kernel spase 上的内积向量可以表示为</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/165555398.png" alt="mark"></p>
+<h4 id="3-3-3-Detection"><a href="#3-3-3-Detection" class="headerlink" title="3.3.3 Detection"></a>3.3.3 Detection</h4><p>事实上，公式（10）只是一个 标量，如果把 n 个 $f(x_i)$ 堆叠起来变成一个 列向量，根据公式（10），可以变成 $y = K\alpha$。</p>
+<p>在检测阶段，我们已经有了一个训练好的 $\alpha$ 和一个在维护的 base sample $x$，给定一个新样本 $z$ ， a conﬁdence map y can be obtained by:</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/171036958.png" alt="mark"></p>
+<h3 id="3-4-Dense-Spatio-Temporal-Context-Tracker"><a href="#3-4-Dense-Spatio-Temporal-Context-Tracker" class="headerlink" title="3.4  Dense Spatio-Temporal Context Tracker"></a>3.4  Dense Spatio-Temporal Context Tracker</h3><h3 id="3-5-Updating-Scheme"><a href="#3-5-Updating-Scheme" class="headerlink" title="3.5 Updating Scheme"></a>3.5 Updating Scheme</h3><p>从上面的 training schemes 可以看出，每一帧都会产生一个 correlation filter，因此，在跟踪的时候，怎么结合当前和已有的 trained filter 对于构建一个 robust appearance model 非常重要。在 CFT 中，大部分都是 用 average 来 update 的，就是不同的 average 罢了。</p>
+<ul>
+<li>对于regularized ASEF</li>
+</ul>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/200246022.png" alt="mark"></p>
+<ul>
+<li>对于 MOSSE，是分别 average 公式（15）的 分子和分母</li>
+</ul>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/200601895.png" alt="mark"></p>
+<ul>
+<li><p>对于 KCF，则是通过在频域更新 $\alpha$ 来实现</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/201344716.png" alt="mark"></p>
+<p>其中，z 是从 currently predicted position 抽取出来的 new sample。</p>
+</li>
+</ul>
+<h2 id="4-Further-improvements"><a href="#4-Further-improvements" class="headerlink" title="4. Further improvements"></a>4. Further improvements</h2><p>提高 CFT 鲁棒性的努力主要集中在以下几个方面：</p>
+<ul>
+<li>representing features</li>
+<li>handling scale variations</li>
+<li>applying part-based strategy</li>
+<li>cooperating with long-term tracking</li>
+</ul>
+<h3 id="4-1-Feature-Representation"><a href="#4-1-Feature-Representation" class="headerlink" title="4.1 Feature Representation"></a>4.1 Feature Representation</h3><p>早期的 CFT，像是 MOSSE 和 CSK 都是用 raw pixels 的，noise 导致 performance 极度受限。</p>
+<p><strong>Apparently, features with multiple channels can be more representative and informative.</strong> 在 KCF 中，integrating multiple channel features 很方便，以 Gaussian kernel function 为例，如下形式：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/blog/20170408/210606578.png" alt="mark"></p>
+<p>c 是 channel 数， HOG 特征在 KCF 中运用非常成功。除了 HOG 外，还有 color names。</p>
+<h3 id="4-2-Handling-Scale-Variations"><a href="#4-2-Handling-Scale-Variations" class="headerlink" title="4.2 Handling Scale Variations"></a>4.2 Handling Scale Variations</h3><ul>
+<li>MOSSE 和 KCF 这样的 conventional CFT 都是采用的 fixed-size window，没法处理 目标大小变化。</li>
+<li>SAMF 和 DSST 采用了一种 searching strategy 来 估计目标尺度。每次，都会 采样不同大小的 window，然后跟 learned filter 做相关运算。 具有最高相关性的 窗口就会被采用。</li>
+</ul>
+<h3 id="4-3-Part-based-Tracking"><a href="#4-3-Part-based-Tracking" class="headerlink" title="4.3 Part-based Tracking"></a>4.3 Part-based Tracking</h3><p>part-based tracking algorithms 并不 learning a holistic appearance model，而只是 track the target by its local appearance。这样做的 motivation 是，如果目标被 partially occluded（被部分遮挡），its remaining visible parts can still represent the target and  thus the tracker is able to continue tracking.</p>
+<h3 id="4-4-Long-term-Tracking"><a href="#4-4-Long-term-Tracking" class="headerlink" title="4.4 Long-term Tracking"></a>4.4 Long-term Tracking</h3><p>除了被部分遮挡外，visual tracking 另外一个 vital challenge 是 the absence of the target，也就是 目标部分或者全部的从视野里消失了。对于这种情况，CFT 会很容易去跟踪其他非目标东西了，因为 CFT 算法设计的时候就没有包含 a long-term component，这个看 3.5 的 Updating Scheme 就一目了然了。As a consequence, introducing long-term tracking methods is believed to be favorable for improving correlation ﬁlter-based tracking methods. </p>
+<p>对于 long-term tracking，目前主要是两个思路：</p>
+<ul>
+<li>一个是 引入一个 re-detection module，一旦目标丢失，就重新 detect。（以 TLD 为代表）</li>
+<li>另一个是 conservatively learns the target appearance from reliable frames with a self-paced learning scheme. （以 MUSTer 为代表）</li>
+</ul>
+<h2 id="5-Experiments"><a href="#5-Experiments" class="headerlink" title="5. Experiments"></a>5. Experiments</h2><p>从实验结果看，MUSTer 是最 promising的。</p>
+</div></div><div class="post-main post-comment"></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>
