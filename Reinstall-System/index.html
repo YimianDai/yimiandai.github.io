@@ -1,0 +1,284 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>如无必要，请勿重装 | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Windows/">Windows</a></div><div class="post-time">2017-04-16</div></div></div><div class="container post-header"><h1>如无必要，请勿重装</h1></div><div class="container post-content"><p>前段时间看到一个叫 Black Bird 的系统优化软件限免，下载用了一下，给 C 盘清掉了 20 G 的东西。不过悲剧也就产生了，从此以后，我的电脑在内存 80% 的时候，就会频繁的报内存不足，无预兆的黑屏死机。。。没办法只能重新装机了，也趁机尝试下 Win 10。不过系统重装的时间成本是非常非常高的，这篇日志就是记录下重装的代价。</p>
+<a id="more"></a>
+<h2 id="重装的代价"><a href="#重装的代价" class="headerlink" title="重装的代价"></a>重装的代价</h2><h3 id="备份与同步"><a href="#备份与同步" class="headerlink" title="备份与同步"></a>备份与同步</h3><ul>
+<li>数据备份，再怎么强调都不为过，特别是代码、数据、论文这些命根子。</li>
+<li>但临时的数据迁移其实是很慢的，一个是体积往往很大，二是小文件很多，移动也慢。</li>
+<li>最好的方式就是，平时就<strong>实时备份</strong>：<ul>
+<li>代码、论文这些重要的东西，就用坚果云和移动硬盘共同备份；</li>
+<li>数据集、视频一些用移动硬盘备份</li>
+</ul>
+</li>
+<li>坚果云上不适合放太大的文件，否则同步恢复很慢，毕竟我们希望重装好后就能立刻能用，而且免费版的话，每个月的下载流量就只有 3 个 G 而已。。</li>
+<li>最后重装好系统后，就只要用坚果云把代码、论文同步恢复就好。</li>
+</ul>
+<h3 id="系统烧制"><a href="#系统烧制" class="headerlink" title="系统烧制"></a>系统烧制</h3><ul>
+<li>UltraISO 呗，记得是选择<strong>启动</strong>的<strong>第四个</strong>选项：<strong>写入硬盘映像</strong>，我老搞不清是第三个还是第四个。。。</li>
+</ul>
+<h3 id="安装软件列表"><a href="#安装软件列表" class="headerlink" title="安装软件列表"></a>安装软件列表</h3><p>重装一次电脑，最少最少要安装下面这些软件，想想就很耗时。</p>
+<ul>
+<li>驱动精灵（万能网卡版）<ul>
+<li>刚重装完系统，很多驱动都不全，典型的特征就是画质很低劣，如果有两个屏幕的话，还没有扩展选项，安装下显卡驱动就可以了。</li>
+<li>在有的电脑上，还会出现没法上网的情况，原因没有网卡驱动。为此，最好在重装前就准备好万能网卡版的驱动精灵。</li>
+</ul>
+</li>
+<li>.Net Framwork<ul>
+<li>安装 .Net Framwork 是因为 Shadowsocks 依赖。</li>
+<li>不是最新版的有离线安装包，否则就只能忍受缓慢的在线安装了。</li>
+</ul>
+</li>
+<li>Process Lasso<ul>
+<li>老电脑福音，不解释。</li>
+</ul>
+</li>
+<li><del>f.lux</del><ul>
+<li><del>Win 10 升级到最新版 Creator Update，自带夜灯功能，可以把 f.lux 给卸载了。</del></li>
+</ul>
+</li>
+<li>坚果云<ul>
+<li>云同步，由于容量有限，所以我只拿来同步代码和一些重要的文件。</li>
+<li>重装系统后，除了安装必要的软件，只要让坚果云的同步完毕就可以了。</li>
+</ul>
+</li>
+<li>BandiZip<ul>
+<li>个人认为最好且颜值最高的压缩软件，而且免费。</li>
+</ul>
+</li>
+<li>Ad Muncher<ul>
+<li>去广告，已经免费了，不要用号称去广告但自己还老是弹窗的 ADSafe。</li>
+</ul>
+</li>
+<li><del>Dameon Tools Lite</del><ul>
+<li><del>虚拟光驱，后面装 MATLAB、Office 等大型软件要用到</del></li>
+<li><del>Win 10 支持直接打开 iso，不需要装了</del></li>
+</ul>
+</li>
+<li>Everything<ul>
+<li>本地搜索神器，我基本就用 Everything 来代替去打开特定路径找文件的方式了。</li>
+</ul>
+</li>
+<li>Chrome<ul>
+<li>不解释</li>
+</ul>
+</li>
+<li>Internet Download Manager<ul>
+<li>下载神器，不解释</li>
+</ul>
+</li>
+<li>Sublime Text 3<ul>
+<li>最爱的编辑器，不用 Atom 是因为老电脑拖不动</li>
+</ul>
+</li>
+<li>Typora<ul>
+<li>最爱的 Markdown 编辑器，比 Windows 上好多收费的编辑器都要好太多了</li>
+<li>支持 LaTeX</li>
+<li>Typora + 图床神器（Windows: MPic, OSX: iPic）是目前最佳的做笔记体验了</li>
+</ul>
+</li>
+<li>Office 2016</li>
+<li>PDF Xchange-Viewer<ul>
+<li>目前只习惯在 PDF Xchange-Viewer 上看 PDF 了</li>
+<li>背景豆绿色：编辑 -&gt; 参数设置 -&gt; 访问 -&gt; 勾选“忽略文档颜色” -&gt; 使用自定义颜色主题 -&gt; 页面背景，添加 RGB 为 (193, 230, 198) 的新颜色，并将其设为背景颜色</li>
+</ul>
+</li>
+<li>Snipaste<ul>
+<li>截图软件，F1 热键截图可以截一般不太好截图的弹出窗口</li>
+<li>贴在屏幕上（Ctrl + T）这个功能特别好，尤其是看论文的时候，可以把同一个文档不同页的内容截图后同时展示在屏幕上，省得老是滚轮滚来滚去，推导公式的时候很有帮助。</li>
+</ul>
+</li>
+<li>MATLAB 2016b</li>
+<li>Anaconda <ul>
+<li><a href="https://zhuanlan.zhihu.com/p/25198543" target="_blank" rel="noopener">最省心的 Python 版本和第三方库管理</a></li>
+<li>Anaconda 的版本分为 Anaconda2 和 Anaconda3，无脑选 Anaconda3</li>
+<li>官网下载很慢，正确的姿势是从国内<a href="http://link.zhihu.com/?target=https%3A//mirrors.tuna.tsinghua.edu.cn/anaconda/archive/" target="_blank" rel="noopener">清华大学开源软件镜像站</a>进行下载并配置镜像</li>
+<li>Anaconda 安装路径不要出现空格，否则后面坑的不知东南西北，我是在 D 盘下有一个 APP 文件夹，里面放着 Anaconda 以及 Shadowsocks 等绿色软件。</li>
+</ul>
+</li>
+<li>TeXLive 2016<ul>
+<li>选择 TeXLive， 选择简单的人生</li>
+<li>目前 arXiv 的 LaTeX 编译系统也是用的 TeXLive</li>
+<li>对同一个 tex 文件，TeXLive 和 MiKTeX 编译出来是会不一样的，还是以 TeXLive 为准吧。</li>
+</ul>
+</li>
+<li>Sumatra PDF<ul>
+<li>Sublime Text 3 + TeXLive + Sumatra PDF，绝佳的 LaTeX 生产环境</li>
+</ul>
+</li>
+<li>TIM<ul>
+<li>腾讯官方出的清爽版 QQ，PC 和 手机端都有，带你远离那些无关推送和垃圾信息。</li>
+</ul>
+</li>
+<li>YoMail <ul>
+<li>收发邮件，特别是 Gmail</li>
+</ul>
+</li>
+<li>微信电脑版</li>
+<li>Java Runtime Environment<ul>
+<li>JabRef 依赖 JRE</li>
+</ul>
+</li>
+<li>JabRef<ul>
+<li>管理参考文献的 bib</li>
+</ul>
+</li>
+<li>Endnote X8<ul>
+<li>不得不用 Word 写东西时候用的</li>
+</ul>
+</li>
+<li>Node.js<ul>
+<li>hexo 依赖 Node.js</li>
+</ul>
+</li>
+<li>Git<ul>
+<li>虽然 full version 的 cmder 自带 git，但有几处操作必须要在官方版 Git Bash 上弄</li>
+</ul>
+</li>
+<li>IrfanView<ul>
+<li>看图片用的，可以一直固定大小浏览整个文件夹</li>
+</ul>
+</li>
+<li>Always Sync<ul>
+<li>将 PC 上的同步到移动硬盘。</li>
+<li>除了同步坚果云要同步的那些外，还有同步一些体积大点的数据集、视频。</li>
+<li>替代品还有：免费的 FreeFileSync，时有限免的 EaseUS EverySync。</li>
+</ul>
+</li>
+<li>Bulk Rename Unitlity<ul>
+<li>批量重命名，我一般都是拿来给图片重命名的。</li>
+</ul>
+</li>
+<li>Unlocker<ul>
+<li>解除文件占用，或者删除一些系统无法删除的文件夹。</li>
+</ul>
+</li>
+<li>PotPlayer<ul>
+<li>最好的视频播放器，可以调整播放速度，看公开课的最好搭配。</li>
+</ul>
+</li>
+</ul>
+<h3 id="绿色软件列表"><a href="#绿色软件列表" class="headerlink" title="绿色软件列表"></a>绿色软件列表</h3><ul>
+<li>Shadowsocks<ul>
+<li>有了这个才能用 Google。</li>
+<li>跟 <code>Shadowsocks.exe</code> 一起的 <code>statistics-config.json</code> 和 <code>gui-config.json</code> 是两个配置文件，保留这两个文件，可以省去版本更新后重新输入账号密码的麻烦。</li>
+</ul>
+</li>
+<li>MPic<ul>
+<li>图床神器，用 Markdown 做笔记、写博客的时候很爽。</li>
+</ul>
+</li>
+<li>ScreenToGif<ul>
+<li>录屏，变成 Gif，有时给别人演示操作的时候挺有用的。</li>
+</ul>
+</li>
+<li><a href="https://technet.microsoft.com/en-us/sysinternals/bb963902" target="_blank" rel="noopener">Autoruns</a><ul>
+<li>微软的 <a href="https://technet.microsoft.com/en-us/sysinternals/bb842062" target="_blank" rel="noopener">Sysinternals 系统管理工具包</a> 中的工具，用来管理开机自启动的程序。</li>
+<li>从 <a href="https://www.zhihu.com/question/52157612/answer/153886419" target="_blank" rel="noopener">最良心的软件可以良心到什么程度？ Kenny 的回答</a> 中得知。</li>
+</ul>
+</li>
+<li>Geek Uninstaller<ul>
+<li>卸载软件用的，清理残留。</li>
+</ul>
+</li>
+<li>cmder<ul>
+<li>Windows 上最好的终端了，放在 Github 的 Amazon 云上，被墙了，下起来有点困难，下载完后记得备份。</li>
+</ul>
+</li>
+<li>Monaco、微软雅黑Monaco<ul>
+<li>习惯了的字体</li>
+</ul>
+</li>
+</ul>
+<h3 id="可能还需要"><a href="#可能还需要" class="headerlink" title="可能还需要"></a>可能还需要</h3><ul>
+<li>Bash on Ubuntu on Windows<ul>
+<li>在 Win 10 周年更新里，微软竟然加入了 native Bash and GNU/Linux command-line tools，amazing！</li>
+<li>根据官方文档 <a href="https://blogs.msdn.microsoft.com/commandline/2016/04/06/bash-on-ubuntu-on-windows-download-now-3/" target="_blank" rel="noopener">Bash on Ubuntu on Windows – Download Now!</a> 安装 Bash on Windows 的步骤如下： </li>
+<li>第一步是先是系统更新到最新，至少升级到 Build 14316，就我现在写的时候 Creator Update 也已经出来了。</li>
+<li>Settings（设置） &gt; Update &amp; security（更新和安全）&gt; For developers（针对开发人员），打开 Developer Mode（开发人员模式），如果安装很慢或者出错，Shadowsocks 开全局代理</li>
+<li>打开 cmd，输入 bash，会提示安装。</li>
+<li>安装完后，在中文系统下，默认的快捷方式扩展名是不对的，在 <code>C:\Users\yourname\AppData\Roaming\Microsoft\Windows\Start Menu\Programs</code> 下找到对应的快捷方式，重命名成 <code>Bash on Ubuntu on Windows.lnk</code>.<ul>
+<li>记得先要在资源管理器的 <strong>查看</strong> 中勾选 <strong>文件扩展名</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Visual Studio</li>
+<li>维棠<ul>
+<li>IDM 抓取不了的时候可以用下维棠</li>
+</ul>
+</li>
+<li>硕鼠<ul>
+<li>维棠不能批量解析下载，这时候就需要上硕鼠了</li>
+<li>不过问题是，公开课视频不能看一集下一集么？全下下来又不看，有啥意思。。。</li>
+</ul>
+</li>
+<li>WinSCP<ul>
+<li>用 FTP 协议访问远程 VPS</li>
+</ul>
+</li>
+<li>Acrobat<ul>
+<li>或者类似 Acrobat 的软件，比如 Soda PDF Editor、VivPDF Editor，通常这些软件都要收费，可以关注或者订阅下 <a href="http://free.apprcn.com/" target="_blank" rel="noopener">反斗限免</a>，时常会有这类软件的限免活动</li>
+<li>除了直接 PDF 文字编辑以外的一些功能，比如 extract image，可以用在线的 <a href="https://smallpdf.com/cn" target="_blank" rel="noopener">Smallpdf</a> 搞定。</li>
+</ul>
+</li>
+<li>CAJViewer<ul>
+<li>知网的学位论文只能拿这个看，其实也几乎不看，毕竟 Top 期刊上的论文都看不过来。。。</li>
+</ul>
+</li>
+<li>klatexformula<ul>
+<li>LaTeX 公式输出透明图片的，其实也基本用不上，我宁可在 tex 中敲好公式然后截图的，这样用什么宏包我自己能说了算。</li>
+</ul>
+</li>
+</ul>
+<h3 id="配置列表"><a href="#配置列表" class="headerlink" title="配置列表"></a>配置列表</h3><p>以为装好软件万事大吉了么，还有好多软件需要配置才能用呢，简单罗列几个。</p>
+<ul>
+<li>Hexo 部署配置<ul>
+<li>GitHub 或者 coding.net 的 SSH key</li>
+<li>hexo 部署 的时候出现 Host key verification failed. 一般是忘了 <code>ssh -T git@github.com</code> 这一步，弄过后，马上就好了</li>
+</ul>
+</li>
+<li>Sublime Text 3 <ul>
+<li>安装插件：LaTeXTools、</li>
+<li>color_scheme、font_face、font_size、spell_check</li>
+</ul>
+</li>
+<li>LaTeXTools 配置<ul>
+<li>Sublime Text 3 + TeXLive + Sumatr PDF </li>
+</ul>
+</li>
+<li>Typora 配置<ul>
+<li>font-size，font-family</li>
+</ul>
+</li>
+<li>MATLAB<ul>
+<li>配色方案，替换 matlab.prf、font_face、font_size</li>
+</ul>
+</li>
+<li>PDF Xchange-Viewer<ul>
+<li>背景豆绿色</li>
+</ul>
+</li>
+<li>Endnote 的 citation style 的设置</li>
+<li>Visual Studio OpenCV 设置</li>
+</ul>
+<h2 id="反思"><a href="#反思" class="headerlink" title="反思"></a>反思</h2><ul>
+<li>不要装那些优化软件，越优化越糟糕。而且最新版的 Win 10 已经自带了垃圾清理功能，在设置-&gt;系统-&gt;存储-&gt;存储感知 中开启。</li>
+<li>做好平时的实时同步和备份工作，这样有问题了就可以立刻重装，没必要再花额外（通常很长）的时间做备份。</li>
+<li>大型且版本更新不是很快的软件安装包平时就放在移动硬盘里准备好，免得临时再找也非常费时间。</li>
+<li>优先考虑绿色软件。</li>
+</ul>
+<p>其实，写到这里，又觉得自己写的没有任何意义，在 Windows 下，谁没事会老重装系统。只有刚开始使用 Linux 的，才会一个又一个地不停尝试各种发行版，就跟本科时候的我一样，白白浪费大好的时光。总而言之，操作系统也好、编程语言也罢，乃至各种算法，都只是工具而已，关键是要利用这些工具做出点东西来，形成自己的核心竞争力。</p>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Reinstall-System/';
+var disqus_title = '如无必要，请勿重装';
+var disqus_url = 'http://lowrank.science/Reinstall-System/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>

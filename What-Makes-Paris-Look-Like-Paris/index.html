@@ -1,0 +1,132 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on 2012-SIGGRAPH-What makes Paris look like Paris? | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-23</div></div></div><div class="container post-header"><h1>Notes on 2012-SIGGRAPH-What makes Paris look like Paris?</h1></div><div class="container post-content"><p>这篇文章是 <a href="https://people.eecs.berkeley.edu/~efros/" target="_blank" rel="noopener">Alexei Efros</a> 在 <em>SIGGRAPH 2012</em> 上的论文，后来又在 <em>Communications of the ACM</em> 上重新发表了。不少 Weakly Supervised Learning 的文章里都提到了的这篇文章，因为现在我们用数码相机拍照的时候，EXIF 信息记录了照片在哪里拍的，是一个非常现成的 annotation，这篇文章就是用了 location 这个 label，做了很有意思的工作。</p>
+<h2 id="1-Problem-amp-Aim"><a href="#1-Problem-amp-Aim" class="headerlink" title="1. Problem &amp; Aim"></a>1. Problem &amp; Aim</h2><ol>
+<li>geotags are also used as a supervisory signal to <strong>find sets of image features discriminative for a particular place</strong>. 找每个地方的 discriminative visual word</li>
+<li>ultimate goal 是 to provide a stylistic narrative for a visual experience of a place.</li>
+<li>本文工作可以 support a variety of computational geography tasks 的基础性工作，作者把本文工作叫做 computational geo-cultural modeling，Geo-cultural 很有意思</li>
+</ol>
+<h2 id="2-Application-amp-Backgound"><a href="#2-Application-amp-Backgound" class="headerlink" title="2. Application &amp; Backgound"></a>2. Application &amp; Backgound</h2><h3 id="2-1-Mapping-Patterns-of-Visual-Elements"><a href="#2-1-Mapping-Patterns-of-Visual-Elements" class="headerlink" title="2.1 Mapping Patterns of Visual Elements"></a>2.1 Mapping Patterns of Visual Elements</h3><p>把特定的 visual elements 出现的地方在地图上用点的形式标注出来，可以分析特定的 architectural patterns 是怎么分布的，有一点知识发现的味道</p>
+<h3 id="2-2-finding-representative-elements-at-different-geo-spatial-scales"><a href="#2-2-finding-representative-elements-at-different-geo-spatial-scales" class="headerlink" title="2.2 finding representative elements at different geo-spatial scales"></a>2.2 finding representative elements at different geo-spatial scales</h3><p>在不同尺度（从大陆到区县）上找寻区域内的特色的地方，可以分析不同区域的异同</p>
+<h3 id="2-3-Visual-Correspondences-Across-Cities"><a href="#2-3-Visual-Correspondences-Across-Cities" class="headerlink" title="2.3 Visual Correspondences Across Cities"></a>2.3 Visual Correspondences Across Cities</h3><p>给定 a set of architectural elements (windows, balconies, etc.) discovered for a particular city，找出 what these same elements might look like in other cities.</p>
+<h3 id="2-4-Geographically-informed-Image-Retrieval"><a href="#2-4-Geographically-informed-Image-Retrieval" class="headerlink" title="2.4 Geographically-informed Image Retrieval"></a>2.4 Geographically-informed Image Retrieval</h3><ul>
+<li>给定一个城市的图片（注意，不是 architectural elements），找寻另一个城市类似的图片</li>
+<li>Visual Correspondences Across Cities 和 Geographically-informed Image Retrieval 有什么区别？<ul>
+<li>前者是 visual element，后者是 image，前者是后者的基础</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-Challenges"><a href="#3-Challenges" class="headerlink" title="3. Challenges"></a>3. Challenges</h2><p>因为难，才可以体现出作者工作在智力上的闪光点</p>
+<ol>
+<li>the visual features distinguishing architectural elements of different places can be very subtle. 差异非常小，其实是个 fine-grained问题</li>
+<li>the overwhelming majority of our data is uninteresting, so matching the occurrences of the rare interesting elements is like finding a few needles in a haystack. 怎么不漏过真正想要的，又能减少无用的计算量；如果从找出是否是感兴趣patch的角度来说，其实是个二分类问题，而且是极不平衡的二分类，更像是 聚类，不平衡的聚类</li>
+</ol>
+<p>有意思的是，这个问题对人来说其实很简单，人类具有 geographically sensitive：people are remarkably sensitive to the geographically-informative features within the visual environment. But what are those features? 按照作者的理解，是人类对一些 a few localized, distinctive elements “immediately gave it away”. 敏感，本文的目的就是要找出这些 localized, distinctive elements</p>
+<h2 id="4-Prior-work"><a href="#4-Prior-work" class="headerlink" title="4. Prior work"></a>4. Prior work</h2><h3 id="4-1-unsupervised-method"><a href="#4-1-unsupervised-method" class="headerlink" title="4.1 unsupervised method"></a>4.1 unsupervised method</h3><ul>
+<li>attempt to explicitly discover features or objects which occur frequently in many images and are also useful as human-interpretable elements of visual representation </li>
+<li>但由于是 unsupervised 的，these methods are limited to only discovering things that are both very common and highly visually consistent. 这也容易理解，因为是无监督，没有 label，就没法判别也就没法区分，那么唯一能做的就是找那些出现次数更多的element</li>
+</ul>
+<h3 id="4-2-Two-stage-method"><a href="#4-2-Two-stage-method" class="headerlink" title="4.2 Two-stage method"></a>4.2 Two-stage method</h3><h4 id="4-2-1-Method-description"><a href="#4-2-1-Method-description" class="headerlink" title="4.2.1 Method description"></a>4.2.1 Method description</h4><p>One possible way to attack this problem would be to first discover repeated elements and then simply pick the ones which are the most geographically discriminative. </p>
+<ol>
+<li>分两步走，既然两个要求，那就先达成一个要求，然后再筛选出满足第二个要求的。</li>
+<li>A standard technique for finding repeated patterns in data is clustering.</li>
+<li>这个方法两个阶段，第一阶段 unsupervised，第二阶段有监督信息</li>
+</ol>
+<h4 id="4-2-2-Deficits"><a href="#4-2-2-Deficits" class="headerlink" title="4.2.2 Deficits"></a>4.2.2 Deficits</h4><ol>
+<li>在聚类的过程中是没有 监督信息的，也就是只能只能是底层特征（SIFT），完全的 bottom-to-up，不包含语义，Unfortunately, standard visual words tend to be dominated by low-level features, like edges and corners (Figure 2a), not the larger visual structures we are hoping to find. 还是基于特征点的，本文还是要找大一点的结构</li>
+<li>try clustering using larger image patches (with a higher-dimensional feature descriptor, such as HOG 也不能解决问题<ul>
+<li>首先更大的块就有语义了嘛? HOG 的话，应该能抓形状特征，算是吧</li>
+<li>但是聚类的话，K-Means 对于高维情况表现很糟糕，k-means behaves poorly in very high dimensions because the distance metric becomes less meaningful, producing visually inhomogeneous clusters (Figure 2b). </li>
+<li>高维糟糕，是因为K-Means作为GMM的极端情况，其实是假设了特征的每一维都是独立的（联合高斯，协方差矩阵是对角矩阵，而对于高斯来说，线性无关就是独立），而实际在HOG这样的高维特征中，不可能每一维彼此之间都是独立的</li>
+</ul>
+</li>
+</ol>
+<h3 id="4-3-Discriminative-clustering-method"><a href="#4-3-Discriminative-clustering-method" class="headerlink" title="4.3 Discriminative clustering method"></a>4.3 Discriminative clustering method</h3><h4 id="4-3-1-Method-description"><a href="#4-3-1-Method-description" class="headerlink" title="4.3.1 Method description"></a>4.3.1 Method description</h4><p>An alternative approach is to use the geographic information as part of the clustering, extracting elements that are both repeated and discriminative at the same time. </p>
+<ol>
+<li>重复出现和判别性一起做，这种思路看着就很很可行了啊</li>
+</ol>
+<h4 id="4-3-2-Deficits"><a href="#4-3-2-Deficits" class="headerlink" title="4.3.2 Deficits"></a>4.3.2 Deficits</h4><p>作者说效果不行，either produce inhomogeneous clusters or focus too much on the most common visual features. </p>
+<ul>
+<li>不知道为啥作者觉得 produce inhomogeneous clusters 不好，本来有判别性的比例就很小，不均衡的簇不正常么；</li>
+<li>对于第二点 focus too much on the most common visual features 这就要看你有没有在过程中告诉算法那些在所有城市中都反复出现的 visual element 并不是想要的了，如果没有告诉，那肯定会出现这样的啊<ul>
+<li>果然是的，作者也说了 because such approaches include at least one step that partitions the entire feature space. This tends to lose the needles in our haystack: the rare discriminative elements get mixed with, and overwhelmed by, less interesting patches, making it unlikely that a distinctive element could ever emerge as its own cluster. </li>
+<li>但感觉作者的这个解释没啥说服力啊，本来就是 needle vs haystack，本来就是 overwhelmed 的啊</li>
+<li>所以到底什么是 partitioning the entire feature space into clusters. 意思是根本不想让不想要的 patch 参与到 clustering 来？应该是的  </li>
+</ul>
+</li>
+</ul>
+<h2 id="5-Data"><a href="#5-Data" class="headerlink" title="5. Data"></a>5. Data</h2><ul>
+<li>12 个城市，每个城市 1 万张图像，大小都是936x537 pixels，视角就是车两侧摄像头正对着沿街建筑的两个视角，一侧一个</li>
+<li>用 Google Street View 而不是 Flickr 的原因在于 Flickr and other consumer photo-sharing websites for geographical tasks is that there is a strong data bias towards famous landmarks. <ul>
+<li>这点还是有启发性的，以后自己收集数据建立数据集的时候也要当心</li>
+</ul>
+</li>
+<li>数据集分为 正类（当前城市）和负类（其余城市）两类，这么划分应该是为了后面的 SVM 吧。这么划分背后其实是有 <strong>underlying assumption</strong> 的<ul>
+<li><em>assume that many frequently occurring but uninteresting visual patterns (trees, cars, sky, etc.) will occur in both the positive and negative sets, and should be filtered out.</em> </li>
+<li>哈哈，其实也不一定，tree 和 car 很可能也有很强的地区风格，热带 tree 啊，老美喜欢开皮卡啊什么的 </li>
+</ul>
+</li>
+</ul>
+<h2 id="6-Model"><a href="#6-Model" class="headerlink" title="6. Model"></a>6. Model</h2><h3 id="6-1-想要的-visual-element-要具有的特点"><a href="#6-1-想要的-visual-element-要具有的特点" class="headerlink" title="6.1 想要的 visual element 要具有的特点"></a>6.1 想要的 visual element 要具有的特点</h3><ol>
+<li>frequently occurring, 要在图像中反复出现</li>
+<li>geographically discriminative<ul>
+<li>在一个地方出现多余其他地方（这种方式来刻画判别性是在弱监督中常见的）</li>
+</ul>
+</li>
+<li>explanatory / typically look meaningful for humans 人容易理解<ul>
+<li>这也是为什么不采用 GIST 这种 global descriptor 的原因，因为 the use of global descriptors makes it hard for a human to interpret why a given image gets assigned to a certain location.</li>
+</ul>
+</li>
+</ol>
+<h3 id="6-2-如何形式化地刻画具有上述特点的-visual-element？"><a href="#6-2-如何形式化地刻画具有上述特点的-visual-element？" class="headerlink" title="6.2 如何形式化地刻画具有上述特点的 visual element？"></a>6.2 如何形式化地刻画具有上述特点的 visual element？</h3><p>通过在 the full dataset (both positive and negative) 里面找 candidate patch 的 top 20 nearest neighbor，measured by normalized correlation，通过这些最近邻块</p>
+<h4 id="6-2-1-刻画-geographically-discriminative"><a href="#6-2-1-刻画-geographically-discriminative" class="headerlink" title="6.2.1 刻画 geographically discriminative"></a>6.2.1 刻画 geographically discriminative</h4><p>Patches portraying non-discriminative elements tend to match similar elements in both positive and negative set</p>
+<h4 id="6-2-2-刻画-frequently-occurring"><a href="#6-2-2-刻画-frequently-occurring" class="headerlink" title="6.2.2 刻画 frequently occurring"></a>6.2.2 刻画 frequently occurring</h4><p>patches portraying a non-repeating element will have more-or-less random matches, also in both sets.</p>
+<h4 id="6-2-3-剔除冗余"><a href="#6-2-3-剔除冗余" class="headerlink" title="6.2.3 剔除冗余"></a>6.2.3 剔除冗余</h4><p>同时为了防止找的都是 本质上同一个 geo-informative visual element，rejecting near-duplicate patches (measured by spatial overlap of more than 30% between any 5 of their top 50 nearest neighbors). 在他们的前五十个最近的邻居中的任何五个之间的空间重叠超过 30％</p>
+<h3 id="6-3-作者最后采用的思路"><a href="#6-3-作者最后采用的思路" class="headerlink" title="6.3 作者最后采用的思路"></a>6.3 作者最后采用的思路</h3><p>指导原则 avoid partitioning the entire feature space into clusters</p>
+<ol>
+<li><strong>Step 1:</strong> start with a large number of randomly sampled candidate patches</li>
+<li><strong>Step 2:</strong> then give each candidate a chance to see if it can converge to a cluster that is both frequent and discriminative. <ul>
+<li>需要注意的是，clustering 来仅仅通过距离度量来判断相近从而推导出的判别性是不可靠的，聚类出来的东西也许相像，但不一定有 geo-discriminative，这是因为 a standard distance metric, such as normalized correlation, does not capture what the important parts are within an image patch, and instead treats all pixels equally. 说白了还是没有语义</li>
+<li>这也就是为什么作者还要做下一步 discriminative learning 的原因，因为这样可以利用 label 啊，哪怕是 weak lable，也可以有正负类的监督信息，所以 learning 是把 label 也就是语义信息放进去的一种手段，这个思路跟 GAN 就很像了啊</li>
+</ul>
+</li>
+<li><strong>Step 3:</strong> 对于那些被认为是both frequent and discriminative，也就是 surviving 下来的 candidate patches，gradually build clusters by applying iterative discriminative learning to each surviving candidate.<ul>
+<li>train an SVM detector for each visual element, using the top k nearest neighbors from the positive set as positive examples, and all negative-set patches as negative examples.</li>
+<li>iterate the SVM learning, using the top k detections from previous round as positives 意思是说 SVM 的输出能够有个 ranking，才能找出 top k 吧，好像也可以哦，就是带入看值的大小呗，数值越大距离分类面越远说明越好吧<ul>
+<li>之所以要 iterative，背后的 assumption是 with each round, the top detections will become better and better, resulting in a continuously improving detector.</li>
+<li>Iterative training 的时候，技巧性的是 dividing both the positive and the negative parts of the dataset into l equally-sized subsets (we set l = 3 for all experiments). At each iteration of the training, we apply the detectors trained on the previous round to a new, unseen subset of data to select the top k detections for retraining. 在上一轮迭代好之后，会有一个分类器（detector），在新的training set 上打分，k个得分最高的就作为 这一轮训练的 positive sample</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>最后放上我乱七八糟的思维导图<br><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-2012-SIGGRAPH -What makes Paris look like Paris.png" alt="2012-SIGGRAPH -What makes Paris look like Paris"></p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'What-Makes-Paris-Look-Like-Paris/';
+var disqus_title = 'Notes on 2012-SIGGRAPH-What makes Paris look like Paris?';
+var disqus_url = 'http://lowrank.science/What-Makes-Paris-Look-Like-Paris/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>

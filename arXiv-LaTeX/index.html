@@ -1,0 +1,36 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>LaTeX Tips for arXiv | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/LaTeX/">LaTeX</a></div><div class="post-time">2017-03-28</div></div></div><div class="container post-header"><h1>LaTeX Tips for arXiv</h1></div><div class="container post-content"><p>如果有人告诉你 arXiv 上传 LaTeX 特别麻烦，所有参考文献都要放在 tex 文件里，图片都要跟 tex 放在同一层目录下，你千万不要相信，事实上非常简单。 </p>
+<a id="more"></a>
+<h3 id="上传"><a href="#上传" class="headerlink" title="上传"></a>上传</h3><p>arXiv 支持所有东西一整个 zip 压缩包上传，上传后会自动解压，所以只需要把图片、bbl、tex 文件按如下方式组织即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── manuscript.tex</span><br><span class="line">├── ref.bbl</span><br><span class="line">├── figure</span><br><span class="line">|   └── subfold1</span><br><span class="line">|   └── subfold2</span><br></pre></td></tr></table></figure>
+<p>注意，是 bbl 文件，不是 bib 文件，arXiv 不支持编译 bib，所以要上传本地编译好的 bbl 文件。</p>
+<h3 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h3><p>上传完 tex 和相关文件后，下一步便是编译，可以下载编译完成的 PDF。需要仔细核对下生成的 PDF，如果你跟我一样是马大哈，可能会发现所有的参考文献都是 ？？。仔细看下面的编译信息，给出的是 latex ‘manuscript.tex’ failed.</p>
+<p>慢着，说好的不应该是 pdflatex 么，怎么变成 latex 编译了。原来 arXiv 默认的是采用 latex，根据 <a href="https://arxiv.org/help/submit_tex" target="_blank" rel="noopener">https://arxiv.org/help/submit_tex</a> 里面提到的，如果想要采用 pdflatex，需要在 tex 文件的前五行加入 <code>\pdfoutput=1</code>。 重新上传编译后就会发现参考文献的引用都对了。</p>
+<p>还有需要提到的一点是，arXiv 目前是采用 TeX Live 2016 来编译。考虑到论文经常会遇到同样的 tex 代码在 MiKTeX 和 TeX Live 编译出来效果不一样的现象，所以这又是一个为什么要用 TeX Live 2016 的原因了。</p>
+<h3 id="cleveref"><a href="#cleveref" class="headerlink" title="cleveref"></a>cleveref</h3><p>虽然把参考文献的引用搞定了，但我还是遇到了所有用 <code>cleveref</code> 宏包 <code>\cref</code> 命令的引用（公式、图表）全部都还是？？。根据<a href="http://tex.stackexchange.com/questions/276801/how-does-one-use-cleveref-in-an-arxiv-submission" target="_blank" rel="noopener">http://tex.stackexchange.com/questions/276801/how-does-one-use-cleveref-in-an-arxiv-submission</a>，原来问题出在 <code>cleveref</code> 必须在 <code>hyperref</code>之后 load。为了贴近发表后的效果，我是没有用 <code>hyperref</code> 宏包，但 arXiv 的编译系统会自动添加 <code>hyperref</code> 宏包，这也就是为什么每篇 arXiv 论文都用红色和绿色引用方框的原因了。</p>
+<p>避免出现 <code>\cref</code> 引用 ？？ 的解决办法是自己在 <code>cleveref</code> 之前 load <code>hyperref</code>，也就是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\usepackage&#123;hyperref&#125;</span><br><span class="line">\usepackage&#123;cleveref&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Check-List"><a href="#Check-List" class="headerlink" title="Check List"></a>Check List</h3><p>综上所述，把论文从期刊投稿版本变成 arXiv 版本只需要在上传 check 一下下面三件事：</p>
+<ul>
+<li>在前 5 行 添加 <code>\pdfoutput=1</code></li>
+<li>显式在 <code>cleveref</code> 之前调用 <code>hyperref</code></li>
+<li>参考文献 bib 文件的路径正确</li>
+</ul>
+<h2 id="Change-Log"><a href="#Change-Log" class="headerlink" title="Change Log"></a>Change Log</h2><ul>
+<li>2017-03-28: 第一次提交。</li>
+</ul>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'arXiv-LaTeX/';
+var disqus_title = 'LaTeX Tips for arXiv';
+var disqus_url = 'http://lowrank.science/arXiv-LaTeX/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script></body></html>
