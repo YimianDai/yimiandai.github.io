@@ -1,0 +1,203 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR-2015-Is object localization for free? | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-25</div></div></div><div class="container post-header"><h1>Notes on CVPR-2015-Is object localization for free?</h1></div><div class="container post-content"><p>这篇文章是 CVPR 2015 的，如果不是第一篇，也是很早的一篇，用卷积神经网络来做 Weakly Supervised Object Localization 的，后续的工作或多或少都有受其影响。如果想要了解下当前弱监督目标检测的工作，这篇论文还是有必要读的。另外这篇论文正儿八经地讨论了 Does adding object-level supervision help classification? 和 Does adding object-level supervision help location prediction 这两个问题，算是对我对于弱监督目标检测的认识做了某种程度上的“怯魅”，因为我一开始接触到弱监督有某种奇幻、无中生有的感觉，很神奇。</p>
+<h2 id="1-Problem-amp-Aim"><a href="#1-Problem-amp-Aim" class="headerlink" title="1. Problem &amp; Aim"></a>1. Problem &amp; Aim</h2><p>简而言之，本文的目的就是 Weakly Supervised Object Localization 咯，也就是</p>
+<ol>
+<li>predicting accurate image-level labels indicating the presence/absence of objects <ul>
+<li>这一目标其实并不是弱监督，因为输入输出都是图像含有什么物体，一样的</li>
+</ul>
+</li>
+<li>predict the approximate location (in the form of a x, y position) of objects in the scene, but not their extent (bounding box). <ul>
+<li>这个目标才是本文之所以是弱监督的原因所在</li>
+<li>这个 approximate location 其实就是 scene and object 的 distinctive mid-level object parts </li>
+<li>因为缺少 bounding box，本文能做的就是推测那些 repeating 出现的物体中 distinctive 的部分，如果不是 distinctive 的，没法区分是目标还是背景里的，这么看来，bounding box 提供就是关于 non-distinctive part 属于目标还是背景的信息</li>
+<li>那么后面那些直接估计 bounding box 的依赖什么做的？也许是 物体内部的一致性、连续性，与背景的 contrast 吧，我瞎猜的。</li>
+</ul>
+</li>
+</ol>
+<p>看着好像这两个 Problem &amp; Aim 是分步 pipeline 的，其实是一起完成的。本文的 ambition 并不大，只要做 Localization，不做 Detection。Detection = Localization + Extent Estimation。这是泛泛的目标，由于作者是用 CNN 来做，那具体到 CNN，本文的实操目标就是：</p>
+<ol>
+<li>investigate whether CNNs can be trained from complex cluttered scenes labelled only with lists of objects they contain and not their locations. 额…. 废话，当然是能的啦，那问题就成了 modify the structure of the CNN。</li>
+</ol>
+<!--之所以要改变结构，是因为以前的网络的输出和给的 label 不再是一样的了；给的 label 是弱于网络-->
+<h2 id="2-Motivation"><a href="#2-Motivation" class="headerlink" title="2. Motivation"></a>2. Motivation</h2><h4 id="2-1-Motivation-on-Weakly-Supervised-Learning"><a href="#2-1-Motivation-on-Weakly-Supervised-Learning" class="headerlink" title="2.1 Motivation on Weakly Supervised Learning"></a>2.1 Motivation on Weakly Supervised Learning</h4><h5 id="无监督方法的不足"><a href="#无监督方法的不足" class="headerlink" title="无监督方法的不足"></a>无监督方法的不足</h5><p>因为没有监督信息，the output is currently often limited only to frequently occurring and visually consistent objects. 找的还只是 frequently occurring and visually consistent objects，这个可不一定是目标，因为本来也就没有告诉他什么东西可能是目标，所以也就只能做到这个程度。</p>
+<h5 id="有监督方法的不足"><a href="#有监督方法的不足" class="headerlink" title="有监督方法的不足"></a>有监督方法的不足</h5><p>careful annotation 是costly and can introduce biases</p>
+<h5 id="弱监督的好处"><a href="#弱监督的好处" class="headerlink" title="弱监督的好处"></a>弱监督的好处</h5><p>label好获取，因为这是 an important setup for many practical applications as (weak) image-level annotations are often readily available in large amounts，weak label 就在那，天然好获取。</p>
+<h2 id="3-Challenges"><a href="#3-Challenges" class="headerlink" title="3. Challenges"></a>3. Challenges</h2><ol>
+<li><p>The fundamental challenge in visual recognition is modeling the intra-class appearance and shape variation of objects.</p>
+<ul>
+<li>这点是所有分类问题都会有的，WSL Object Localization 作为特殊的分类问题，当然也会有。</li>
+</ul>
+</li>
+<li><p>the objects may appear at different locations, different scales and under variety of viewpoints</p>
+<ul>
+<li>这点如果有 bounding box 的话肯定不成问题，所以之所以作为 challenge 应该是相对于以前那种是 prominent object 场景，也就是目标在中间、占比很大的时候说的，那种比较简单的图像分类任务，相对那些任务而言，本文目标可能小且到处都会出现的确是难度加大了</li>
+</ul>
+</li>
+<li><p>the network has to avoid overfitting to the scene clutter co-occurring with objects    </p>
+<ul>
+<li>co-occurring 的 non-object part 也可能是 distinctive 的，也是对分类有帮助的，但不是在 object 内部的，对于 detection、Localization 来说，是要避免的，但对于弱监督，只给了 image-level label，如何利用分类的信息但又避免对分类有正向作用的东西的干扰，唔… 有点狡兔死，走狗烹的味道</li>
+</ul>
+</li>
+</ol>
+<h2 id="4-Contributions"><a href="#4-Contributions" class="headerlink" title="4. Contributions"></a>4. Contributions</h2><p>总的来说，本文的贡献就是 develop a weakly supervised learning method based on end-to-end training of a convolutional neural network (CNN) from image-level labels. 让 CNN 用于 WSL Object Localization 成为可能，是通过 explicitly searching over possible object locations and scales in the image 来实现的。</p>
+<p>具体到对 CNN 的改动，本文的贡献为：</p>
+<ol>
+<li>treat the last fully connected network layers as convolutions to cope with the uncertainty in object localization</li>
+<li>introduce a max-pooling layer that hypothesizes the possible location of the object in the image</li>
+<li>modify the cost function to learn from image-level supervision <ul>
+<li>额… 这点上感觉可能有点误导，以为是因为输出是位置，而 label 从 bounding box 变成了 image-level 了，从坐标变成了有无，这样才是弱监督</li>
+<li>其实根本不是上面这样想的，而是由原先针对 ImageNet Classification 设计的 CNN 的 multi-class mutually exclusive logistic regression loss 变成可以有多个类的 object 共同在一幅图像中出现的 loss，也就是公式（1）</li>
+</ul>
+</li>
+</ol>
+<p>事实上，本文可以看作是 Multiple Instance Learning 的一个变种，if we refer to each image as a “bag” and treat each image window as a “sample”. 用 MIL 的框架来做 WSL 可以算是主流了，这背后的动因大概是为了最后要通过 discrimination 来给出 label 提供的（弱）监督信息吧，而正类、负类判别是很自然的一种方式，也最容易想到的方式，如果不是唯一的话。</p>
+<h2 id="5-Prior-work"><a href="#5-Prior-work" class="headerlink" title="5. Prior work"></a>5. Prior work</h2><h3 id="5-1-Concept-Clarification"><a href="#5-1-Concept-Clarification" class="headerlink" title="5.1 Concept Clarification"></a>5.1 Concept Clarification</h3><p>当我们谈论 Visual object recognition 的时候，我们在谈论什么？</p>
+<p>引言一开始，作者首先强调了一下 Visual object recognition 的含义是很广的，不仅仅只是 determining whether the image contains instances of certain object categories. 这点我还是感触很深的，很多时候都在做 Visual object recognition 但具体设想的场景，具体要解决的问题其实是不同的，可能只是做目标分类，可能要进一步预测 location 和 pose，也可能要识别出 part，可能是在有 occluded 下做识别。后文作者其实又提供了一个例子，我们的语言存在省略和模糊性，有时候我们都说 multi-class ，到底是怎样的 multi-class 其实还是不清楚。比如，在 ImageNet classification 中，用的是 multi-class mutually exclusive logistic regression loss 背后就是 assumption 就是 only a single object per image；但本文的 multi-class 则是一幅图像中可以有多个类别的 Object 共同存在 （但是每一类只有一个）。</p>
+<p>我的感触就是，术语虽然节省了交流成本，但还是含有一定的模糊和多义性，最好要仔细确认一下背后的具体的应用场景是怎么样的。</p>
+<h3 id="5-2-Prior-work-on-supervised-object-recognition"><a href="#5-2-Prior-work-on-supervised-object-recognition" class="headerlink" title="5.2 Prior work on supervised object recognition"></a>5.2 Prior work on supervised object recognition</h3><p>作者给了三个大体的范式，时间上大体是有先后递进关系的，local feature （04 年左右的那一波），DPM （08年开始那一波），CNN（12年开始一波）。唔，4 年一波新的范式，这么看来 CV 发展的还是很快的。其实个人觉得 99 年 GIST 这种 Global descriptor 也是也是一波啦。</p>
+<h4 id="5-2-1-Local-feature-descriptor"><a href="#5-2-1-Local-feature-descriptor" class="headerlink" title="5.2.1 Local feature descriptor"></a>5.2.1 Local feature descriptor</h4><h5 id="具体做法"><a href="#具体做法" class="headerlink" title="具体做法"></a>具体做法</h5><p>The first style extracts local image features (SIFT, HOG), constructs bag of visual words representations, and runs statistical classifiers.</p>
+<h5 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h5><p>这种做法，对于 image classification 很成功，但是对于利用visual words 的位置来做object location 却没有效果（unfruitful），原因在于 the classifier often relies on visual words that fall in the background and merely describe the context of the object. 说白了就是 visual word 没有区分是 object 还是 background 的 (对应了上面 Challenge 的第 3 点)。用 local feature 做分类其实利用了很多背景的特征点。</p>
+<p>额，这么想其实就是跟仅仅是目标内部的特征点对于图像分类有用是相矛盾的，所以要承认local feature 对image classification 好但对 object detection 不好的话，其实就默认了background中的 local feature 对于 image classification也有贡献。</p>
+<p>其实 visual word 还是可以去区分来自于 background 还是 object 的，而且可以用 weakly supervised 的方式，2004 年 Gyuri Dork´o 和 Cordelia Schmid 的 Object Class Recognition Using Discriminative Local Features 就是这么做的，那篇文章也是通过特征在正类负类中的表现来的，如果只在正类中出现，那就是有判别性的特征点，如果正类负类都出现就是没有判别性要剔除。背后假设了背景的特征点是没有判别性的，而目标内部的有。</p>
+<h4 id="5-2-2-Deformable-part-model"><a href="#5-2-2-Deformable-part-model" class="headerlink" title="5.2.2 Deformable part model"></a>5.2.2 Deformable part model</h4><h5 id="具体做法-1"><a href="#具体做法-1" class="headerlink" title="具体做法"></a>具体做法</h5><p>The second style of algorithms detects the presence of objects by fitting rich object models such as deformable part models.</p>
+<h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><p>这种做法好处是显然易见的，The fitting process can reveal useful attributes of objects such as location, pose and constellations of object parts 这就完成了 local feature method 完不成的任务。</p>
+<h5 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h5><p>当然这个也是有代价的，就是标注要更加昂贵了，the model is usually trained from images with known locations of objects or even their parts.</p>
+<h4 id="5-2-3-CNN"><a href="#5-2-3-CNN" class="headerlink" title="5.2.3 CNN"></a>5.2.3 CNN</h4><p>A third style of algorithms, convolutional neural networks (CNNs) [31, 33] construct successive feature vectors that progressively describe the properties of larger and larger image areas.</p>
+<p>优点肯定是效果上大获成功啦。缺点则是需要的样本数可是大大增加了，都要有 bounding box 的supervision 信息，这就比较难获取了。应该说 Weakly Supervised Learning 这些年变得这么热门，很大程度都是被深度学习逼的，需要样本亮很大，但获取又非常昂贵，对于 WSL 的需求很自然的就出现了。</p>
+<h3 id="5-3-Prior-work-on-weakly-supervised-object-localization-detection"><a href="#5-3-Prior-work-on-weakly-supervised-object-localization-detection" class="headerlink" title="5.3 Prior work on weakly supervised object localization/detection"></a>5.3 Prior work on weakly supervised object localization/detection</h3><h4 id="5-3-1-早期工作"><a href="#5-3-1-早期工作" class="headerlink" title="5.3.1 早期工作"></a>5.3.1 早期工作</h4><p>这些工作 focused on learning from images containing prominent and centered objects in scenes with limited background clutter. 应该就是说场景设置的比较简单吧，目标占比很大，在中间位置，背景干扰小。作者具体给了一些：</p>
+<ol>
+<li>H. Arora, N. Loeff, D. Forsyth, and N. Ahuja. Unsupervised segmentation of objects using efficient learning. In CVPR, 2007.</li>
+<li>O. Chum and A. Zisserman. An exemplar model for learning object classes. In CVPR, 2007.</li>
+<li>D. Crandall and D. Huttenlocher. Weakly supervised learning of part-based spatial models for visual object recognition. In ECCV, 2006.</li>
+<li>R. Fergus, P. Perona, and A. Zisserman. Object class recognition by unsupervised scale-invariant learning. In CVPR, 2003.</li>
+<li>J. Winn and N. Jojic. Locus: Learning object classes with unsupervised segmentation. In ICCV, 2005.</li>
+</ol>
+<h4 id="5-3-2-近期工作"><a href="#5-3-2-近期工作" class="headerlink" title="5.3.2 近期工作"></a>5.3.2 近期工作</h4><ul>
+<li>近期的工作开始 attempt to learn from images containing multiple objects embedded in complex scenes，含有多个目标，背景变复杂，难度提升了</li>
+<li>而且这些方法 typically aim to localize objects including finding their extent in the form of bounding boxes. 试图给出 bounding box；</li>
+<li>这些方法本质上是在 attempt to find parts of images with visually consistent appearance in the training data that often contains multiple objects in different spatial configurations and cluttered backgrounds 在复杂多变的背景中，找寻视觉上有一致性且反复出现的目标（但有label指导，不是无监督，也就不是只是依赖于一致性和反复出现）</li>
+</ul>
+<p>作者提到的文献有：</p>
+<ol>
+<li>M. Blaschko, A. Vedaldi, and A. Zisserman. Simultaneous object detection and ranking with weak supervision. In NIPS, 2010.</li>
+<li>T. Deselaers, B. Alexe, and V. Ferrari. Localizing objects while learning their appearance. In ECCV, 2010.</li>
+<li>M. Pandey and S. Lazebnik. Scene recognition and weakly supervised object localization with deformable part-based models. In ICCV, 2011.</li>
+<li>H. Song, R. Girshick, S. Jegelka, J. Mairal, Z. Harchaoui, and T. Darrell. On learning to localize objects with minimal supervision. In ICML, 2014.</li>
+<li>C. Wang, W. Ren, K. Huang, and T. Tan. Weakly supervised object localization with latent category learning. In ECCV. 2014.</li>
+<li>R. G. Cinbis, J. Verbeek, and C. Schmid. Weakly Supervised Object Localization with Multi-fold Multiple Instance Learning. Mar 2015.</li>
+<li>X. Chen, A. Shrivastava, and A. Gupta. Neil: Extracting visual knowledge from web data. In ICCV, 2013.</li>
+<li>S. Divvala, A. Farhadi, and C. Guestrin. Learning everything about anything: Webly-supervised visual concept learning. In CVPR, 2014.</li>
+<li>A. Prest, C. Leistner, J. Civera, C. Schmid, and V. Ferrari. Learning object class detectors from weakly annotated video. In CVPR, 2012.</li>
+</ol>
+<h4 id="5-4-2-本文的同类工作"><a href="#5-4-2-本文的同类工作" class="headerlink" title="5.4.2 本文的同类工作"></a>5.4.2 本文的同类工作</h4><p>和本文一样，都是基于 CNN，且应用场景是 多目标、弱监督、复杂背景，这样的文章不多，作者给了一些：</p>
+<ol>
+<li>K. Chatfield, K. Simonyan, A. Vedaldi, and A. Zisserman. Return of the devil in the details: Delving deep into convolutional nets. arXiv:1405.3531v2, 2014.</li>
+<li>A. Razavian, H. Azizpour, J. Sullivan, and S. Carlsson. CNN features off-the-shelf: an astounding baseline for recognition. arXiv preprint arXiv:1403.6382, 2014.</li>
+<li>M. Zeiler and R. Fergus. Visualizing and understanding convolutional networks. arXiv:1311.2901, 2013.</li>
+</ol>
+<p>作者提到，下面这篇论文探索的内容跟这篇就比较重合了，只能说这块竞争太激烈了</p>
+<ol>
+<li>Y. Wei, W. Xia, J. Huang, B. Ni, J. Dong, Y. Zhao, and S. Yan. CNN: Single-label to multi-label. arXiv:1406.5726, 2014. </li>
+</ol>
+<p>还有些论文 aiming to extract object localization by examining the network output while masking different portions of the input image，但是这些论文 consider already pre-trained networks at test time</p>
+<ol>
+<li>A. Bergamo, L. Bazzani, D. Anguelov, and L. Torresani. Self-taught object localization with deep networks. CoRR, abs/1409.3964, 2014.</li>
+<li>K. Simonyan, A. Vedaldi, and A. Zisserman. Deep inside convolutional networks: Visualising image classification models and saliency maps. CoRR, abs/1312.6034, 2013.</li>
+<li>M. Zeiler and R. Fergus. Visualizing and understanding convolutional networks. arXiv:1311.2901, 2013.</li>
+<li>B. Zhou, A. Khosla, A. Lapedriza, A. Oliva, and A. Torralba. Object detectors emerge in deep scene cnns. CoRR, abs/1412.6856, 2014.</li>
+</ol>
+<p>通过 masking different portions of the input image 然后来检查对最后的分类的影响，从而来确定哪些是 distinctive part，这个思路也蛮好的啊，有点数学里的反证法的味道。</p>
+<h2 id="6-Method"><a href="#6-Method" class="headerlink" title="6. Method"></a>6. Method</h2><p>我一直都是把一个算法分为 Data，Model，Cost function 和 Optimization 4块的。</p>
+<h3 id="6-1-Data"><a href="#6-1-Data" class="headerlink" title="6.1 Data"></a>6.1 Data</h3><p>Data 就是 VOC 和 COCO 咯，这些数据集都有 image label 和 bounding box 当然可以用来衡量最后 Localization 的好坏。</p>
+<h3 id="6-2-Model"><a href="#6-2-Model" class="headerlink" title="6.2 Model"></a>6.2 Model</h3><h4 id="6-2-1-Single-scale"><a href="#6-2-1-Single-scale" class="headerlink" title="6.2.1 Single-scale"></a>6.2.1 Single-scale</h4><p>Single -scale 是基础，multi-scale 只是在 single-scale 上面 multi-scale 了一下而已。</p>
+<p>因为本文是 CNN，所以 Model 就是 Network architecture 咯。实际上，本文的前两个 contribution 就是对 Network architecture 的改动。</p>
+<ol>
+<li>treat the last fully connected network layers as convolutions to cope with the uncertainty in object localization<ul>
+<li>这个改动，作者的说法是为了 cope with the uncertainty in object localization 唔… 太过言简意赅了，还是有必要再解释几句。</li>
+<li>注意啊，本文方法的目的除了判断图像里有哪些物体，也就是分类之外，还要做一个 Localization。</li>
+<li>如果只是 classification 的话，是不需要考虑记录 local position 的，这也是原先的 LeNet、AlexNet 这样后面是全连接的原因，根本不 care position；但是 Localization 则必须要有坐标、或者local region。</li>
+<li>本文 Localization 的思路是通过 explicitly searching over possible object locations and scales in the image 来实现的。</li>
+<li>因为假设了每一类只有一个 instance，所以对于一类来说，最后得分最高的那个就是 object 的 location。</li>
+<li>而这一个改动里的把 一幅图像出来的 node 整个做全连接，变成一幅图像只在滑动窗口内做全连接，这样对于每一类，都有 n*m 个备选区域了，然后挑一个得分最大的去判断分类有无好了。</li>
+<li>所以说，这个改动是为了 Localization 服务的。</li>
+<li>噗噗噗，其实就是人为划分了下区域，然后让 max score 知道来自哪个区域而已。小改动，大能量，很机智了。</li>
+</ul>
+</li>
+<li>introduce a max-pooling layer that hypothesizes the possible location of the object in the image<ul>
+<li>额… 上面好像把为什么要做 max-pooling 也给讲了，总之 max-pooling 背后的 assumption 就是每一类只有一个 instance。不不不，要更正下，是 the max-pooling operation hypothesizes the location of the object in the image at the position with the maximum score。object 在 position with the maximum score 里面和，只有一个 instance 在 position with the maximum score 里面还是有点不一样的。毕竟前者可没说只可以有一个 instance。</li>
+<li>其实也不是只能检测一个 instance，做了 max-pooling 分类后，在做得分第二高的 pooling 不就好了，所以还是可以做 multi-instance 的。</li>
+</ul>
+</li>
+</ol>
+<h4 id="6-2-2-Multi-scale"><a href="#6-2-2-Multi-scale" class="headerlink" title="6.2.2 Multi-scale"></a>6.2.2 Multi-scale</h4><p>对于 multi-scale，就是把每个 scale 做出来的 score map 求了个平均然后再做 soft-max。Fig. 3 示意得很清楚了。</p>
+<h3 id="6-3-Cost-function"><a href="#6-3-Cost-function" class="headerlink" title="6.3 Cost function"></a>6.3 Cost function</h3><p>因为假设了图像里每一类都可能出现，类与类之间不再互斥，所以要把 loss 由原先针对 ImageNet Classification 设计的 CNN 的 multi-class mutually exclusive logistic regression loss 变成可以有多个类的 object 共同在一幅图像中出现的 loss，也就是公式（1）。</p>
+<p>从公式（2）可以看出，网络的输出 f_k(x) 是从负无穷到正无穷的，本文的神经网络其实是个 discriminant function 啊（PRML 里面的第三类）。</p>
+<h3 id="6-4-Optimization"><a href="#6-4-Optimization" class="headerlink" title="6.4 Optimization"></a>6.4 Optimization</h3><p>优化还是 SGD 呗，由于改成了 max-pooling，所以反馈的时候，很自然的也就只影响 maximum score 那个 region。</p>
+<p>那么优化过程是怎么奖惩，让网络找到我们想要的参数的呢？</p>
+<ol>
+<li>If the image-level label is positive (i.e. the image contains the object) the back-propagated error will adapt the network weights so that the score of this particular window (and hence other similar-looking windows in the dataset) is increased. <ul>
+<li>如果是 label 正类，且 maximum score 的区域预测出含有正类了，即使我们不知道到底真实的图像里，max score 的到底有没有这类 Object，只要知道图像里面有，那么就进一步增大 max score 区域预测出该类 object 的概率。</li>
+<li>我上面的土话，用作者的话讲就是：Note that there is no guarantee the location of the score maxima corresponds to the true location of the object in the image. However, the intuition is that the erroneous weight updates from the incorrectly localized objects will only have limited effect as in general they should not be consistent over the dataset.</li>
+</ul>
+</li>
+<li>On the other hand, if the image-level label is negative (i.e. the image does not contain the object) the back-propagated error adapts the network weights so that the score of the highest scoring window (and hence other similar-looking windows in the dataset) is decreased.负类也是一样，就是增大预测出不存在的概率。</li>
+</ol>
+<p>这种优化思路是 WSL 里面非常常见的，应该是受了 MIL 的影响吧，MIL 就是这样优化的。</p>
+<h2 id="7-Experiment-amp-Discussion"><a href="#7-Experiment-amp-Discussion" class="headerlink" title="7. Experiment &amp; Discussion"></a>7. Experiment &amp; Discussion</h2><p>一般我都是不喜欢看实验的，因为实验结果肯定是本文方法效果好。不过这篇论文的实验设计真的是太好了。</p>
+<h3 id="7-1-Benefits-of-sliding-window-training"><a href="#7-1-Benefits-of-sliding-window-training" class="headerlink" title="7.1 Benefits of sliding-window training"></a>7.1 Benefits of sliding-window training</h3><p>作者通过 sliding-window 对比直接全连接证明了 sliding window 这种方式不仅是用于实现 Localization，而且对于 classification 帮着也很大。</p>
+<p>不过问题来了，正最后是个 max-pooling，是一起做还是用 convolutional 的方式做，最后不一样么？为啥 sliding window 会对 classification 有帮助？</p>
+<h3 id="7-2-Benefits-of-multi-scale-training-and-testing"><a href="#7-2-Benefits-of-multi-scale-training-and-testing" class="headerlink" title="7.2 Benefits of multi-scale training and testing"></a>7.2 Benefits of multi-scale training and testing</h3><p>The intuition is that the network gets to see objects at different scales, increasing the overall number of examples.</p>
+<h3 id="7-3-Does-adding-object-level-supervision-help-classification"><a href="#7-3-Does-adding-object-level-supervision-help-classification" class="headerlink" title="7.3 Does adding object-level supervision help classification?"></a>7.3 Does adding object-level supervision help classification?</h3><p>这个问题就很 hard-core 了。</p>
+<p>作者的结论是 adding this form of object-level supervision does not bring significant benefits over the weakly supervised learning. </p>
+<ul>
+<li>注意啊，是 this form of object-level supervision，说的还是很谨慎的，不过再怎么说也是 object-level supervision</li>
+<li>作者的结论其实侧面说明了为啥 weakly supervised learning 也能取得很好的结果，因为本身 object-level supervision does not bring significant benefits over the weakly supervised learning. 唔… 我是不是有点循环论证了</li>
+</ul>
+<h3 id="7-4-Does-adding-object-level-supervision-help-location-prediction"><a href="#7-4-Does-adding-object-level-supervision-help-location-prediction" class="headerlink" title="7.4 Does adding object-level supervision help location prediction?"></a>7.4 Does adding object-level supervision help location prediction?</h3><p>Location prediction 要求比上面的 image classification 高，所以相应的 object-level supervision 的作用肯定更大了。作者的原话：</p>
+<ul>
+<li>adding object-level supervision does not significantly increase the overall location prediction performance.</li>
+<li>for some classes with poor location prediction performance in the weakly supervised setup (green) adding object-level supervision (masked pooling, magenta) helps.</li>
+<li>object-level supervision can help to understand better the underlying concept and predict the object location in the image.</li>
+</ul>
+<p>没有也能做，但有的话肯定还是有帮助，大体就这个意思咯。</p>
+<h2 id="8-问题残留"><a href="#8-问题残留" class="headerlink" title="8. 问题残留"></a>8. 问题残留</h2><ol>
+<li>神经网络反正最后是个 max-pooling，是一起做还是用 convolutional 的方式做，最后不一样么？为啥 sliding window 会对 classification 有帮助？这个可能要看下作者之前这篇看看具体是怎么做 sliding window 的。<ul>
+<li>M. Oquab, L. Bottou, I. Laptev, and J. Sivic. Learning and transferring mid-level image representations using convolutional neural networks. In CVPR, 2014.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Oquab15/';
+var disqus_title = 'Notes on CVPR-2015-Is object localization for free?';
+var disqus_url = 'http://lowrank.science/Oquab15/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','88794833');ga('send','pageview');</script></body></html>
