@@ -1,0 +1,158 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on TPAMI 2016 HCP A Flexible CNN Framework for Multi-label Image Classification | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-26</div></div></div><div class="container post-header"><h1>Notes on TPAMI 2016 HCP A Flexible CNN Framework for Multi-label Image Classification</h1></div><div class="container post-content"><p>这篇论文是 2016 年的 TPAMI，作者 <a href="https://weiyc.github.io/" target="_blank" rel="noopener">Yunchao Wei</a> 在 Weakly supervised object detection and semantic segmentation 上做了很多很棒的工作，值得 follow 一下。这篇论文在 14 年被放到 arXiv 的时候，还有另外一个名字，CNN: Single-label to Multi-label，而且 arXiv 版本 14 页，内容比 8 页的 TPAMI 版本更加多一些。</p>
+<h2 id="1-Problem-amp-Aim"><a href="#1-Problem-amp-Aim" class="headerlink" title="1. Problem &amp; Aim"></a>1. Problem &amp; Aim</h2><p>从 CNN: Single-label to Multi-label 这个名字就可以看出来，这篇文章的目的或者说要解决的问题就是怎样让在 single-label image classification 中取得巨大成功的 CNN 能够 copes with multi-label images。</p>
+<p>为什么说本文也算弱监督呢？</p>
+<ul>
+<li>额，其实这有点难说，如果说要 output 的 supervision level 高于 input 的，本文的输入输出都是 label 的话，这个不太好说是弱监督</li>
+<li>但是，在当时，previous works 都是要 employ ground-truth bounding box information for training 的，而本文不需要</li>
+<li>另外，从 CVPR-15-Is object localization for free? Weakly-supervised learning with convolutional neural networks 看（这两篇论文关于 max-pooling 这一点contribution 是一样的），本文其实是可以很容易实现 Localization 乃至 Detection 都可以，所以我觉得本文肯定还是属于 WSL 的。</li>
+<li>对标 R-CNN 好啦，R-CNN 是一个 multi-label classification and detection 方法，做 Detection 的时候，classification 自然也就完成了，或者说对 region 做 classification 的时候，Detection 也就完成了。本文也是对 Region 做 classification，对比 R-CNN 需要的 bounding-box level annotation，本文肯定是弱监督啦。</li>
+</ul>
+<h2 id="2-Motivation"><a href="#2-Motivation" class="headerlink" title="2. Motivation"></a>2. Motivation</h2><h3 id="2-1-Motivation-on-Multi-label-Image-Classification"><a href="#2-1-Motivation-on-Multi-label-Image-Classification" class="headerlink" title="2.1 Motivation on Multi-label Image Classification"></a>2.1 Motivation on Multi-label Image Classification</h3><p>Multi-label Image Classification 有很大的实际意义，因为 the majority of real-world images are with more than one objects of different categories.</p>
+<h3 id="2-2-Motivation-on-CNN"><a href="#2-2-Motivation-on-CNN" class="headerlink" title="2.2 Motivation on CNN"></a>2.2 Motivation on CNN</h3><p>Convolutional Neural Network (CNN) has demonstrated promising performance in single-label image classification tasks。很自然的想法就是问能不能把 CNN 拓展到 Multi-label Image Classification。</p>
+<h3 id="2-3-Motivation-on-fine-tunning？"><a href="#2-3-Motivation-on-fine-tunning？" class="headerlink" title="2.3 Motivation on fine-tunning？"></a>2.3 Motivation on fine-tunning？</h3><p>也就是说，为什么 pretrained 的 feature 不能直接拿来用，这是因为 different from the single-label image, objects in a typical multi-label image are generally less-aligned, and also often with partial visibility and occlusion。因为跟 single-label 不一样，不对齐，且有遮挡，肯定是场景 match 的特征才好。Therefore, global CNN features are not optimal to multi-label problems.</p>
+<h2 id="3-Challenge"><a href="#3-Challenge" class="headerlink" title="3. Challenge"></a>3. Challenge</h2><p>但是在当时，注意是 2014 年（R-CNN 也是要到 14 年的 CVPR 上才出现），CNN 还主要是用来做 single-label image classification。在当时，CNN 是没法直接用来做 Multi-label Image Classification 的，难点主要在于：</p>
+<ol>
+<li>Firstly, the implicit assumption that foreground objects are roughly aligned, which is usually true for single-label images, does not always hold for multi-label images.  也就是说对于 single-label 来说，其实是得益于 alignment 这个助力的；而对于 multi-label 来说，因为多个物体可以以多种姿态、多种组合、多个尺度出现，比如 Fig. 1。alignment 根本无从谈起。</li>
+<li>Secondly, the interaction between different objects in multi-label images, like partial visibility and occlusion, also poses a great challenge. 不同的物体之间会有互相遮挡</li>
+<li>需要的 dataset 很难获取 the burden of collection and annotation for a large scale multi-label image dataset is generally extremely high. 难处具体有一下三点：<ul>
+<li>本身标记 multi-label image 的代价就更大</li>
+<li>due to the tremendous parameters to be learned for CNN, a large number of training images are required for the model training. 本身用 CNN 来做就需要大量样本，现成的 multi-label image dataset 构建很难</li>
+<li>Furthermore, from single-label to multi-label (with n category labels) image classification, the label space has been expanded from n to 2^n , thus more training data is required to cover the whole label space.。更加雪上加霜的是，因为从 single-label 变成了 multi-label，label space 增加了，需要的样本就够多了</li>
+</ul>
+</li>
+</ol>
+<p>那么本文是怎么应对这些 challenge 的呢？</p>
+<ol>
+<li>对于数据集少，首先是放弃对 bounding box level 的 annotation 的设想，用 image-level label训练。</li>
+<li>对于数据集少，其次就是 pretraining + fine-tuning。</li>
+<li>对于 occlusion 和 没有 alignment，这是没办法的事，因为对于 multi-label 来说，本身就是这样的，只能说是没法受益于 alignment 或者 没有 occlusion，倒不是说 multi-label 不可以做。</li>
+</ol>
+<h2 id="4-Contributions"><a href="#4-Contributions" class="headerlink" title="4. Contributions"></a>4. Contributions</h2><p>私以为本文的 contributions 是 Hypotheses Extraction 和 Cross-hypothesis max-pooling 这两个。</p>
+<ol>
+<li>Hypotheses Extraction<ul>
+<li>其实本文的 Hypotheses Extraction 是 BING + NCUT</li>
+<li>BING 负责 hypotheses （region） proposal，NCUT 负责懂 BING 产生的 hypotheses 中做 hypotheses selection</li>
+<li>相比于 R-CNN，本文其实是多了这一个 region selection 过程。在 R-CNN 中，通过神经网络后要再做非极大值抑制，有很多的浪费。</li>
+<li>本文用的 hypotheses selection，其实是一种处理 重叠相近 proposal 的一种手段，对这些 proposal 做 clustering。本文在输入神经网络之前，就大大减少了计算那些之后注定要被丢弃掉的 region，可以大大减少计算资源的浪费，可以说很机智了。</li>
+</ul>
+</li>
+<li>Cross-hypothesis max-pooling<ul>
+<li>这一点其实跟 CVPR-15-Is object localization for free? Weakly-supervised learning with convolutional neural networks 是重合的，可以去看上一篇笔记 <a href="http://lowrank.science/Oquab-CVPR-15/">Notes on CVPR 2015 Is object localization for free?</a>，更加详尽。</li>
+</ul>
+</li>
+</ol>
+<h2 id="5-Prior-works"><a href="#5-Prior-works" class="headerlink" title="5. Prior works"></a>5. Prior works</h2><p>Prior works on multi-label image classification 大体可以分为 bag-of-words (BoW) framework 和 deep learning framework 这两类。</p>
+<h3 id="5-1-BoW-framework"><a href="#5-1-BoW-framework" class="headerlink" title="5.1 BoW framework"></a>5.1 BoW framework</h3><p>Bag-of-words (BoW) framework 传统的 pipeline 范式咯，a traditional BoW model is composed of multiple modules, e.g., feature representation, classification and context modeling。</p>
+<h4 id="5-1-1-Feature-representation"><a href="#5-1-1-Feature-representation" class="headerlink" title="5.1.1 Feature representation"></a>5.1.1 Feature representation</h4><p>Feature representation 又可以分解成以下几步：</p>
+<ol>
+<li>hand-crafted feature extraction，SIFT<ul>
+<li>HOG，LBP 是在这一层面的</li>
+</ul>
+</li>
+<li>feature coding<ul>
+<li>Vector Quantization, Sparse Coding and Gaussian Mixture Models 是在这一层面的</li>
+</ul>
+</li>
+<li>feature pooling<ul>
+<li>Spatial Pyramid Matching 是在这一层面的</li>
+</ul>
+</li>
+</ol>
+<p>这样得到的 feature representation 是 global，也就是说是 image-level representation</p>
+<h4 id="5-1-2-Classification"><a href="#5-1-2-Classification" class="headerlink" title="5.1.2 Classification"></a>5.1.2 Classification</h4><p>有了特征，分类就简单了，主要就是用下 SVM、随机森林这些，对于 multi-label classification 来说，肯定是要有现成的多类分类方案的分类器，且这个多类是不能 mutually exclusive 的。</p>
+<h4 id="5-1-3-Context-modelling"><a href="#5-1-3-Context-modelling" class="headerlink" title="5.1.3 Context modelling"></a>5.1.3 Context modelling</h4><ul>
+<li>the usage of context information, e.g., spatial location of object and background scene from the global view, can considerably improve the performance of multi-label classification and object detection.</li>
+<li>这点在我以前看到论文里提到的不多，但的确如作者所说，特别是对于多类来说是蛮重要的，context 可以提供不少信息，不能放过了，这一块的论文可以多看看</li>
+<li>作者给了一些：<ul>
+<li>H. Harzallah, F. Jurie, and C. Schmid. Combining efficient object localization and image classification. In Computer Vision and Pattern Recognition, pages 237–244, 2009.</li>
+<li>Z. Song, Q. Chen, Z. Huang, Y. Hua, and S. Yan. Contextualizing object detection and classification. In Computer Vision and Pattern Recognition, pages 1585–1592, 2011.</li>
+<li>O. Russakovsky, Y. Lin, K. Yu, and L. Fei-Fei. Object-centric spatial pooling for image classification. In European Conference on Computer Vision, pages 1–15. 2012.</li>
+<li>Q. Chen, Z. Song, Y. Hua, Z. Huang, and S. Yan. Hierarchical matching with side information for image classification. In Computer Vision and Pattern Recognition, pages 3426–3433, 2012.</li>
+<li>Q. Chen, Z. Song, J. Dong, Z. Huang, Y. Hua, and S. Yan. Contextualizing object detection and classification. IEEE Trans. Pattern Analysis and Machine Intelligence, 2014.</li>
+</ul>
+</li>
+</ul>
+<p>对于用 BoW framework 来做 multi-label classification 的，作者也给了一些文献：</p>
+<ol>
+<li>H. Harzallah, F. Jurie, and C. Schmid. Combining efficient object localization and image classiﬁcation. In Computer Vision and Pattern Recognition, pages 237–244, 2009.</li>
+<li>F. Perronnin, J. Sanchez, and T. Mensink. Improving the fisher kernel for large-scale image classiﬁcation. In European Conference on Computer Vision, pages 143–156, 2010.</li>
+<li>Q. Chen, Z. Song, Y. Hua, Z. Huang, and S. Yan. Hierarchical matching with side information for image classiﬁcation. In Computer Vision and Pattern Recognition, pages 3426–3433, 2012.</li>
+<li>J. Dong, W. Xia, Q. Chen, J. Feng, Z. Huang, and S. Yan. Subcategory-aware object classification. In Computer Vision and Pattern Recognition, pages 827–834, 2013.</li>
+<li>Q. Chen, Z. Song, J. Dong, Z. Huang, Y. Hua, and S. Yan. Contextualizing object detection and classification. IEEE Trans. Pattern Analysis and Machine Intelligence, 2014.</li>
+</ol>
+<h3 id="5-2-Deep-learning-framework"><a href="#5-2-Deep-learning-framework" class="headerlink" title="5.2 Deep learning framework"></a>5.2 Deep learning framework</h3><p>作者给了一些文献，算是同类工作吧，值得看一下：</p>
+<ol>
+<li>M. Oquab, L. Bottou, I. Laptev, and J. Sivic. Learning and transferring mid-level image representations using convolutional neural networks. arXiv, 2013.</li>
+<li>Y. Gong, Y. Jia, T. K. leung, A. Toshev, and S. Ioffe. deep convolutional ranking for multi label image annotation. In International Conference on Learning Representations, 2014.</li>
+<li>A. S. Razavian, H. Azizpour, J. Sullivan, and S. Carlsson. CNN features off-the-shelf: an astounding baseline for recognition. arXiv preprint arXiv:1403.6382, 2014.</li>
+</ol>
+<h2 id="6-Method"><a href="#6-Method" class="headerlink" title="6. Method"></a>6. Method</h2><h3 id="6-1-Data"><a href="#6-1-Data" class="headerlink" title="6.1 Data"></a>6.1 Data</h3><ol>
+<li>Pre-training 在 ImageNet 上</li>
+<li>Fine-tunning 在 VOC 上，当然测试也是在这个 VOC 上，fine-tunning 的数据集和 testing 的是一样的，因为 fine-tunning 实际就是 training 啊</li>
+</ol>
+<h3 id="6-2-Model"><a href="#6-2-Model" class="headerlink" title="6.2 Model"></a>6.2 Model</h3><p>本文方法的 Model 分为两部分，一部分是输入 CNN 之前的 Hypotheses Extraction 模块，另一部分就是改动后的 CNN 了。</p>
+<h4 id="6-2-1-Hypotheses-Extraction"><a href="#6-2-1-Hypotheses-Extraction" class="headerlink" title="6.2.1 Hypotheses Extraction"></a>6.2.1 Hypotheses Extraction</h4><ul>
+<li>在输入网络之前 BING + NCUT，做完 NCUT 后，每个簇都挑 k 个 hypothesis，一共 mk 个，m 是簇数。</li>
+<li>NCUT 需要的 Affinity matrix 是由 region proposal 之间的 IoU 构成的，见公式（1），很巧妙了。</li>
+</ul>
+<p>一个好的 hypotheses extraction approach 的标准：</p>
+<ol>
+<li>High object detection recall rate<ul>
+<li>这点其实是由 BING 保证的</li>
+<li>recall rate 是 TP / (TP + FN)，也就是 所有 “正确被检索的 item(TP)” 占所有 “应该检索到的 item(TP+FN)” 的比例。</li>
+</ul>
+</li>
+<li>Small number of hypotheses<ul>
+<li>这点是由 NCUT 筛选保证的</li>
+</ul>
+</li>
+<li>High computational efficiency<ul>
+<li>这点是要由 BING + NCUT 共同保证的，这两个步都要 efficient</li>
+</ul>
+</li>
+</ol>
+<h4 id="6-2-2-Modified-CNN"><a href="#6-2-2-Modified-CNN" class="headerlink" title="6.2.2 Modified CNN"></a>6.2.2 Modified CNN</h4><ol>
+<li>网络逐个输入 hypothesis，也就是一个 proposed &amp; selected 的 region （hypothesis）</li>
+<li>在 CNN 的输出，进入 最后的 softmax layer 之前要经过一个 cross-hypothesis max-pooling，这点具体看之前的笔记<a href="http://lowrank.science/Oquab-CVPR-15/">Notes on CVPR 2015 Is object localization for free?</a>，更加详尽。</li>
+</ol>
+<h3 id="6-3-Cost-function"><a href="#6-3-Cost-function" class="headerlink" title="6.3 Cost function"></a>6.3 Cost function</h3><ol>
+<li>Image-fine-tuning on multi-label image set 用的 loss function 是概率向量的 最小二乘</li>
+<li>每幅图像的这个概率向量计算很简单，这幅图像含有几类目标，向量的对应位置就是几分之一</li>
+</ol>
+<h3 id="6-4-Optimization"><a href="#6-4-Optimization" class="headerlink" title="6.4 Optimization"></a>6.4 Optimization</h3><p>作者没有多提 Optimization，那应该就是一般性的 stochastic gradient descent 吧。不同层的权重不同，应该 trick 不少，调参很辛苦吧。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Wei-TPAMI-16/';
+var disqus_title = 'Notes on TPAMI 2016 HCP A Flexible CNN Framework for Multi-label Image Classification';
+var disqus_url = 'http://lowrank.science/Wei-TPAMI-16/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','88794833');ga('send','pageview');</script></body></html>

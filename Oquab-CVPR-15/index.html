@@ -1,4 +1,5 @@
-<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR-2015-Is object localization for free? | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-25</div></div></div><div class="container post-header"><h1>Notes on CVPR-2015-Is object localization for free?</h1></div><div class="container post-content"><p>这篇文章是 CVPR 2015 的，如果不是第一篇，也是很早的一篇，用卷积神经网络来做 Weakly Supervised Object Localization 的，后续的工作或多或少都有受其影响。如果想要了解下当前弱监督目标检测的工作，这篇论文还是有必要读的。另外这篇论文正儿八经地讨论了 Does adding object-level supervision help classification? 和 Does adding object-level supervision help location prediction 这两个问题，算是对我对于弱监督目标检测的认识做了某种程度上的“怯魅”，因为我一开始接触到弱监督有某种奇幻、无中生有的感觉，很神奇。</p>
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR 2015 Is object localization for free? | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-25</div></div></div><div class="container post-header"><h1>Notes on CVPR 2015 Is object localization for free?</h1></div><div class="container post-content"><p>这篇文章是 CVPR 2015 的，如果不是第一篇，也是很早的一篇，用卷积神经网络来做 Weakly Supervised Object Localization 的，后续的工作或多或少都有受其影响。如果想要了解下当前弱监督目标检测的工作，这篇论文还是有必要读的。另外这篇论文正儿八经地讨论了 Does adding object-level supervision help classification? 和 Does adding object-level supervision help location prediction 这两个问题，算是对我对于弱监督目标检测的认识做了某种程度上的“怯魅”，因为我一开始接触到弱监督有某种奇幻、无中生有的感觉，很神奇。</p>
+<p>论文代码可以在 <a href="http://www.di.ens.fr/willow/research/weakcnn/" target="_blank" rel="noopener">http://www.di.ens.fr/willow/research/weakcnn/</a> 上找到。</p>
 <h2 id="1-Problem-amp-Aim"><a href="#1-Problem-amp-Aim" class="headerlink" title="1. Problem &amp; Aim"></a>1. Problem &amp; Aim</h2><p>简而言之，本文的目的就是 Weakly Supervised Object Localization 咯，也就是</p>
 <ol>
 <li>predicting accurate image-level labels indicating the presence/absence of objects <ul>
@@ -15,7 +16,7 @@
 </ol>
 <p>看着好像这两个 Problem &amp; Aim 是分步 pipeline 的，其实是一起完成的。本文的 ambition 并不大，只要做 Localization，不做 Detection。Detection = Localization + Extent Estimation。这是泛泛的目标，由于作者是用 CNN 来做，那具体到 CNN，本文的实操目标就是：</p>
 <ol>
-<li>investigate whether CNNs can be trained from complex cluttered scenes labelled only with lists of objects they contain and not their locations. 额…. 废话，当然是能的啦，那问题就成了 modify the structure of the CNN。</li>
+<li>investigate whether CNNs can be trained from complex cluttered scenes labelled only with lists of objects they contain and not their locations. 额…. 废话，当然是能的啦，那问题就成了 how to modify the structure of the CNN。</li>
 </ol>
 <!--之所以要改变结构，是因为以前的网络的输出和给的 label 不再是一样的了；给的 label 是弱于网络-->
 <h2 id="2-Motivation"><a href="#2-Motivation" class="headerlink" title="2. Motivation"></a>2. Motivation</h2><h4 id="2-1-Motivation-on-Weakly-Supervised-Learning"><a href="#2-1-Motivation-on-Weakly-Supervised-Learning" class="headerlink" title="2.1 Motivation on Weakly Supervised Learning"></a>2.1 Motivation on Weakly Supervised Learning</h4><h5 id="无监督方法的不足"><a href="#无监督方法的不足" class="headerlink" title="无监督方法的不足"></a>无监督方法的不足</h5><p>因为没有监督信息，the output is currently often limited only to frequently occurring and visually consistent objects. 找的还只是 frequently occurring and visually consistent objects，这个可不一定是目标，因为本来也就没有告诉他什么东西可能是目标，所以也就只能做到这个程度。</p>
@@ -144,7 +145,7 @@
 <p>这种优化思路是 WSL 里面非常常见的，应该是受了 MIL 的影响吧，MIL 就是这样优化的。</p>
 <h2 id="7-Experiment-amp-Discussion"><a href="#7-Experiment-amp-Discussion" class="headerlink" title="7. Experiment &amp; Discussion"></a>7. Experiment &amp; Discussion</h2><p>一般我都是不喜欢看实验的，因为实验结果肯定是本文方法效果好。不过这篇论文的实验设计真的是太好了。</p>
 <h3 id="7-1-Benefits-of-sliding-window-training"><a href="#7-1-Benefits-of-sliding-window-training" class="headerlink" title="7.1 Benefits of sliding-window training"></a>7.1 Benefits of sliding-window training</h3><p>作者通过 sliding-window 对比直接全连接证明了 sliding window 这种方式不仅是用于实现 Localization，而且对于 classification 帮着也很大。</p>
-<p>不过问题来了，正最后是个 max-pooling，是一起做还是用 convolutional 的方式做，最后不一样么？为啥 sliding window 会对 classification 有帮助？</p>
+<p>不过问题来了，正最后是个 max-pooling，是一起做还是用 convolutional 的方式做，最后不一样么？为啥 sliding window 会对 classification 有帮助？这是因为这个 max-pooling 是额外加的，要对比的应该是没有 sliding window manner + max-pooling 直接全连接输出的吧。</p>
 <h3 id="7-2-Benefits-of-multi-scale-training-and-testing"><a href="#7-2-Benefits-of-multi-scale-training-and-testing" class="headerlink" title="7.2 Benefits of multi-scale training and testing"></a>7.2 Benefits of multi-scale training and testing</h3><p>The intuition is that the network gets to see objects at different scales, increasing the overall number of examples.</p>
 <h3 id="7-3-Does-adding-object-level-supervision-help-classification"><a href="#7-3-Does-adding-object-level-supervision-help-classification" class="headerlink" title="7.3 Does adding object-level supervision help classification?"></a>7.3 Does adding object-level supervision help classification?</h3><p>这个问题就很 hard-core 了。</p>
 <p>作者的结论是 adding this form of object-level supervision does not bring significant benefits over the weakly supervised learning. </p>
@@ -159,14 +160,12 @@
 <li>object-level supervision can help to understand better the underlying concept and predict the object location in the image.</li>
 </ul>
 <p>没有也能做，但有的话肯定还是有帮助，大体就这个意思咯。</p>
-<h2 id="8-问题残留"><a href="#8-问题残留" class="headerlink" title="8. 问题残留"></a>8. 问题残留</h2><ol>
-<li>神经网络反正最后是个 max-pooling，是一起做还是用 convolutional 的方式做，最后不一样么？为啥 sliding window 会对 classification 有帮助？这个可能要看下作者之前这篇看看具体是怎么做 sliding window 的。<ul>
-<li>M. Oquab, L. Bottou, I. Laptev, and J. Sivic. Learning and transferring mid-level image representations using convolutional neural networks. In CVPR, 2014.</li>
-</ul>
-</li>
-</ol>
+<!--## 8. 问题残留
+
+1. 神经网络反正最后是个 max-pooling，是一起做还是用 convolutional 的方式做，最后不一样么？为啥 sliding window 会对 classification 有帮助？这个可能要看下作者之前这篇看看具体是怎么做 sliding window 的。
+  + M. Oquab, L. Bottou, I. Laptev, and J. Sivic. Learning and transferring mid-level image representations using convolutional neural networks. In CVPR, 2014.-->
 <hr>
-<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下。</p>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
 <table>
 <thead>
 <tr>
@@ -182,9 +181,9 @@
 </table>
 </div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
 var disqus_shortname = 'YimianDai';
-var disqus_identifier = 'Oquab15/';
-var disqus_title = 'Notes on CVPR-2015-Is object localization for free?';
-var disqus_url = 'http://lowrank.science/Oquab15/';
+var disqus_identifier = 'Oquab-CVPR-15/';
+var disqus_title = 'Notes on CVPR 2015 Is object localization for free?';
+var disqus_url = 'http://lowrank.science/Oquab-CVPR-15/';
 (function() {
    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
