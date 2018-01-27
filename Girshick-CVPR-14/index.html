@@ -1,0 +1,112 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR-14-Rich feature hierarchies for accurate object detection and semantic segmentation | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Supervised-Learning/">Supervised-Learning</a></div><div class="post-time">2018-01-27</div></div></div><div class="container post-header"><h1>Notes on CVPR-14-Rich feature hierarchies for accurate object detection and semantic segmentation</h1></div><div class="container post-content"><p>就是这篇论文是提出了大名鼎鼎的 R-CNN，第一作者是 <a href="http://www.rossgirshick.info/" target="_blank" rel="noopener">Ross Girshick</a>，也就是 rbg 大神。rgb 是 <a href="https://cs.brown.edu/~pff/" target="_blank" rel="noopener">Pedro Felzenszwalb</a> 的博士生，而且是他的第一个博士生。Felzenszwalb 最知名的工作应该就是 DPM 了，10 年那篇 TPAMI ，Felzenszwalb 是一作，rbg 是二作。所以大神就是大神，不管做不做深度都有非常精彩的工作。Felzenszwalb 在 Grammar Models 上做了很多很好的工作，很值得 follow。</p>
+<p>本文的代码地址： <a href="https://github.com/rbgirshick/rcnn" target="_blank" rel="noopener">https://github.com/rbgirshick/rcnn</a></p>
+<h2 id="1-Problem-amp-Background"><a href="#1-Problem-amp-Background" class="headerlink" title="1. Problem &amp; Background"></a>1. Problem &amp; Background</h2><p>因为这篇论文的影响力太大了，很多思想已经变成了目前很多工作的基础，所以比较看的时候感觉会比较平淡。为了更好地理解这篇论文，我们必须回到当时的情景。这篇论文是 14 年的 CVPR，但是在 13 年 11 月的时候放到 arXiv 上的，正是 CVPR 论文提交的 deadline。</p>
+<p>当时，AlexNet 已经在 2012 年 ImageNet 的 Single-label Image Classification 上取得了巨大的成功。很自然的想法就是怎么把 CNN 应用到 Multi-label Image Classification、Object Detection 等的其他场景上。但毕竟是不同的 task，Single-label Image Classification，和 Multi-label Image Classification、Object Detection 这些 task 之间还是有一定的 gap 的。对于解决 Multi-label Image Classification 的尝试，昨天已经介绍过了，具体可看 <a href="http://lowrank.science/Wei-TPAMI-16/">Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification</a>. 本文要做的就是如何用在 Object Detection 上。</p>
+<h3 id="1-1-Motivation"><a href="#1-1-Motivation" class="headerlink" title="1.1 Motivation"></a>1.1 Motivation</h3><p>尽管 CNN 在分类上取得了巨大成功，很自然的想法是看能不能也把 CNN 拓展到其他任务上。这个自然想法背后的 Motivation 是什么呢？是特征。</p>
+<p>引言一开始，rbg 就写了我认为特别漂亮的一段话，摘录如下：</p>
+<blockquote>
+<p>Features matter. The last decade of progress on various visual recognition tasks has been based considerably on the use of SIFT [27] and HOG [7]. But if we look at performance on the canonical visual recognition task, PASCAL VOC object detection [13], it is generally acknowledged that progress has been slow during 2010-2012, with small gains obtained by building ensemble systems and employing minor variants of successful methods. </p>
+</blockquote>
+<p>作者把在具体 task 上的进步归结于特征设计、提取的进步。当特征不再改善时，比如 10-12 年，那么具体 task 上的 performance 的进步就几乎停滞了。CNN 在分类上取得了这么大的成功，原因在于 CNN 提取到了更好的特征，CNN 具有更好的特征抽取功能。如果也能用这些 CNN 提取到的更好的特征，现有方法在其他 task 的性能表现也肯定会有一个很大的提高。</p>
+<p>嘿嘿，这是很典型的做 CV 的人的观点了。与做 ML 的整天关心泛化、边界啥的不同，在做 CV 的看来，分类器根本不重要，数据、特征才是关键。数据多，有好的特征，performance 自然会上去。作者贡献了一个很好的以后反驳做 ML 小伙伴的鄙视的论据，哈哈。</p>
+<p>嗯，上面是从特征更好，效果更好的角度出发的 Motivation，作者还给了一个神经科学上的解释，为什么要用 CNN 特征。CNN 抽取的是 hierarchical features，而人的识别过程也是基于 hierarchical features 的.</p>
+<blockquote>
+<p>recognition occurs several stages downstream, which suggests that there might be hierarchical, multi-stage processes for computing features that are even more informative for visual recognition. </p>
+</blockquote>
+<p>上面是表示用 CNN 抽取的特征合乎天道，下面则是表示为什么 SIFT、HOG 这些特征不够好，因为从 hierarchical features 角度看来，它们都只是第一层特征：</p>
+<blockquote>
+<p>SIFT and HOG are block-wise orientation histograms, a representation we could associate roughly with complex cells in V1, the first cortical area in the primate visual pathway.</p>
+</blockquote>
+<p>从这个 Motivation 里也可以看出来了，这篇文章里，作者只是把 CNN 看做一个特征抽取器的。所以对于 R-CNN 这个全称，与其理解成 Region-based Convolution Neural Network，个人觉得还是理解成 Regions with CNN features 为好。之所以会有这个想法，是因为在没看这论文之前，我以为 R-CNN 就是 Region Proposal + CNN，CNN 负责了特征抽取和分类；其实不是的，R-CNN 其实是 Region Proposal + CNN + Category-specific Linear SVMs，只是用了 CNN 来抽 hierarchical features 而已。</p>
+<p>这个也就可以理解了为啥本文标题后面还有一个  semantic segmentation，因为只要解决了在当前 task 的小数据集上也能训练 CNN 学出好的特征，就可以把这个特征替换原来的 SIFT、HOG 这些用到原来的 semantic segmentation 方法里去，本文里面的 segmentation 的确也是这么做的。</p>
+<h3 id="1-2-Challenges"><a href="#1-2-Challenges" class="headerlink" title="1.2 Challenges"></a>1.2 Challenges</h3><p>在当时，用 CNN 做 Object Detection 与 Single-label Image Classification 之间的 Gap，或者说这个问题 challenging 的地方一共有两处：</p>
+<ol>
+<li>一个就是之前没有过用 CNN 做 Object Detection 的工作。不同于 Image Classification，Object Detection 要求 localizing objects within an image. 这个 Location 信息要怎么给出？在当时的 CNN，也就是 AlexNet 可是只能够输出图像的类别的。</li>
+<li>另外一个就是，labeled data for detection is scarce. AlexNet 在 Single-label Image Classification 上取得成功，是因为 ImageNet 正好有上千万幅标注好的分类图像，但是对于 Object Detection，当时最大的 VOC dataset 可不足以支撑训练其那么多的神经网络参数。</li>
+</ol>
+<p>哈哈，我知道看到这，哪怕之前没有看过这篇论文，乃至深度学习的论文也没怎么看过，但毕竟作为当世显学，整天被相关的信息轰炸，脑子里肯定一下子就冒出来了应对方法，region proposal 和 pre-training + fine-tunning。这两点恰恰就是本文的 Contribution。</p>
+<h3 id="1-3-Contributions"><a href="#1-3-Contributions" class="headerlink" title="1.3 Contributions"></a>1.3 Contributions</h3><p>本文的 Contribution 一共两点：</p>
+<ol>
+<li>Combining region proposals with CNNs 来实现 localizing objects with a deep network</li>
+<li>supervised pre-training for an auxiliary task + domain-specific fine-tuning 这个范式来实现了如何用 insufficient data 来训练 a large CNN 的问题。</li>
+</ol>
+<p>这两个 Contribution 都非常重大。对于 Object Detection，R-CNN，Fast R-CNN，Faster R-CNN 这路下来，R-CNN 是开山鼻祖肯定绕不过。对于 Pre-training + Fine-tuning，这点就更是了啊，影响无远弗界，不仅仅在 Object Detection 了。</p>
+<p>需要注意的是，同样是 13 年放到 arXiv，同期用 pre-training 来做的文章也不少，可见这一块竞争还是很激烈的，这些相关的文献目录具体可看 <a href="http://lowrank.science/Wei-TPAMI-16/">Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification</a>.</p>
+<h2 id="2-Method"><a href="#2-Method" class="headerlink" title="2. Method"></a>2. Method</h2><h3 id="2-1-Data"><a href="#2-1-Data" class="headerlink" title="2.1 Data"></a>2.1 Data</h3><ol>
+<li>对于 pre-training: discriminatively pre-trained the CNN on a large auxiliary dataset (ILSVRC 2012) with image-level annotations </li>
+<li>对于 fine-tunning: Domain-specific fine-tuning on VOC</li>
+<li>对于 Classification: 对于每一个 category，肯定是要构建 positive 和 negative 两类啦</li>
+</ol>
+<h3 id="2-2-Model"><a href="#2-2-Model" class="headerlink" title="2.2 Model"></a>2.2 Model</h3><p>R-CNN = Region Proposal + CNN + Category-specific Linear SVMs。</p>
+<ol>
+<li>The first generates category-independent region proposals.</li>
+<li>The second module is a large convolutional neural network that extracts a fixed-length feature vector from each region. </li>
+<li>The third module is a set of class-specific linear SVMs.</li>
+</ol>
+<h4 id="Module-1-Region-Proposal"><a href="#Module-1-Region-Proposal" class="headerlink" title="Module 1: Region Proposal"></a>Module 1: Region Proposal</h4><p>Region Proposal 用 Selective Search 实现，选这个文章里到没有说是有什么优点采选 SS，而是为了跟其他已有的方法对比，他们用了 SS。所以完全可以用其他 Region Proposal 方法，比如 BING 之类的。</p>
+<p>目前我能理解的 detection 的思路其实就是 region classification，确定了哪些 region 里面有什么类的 object 也就完成了 detection，至于怎么产生这些 region，可以用 sliding-window，也可以用 region proposal，其实我觉得 sliding-window 就是一种特别简化的 region proposal 嘛。</p>
+<h4 id="Module-2-Feature-Extraction"><a href="#Module-2-Feature-Extraction" class="headerlink" title="Module 2: Feature Extraction"></a>Module 2: Feature Extraction</h4><p>CNN 就是用来抽取特征的，输出是 softmax，但这个只是在训练 CNN fine-tunning 的阶段用，最分类还是用的 SVM.</p>
+<p>但这里存在一个细节的技术问题，就是在当时，CNN 对输入的要求是必须都是固定大小的，但是 Region Proposal method 产生的 region 每个都各不相同，怎么把这不规则的 region 输入需要固定大小输入的 CNN，这是怎么解决的呢？作者就很简单粗暴的处理了，Regardless of the size or aspect ratio of the candidate region, we warp all pixels in a tight bounding box around it to the required size. </p>
+<h4 id="Module-3-Classification"><a href="#Module-3-Classification" class="headerlink" title="Module 3: Classification"></a>Module 3: Classification</h4><p>SVM 用来分类。那么问题来了，为啥要弄个 SVM 跟在后面，直接 softmax 不好吗？作者在 suppliment 里面提到了，就是说效果掉得厉害（4 个百分点），作者给了两个原因</p>
+<ol>
+<li>the definition of positive examples used in fine-tuning does not emphasize precise localization</li>
+<li>the softmax classifier was trained on randomly sampled negative examples rather than on the subset of “hard negatives” used for SVM training.</li>
+</ol>
+<p>不过后面我们也知道了，后面 end-to-end training 这种再套个 SVM 的方式不怎么有人用了，还是用的 softmax。同样还有下面两个问题：</p>
+<ol>
+<li>why the positive and negative examples are deﬁned differently in fine-tuning versus SVM training</li>
+<li>why it’s necessary to train detection classifiers rather than simply use outputs from the final layer (fc8) of the fine-tuned CNN</li>
+</ol>
+<p>虽然没搞懂，但是不关心了…</p>
+<h3 id="2-3-Cost-function"><a href="#2-3-Cost-function" class="headerlink" title="2.3 Cost function"></a>2.3 Cost function</h3><ol>
+<li>对于 CNN，cost function 应该就是普通 CNN 的 cost function 吧。</li>
+<li>对于 SVM，肯定是 hinge loss 啦。</li>
+</ol>
+<h3 id="2-4-Optimization"><a href="#2-4-Optimization" class="headerlink" title="2.4 Optimization"></a>2.4 Optimization</h3><p>因为 feature extraction 和 Classification 是分开学习的，所以对于 CNN 就是普通 DL 常用的 SGD 那些，对于 SVM 应该就是那些优化啦。</p>
+<p>本质上，这还是一个 pipeline，而且这个 pipeline 只逐个 local minimum，并不是 joint optimum，所以肯定有很大的提升空间。</p>
+<h2 id="3-题外话"><a href="#3-题外话" class="headerlink" title="3. 题外话"></a>3. 题外话</h2><p>R-CNN 肯定是属于 recognition using regions 这个 paradigm 啦，有意思的一点是作者用的 recognition using regions 这个 paradigm 的参考文献是 09 年的，这个范式出现的这么迟么，真是不可思议。</p>
+<ol>
+<li>C. Gu, J. J. Lim, P. Arbelaez, and J. Malik. Recognition using regions. In CVPR, 2009.</li>
+</ol>
+<p>作者又给了几篇同样用这种范式的，都是 09 年之后的了</p>
+<ol>
+<li>J. Uijlings, K. van de Sande, T. Gevers, and A. Smeulders. Selective search for object recognition. IJCV, 2013.</li>
+<li>J. Carreira and C. Sminchisescu. CPMC: Automatic object segmentation using constrained parametric min-cuts. TPAMI, 2012.</li>
+</ol>
+<h2 id="4-没搞懂的"><a href="#4-没搞懂的" class="headerlink" title="4. 没搞懂的"></a>4. 没搞懂的</h2><p>把 localization 看作 a regression problem，这个我其实不是很理解，为什么能够取得好的结果，背后的机理是什么。现在火的 YOLO、SSD 就是用回到了 regression 来做了。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Girshick-CVPR-14/';
+var disqus_title = 'Notes on CVPR-14-Rich feature hierarchies for accurate object detection and semantic segmentation';
+var disqus_url = 'http://lowrank.science/Girshick-CVPR-14/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','88794833');ga('send','pageview');</script></body></html>
