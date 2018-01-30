@@ -1,0 +1,155 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR-16-Weakly Supervised Deep Detection Networks | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-30</div></div></div><div class="container post-header"><h1>Notes on CVPR-16-Weakly Supervised Deep Detection Networks</h1></div><div class="container post-content"><p>这是 CVPR 2016 上的文章，对于弱监督的目标检测给了 a simple and elegant end-to-end architecture，影响力还是蛮大的。后续的一些工作，比如 ContextLocNet 都是在本文的框架下做的。引用这篇论文的论文质量都蛮高的，也很值得看一下。</p>
+<p>代码地址：<a href="https://github.com/hbilen/WSDDN" target="_blank" rel="noopener">https://github.com/hbilen/WSDDN</a>.</p>
+<p>本文中有一句话我觉得说得特别好，Weakly Supervised Object Detection 方法的 Model 都是为了 weakly supervised object detection 设计，但是最终训练（cost function）是在 image classification。</p>
+<blockquote>
+<p>While WSDDN is primarily designed for weakly supervised object detection, ultimately it is trained to perform image classification.</p>
+</blockquote>
+<p>哈哈，这不就是挣卖白菜的钱，操卖白粉的心么。其实 Weakly Supervised Learning 就是这样啊，喂的是草（image-level annotation），挤的是奶（object-level annotation）。怎么养这么一头奶牛并且挤出奶来，就是我们挤奶工（算法设计者）的工作了。机器学习 Data、Model、Cost function、Optimization 这四块，对于通常的 CV 来说，Data 就是 ImageNet + VOC；因为是 end-to-end，Optimization 就是 BP 啦；剩下的 Model 和 Cost function 就是我们要关注的重点了。看别人论文的时候，也是，看他们是怎么设计这两块的。</p>
+<h2 id="1-Contribution"><a href="#1-Contribution" class="headerlink" title="1. Contribution"></a>1. Contribution</h2><p>本文最大贡献应该就是给出了一个 end-to-end 的范式吧，之前方法多是 multi-stage 的，有了 end-to-end 后训练就很方便了，这也是为什么后面有这么多高质量的论文都引用或者基于本文的原因。</p>
+<p>事实上，虽然本文里面没有明说，其实本文方法应该借鉴的是 Fast R-CNN 的架构，或者说是受了 Fast R-CNN 很大的启发。下面是本文 WSDDN 和 Fast R-CNN 的网络架构：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15172782973855.jpg" alt=""></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">WSDDN 网络架构</td>
+</tr>
+<tr>
+<td style="text-align:center"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15172793660511.jpg" alt=""></td>
+</tr>
+<tr>
+<td style="text-align:center">Fast R-CNN 网络架构</td>
+</tr>
+</tbody>
+</table>
+<p>相似之处在于：</p>
+<ol>
+<li>同 Fast R-CNN 一样，WSDDN 用的也是 VGG-16 的基础架构，怎么看出来的？看 pool5 就好，然后是 fc6，fc7，最后是 fc8，这就是 VGG-16 的架构，具体的看 <a href="http://ethereon.github.io/netscope/quickstart.html" target="_blank" rel="noopener">Netscope</a> 上的 <a href="http://ethereon.github.io/netscope/#/preset/vgg-16" target="_blank" rel="noopener">VGG-16 架构就好</a>.</li>
+<li>都是 ROI-pooling （SPP 的特例）</li>
+<li>fc7 出来的 fc8 都有两支，一支做 Classification，一支做 Detection。</li>
+</ol>
+<p>不同之处在于：</p>
+<ol>
+<li>Fast R-CNN 是 Supervised 的，有 Object-level 的监督信息，所以两支各自有一个 loss，最后的 cost function 只是两个 loss 相加而已；但 WSDDN 因为是 Weakly Supervised Learning，只有 Image-level 的 label，最后的 loss 只能有一个，就是是否含有这类 object，所以 Classification 和 Detection 两支最后还是要汇合成 Image-level 的 output 用于计算 loss (用作者的话说是 inject image-level supervision in learning)。</li>
+<li>Fast R-CNN 中，经过 ROI-pooling 后的 softmax 什么的都是 For each ROI 单独计算的；在 WSDDN 中，是一起计算的，每个 ROI 并不独立，最后是个 C * |R| 的矩阵，C 是类别数，|R| 是 Region Proposal 的个数。</li>
+</ol>
+<p>虽然相比 Fast R-CNN，本文 WSDDN 的 two data streams 看起来平淡一些；但是对于之前 WSL Object Detection 的工作来说，本文的 two data streams 架构，提供了独立于 recognition branch 的 a dedicated parallel detection branch，突破了以前 Detection by Region Classification 的范式。</p>
+<h2 id="2-Prior-Works"><a href="#2-Prior-Works" class="headerlink" title="2. Prior Works"></a>2. Prior Works</h2><p>目前的 Weakly Supervised Detection 方法大概可以被分为 formulate this task as MIL 和 based on the idea of identifying the similarity between image parts 这两大类。</p>
+<h3 id="2-1-MIL-strategy"><a href="#2-1-MIL-strategy" class="headerlink" title="2.1 MIL strategy"></a>2.1 MIL strategy</h3><p>这一类方法肯定是主流啦，The majority of existing approaches to WSD formulate this task as MIL.</p>
+<p>其思想或者说范式大体如下：</p>
+<ol>
+<li>In this formulation an image is interpreted as a bag of regions. <ul>
+<li>这个其实很常见吧，不管是 sliding window 还是 Region Proposal 都是这样认为的吧</li>
+<li>更重要的 assumption 应该是 region 里面是 contain 了完整的一个 object 吧。</li>
+</ul>
+</li>
+<li>If the image is labeled as positive, then one of the regions is assume to tightly contain the object of interest. If the image is labeled as negative, then no region contains the object. <ul>
+<li>这其实是在给定 cost function，最后要把 cost function 转化成 image 是否含有其内部 region 识别出来的类，若是含有，就鼓励这种可能性，若是不含有则降低其概率。MIL 是通过 label 正负类的奖惩把 label 的 supervision information 嵌入并赋予我们的模型的。</li>
+<li>Supervised Learning 是根据这个 Region 是否含有这类 Object 来做奖惩；Weakly Supervised Learning 是根据包含这个 Region 的 Image 是否含有这类 Object 来做奖惩，仅此而已。</li>
+<li>相比 Supervised Learning，Weakly Supervised Learning 少掉的就是 Object 在哪一个 Region 内这个信息。</li>
+</ul>
+</li>
+<li>Learning alternates between estimating a model of the object appearance and selecting which regions in the positive bags correspond to the object using the appearance model.<ul>
+<li>MIL 范式是通过 appearance model，也就是识别出这个 Region 的 Class 来做做 Detection，就是 Detection by Region Classification 这个范式；而不是直接像 bounding box regression 那样直接输出坐标。</li>
+</ul>
+</li>
+</ol>
+<p>MIL strategy 的缺点也很明显，就是本质是个 non-convex optimization problem。求解的时候，solvers tend to get stuck in local optima，很容易陷入局部极值。这个问题其实深度网络也一样，因为本质都是非凸优化，所以也跟深度网络一样，最后解的质量跟 <strong>初始化</strong> 和 <strong>正则化</strong> 关系巨大，因此大量的后续改进都集中在 developing various initialization strategies 和 regularizing the optimization problem 上。日后看 MIL strategy 的 Weakly Supervised Learning 论文，就重点关注这两块好啦。</p>
+<p>在 initialization strategies 上做文章的有：</p>
+<ol>
+<li>M. Kumar, B. Packer, and D. Koller. Self-paced learning for latent variable models. In NIPS, pages 1189–1197, 2010.<ul>
+<li>propose a self-paced learning strategy that progressively includes harder samples to a small set of initial ones at training.</li>
+</ul>
+</li>
+<li>T. Deselaers, B. Alexe, and V. Ferrari. Localizing objects while learning their appearance. In ECCV, pages 452–466. 2010.<ul>
+<li>initialize object locations based on the objectness score.</li>
+</ul>
+</li>
+<li>H. O. Song, Y. J. Lee, S. Jegelka, and T. Darrell. Weakly supervised discovery of visual pattern configurations. In NIPS, pages 1637–1645, 2014.</li>
+<li>R. G. Cinbis, J. Verbeek, and C. Schmid. Weakly supervised object localization with multi-fold multiple instance learning. arXiv preprint arXiv:1503.00949, 2015.</li>
+</ol>
+<p>在 regularization 上做文章的有：</p>
+<ol>
+<li>H. Bilen, M. Pedersoli, and T. Tuytelaars. Weakly supervised object detection with posterior regularization. In BMVC, 2014.<ul>
+<li>propose a smoothed version of MIL that softly labels object instances instead of choosing the highest scoring ones.</li>
+</ul>
+</li>
+<li>H. O. Song, R. Girshick, S. Jegelka, J. Mairal, Z. Harchaoui, and T. Darrell. On learning to localize objects with minimal supervision. In ICML, pages 1611–1619, 2014.</li>
+</ol>
+<h3 id="2-2-Identifying-the-similarity-between-image-parts"><a href="#2-2-Identifying-the-similarity-between-image-parts" class="headerlink" title="2.2 Identifying the similarity between image parts"></a>2.2 Identifying the similarity between image parts</h3><p>The idea of identifying the similarity between image parts 是 Weakly Supervised Detection 研究的 Another line of research。</p>
+<ol>
+<li>H. O. Song, R. Girshick, S. Jegelka, J. Mairal, Z. Harchaoui, and T. Darrell. On learning to localize objects with minimal supervision. In ICML, pages 1611–1619, 2014.</li>
+<li>H. O. Song, Y. J. Lee, S. Jegelka, and T. Darrell. Weakly supervised discovery of visual pattern configurations. In NIPS, pages 1637–1645, 2014.</li>
+<li>C. Wang, W. Ren, K. Huang, and T. Tan. Weakly supervised object localization with latent category learning. In ECCV 2014, volume 8694, pages 431–445, 2014.</li>
+<li>H. Bilen, M. Pedersoli, and T. Tuytelaars. Weakly supervised object detection with convex clustering. In CVPR, 2015.</li>
+</ol>
+<p>除此之外，get 到一个认知科学上的小知识，human visual system 是有 ventral 和 dorsal 这两个 streams，one focusing on recognition and the other one on localization. 这也算是本文 two-steam 的 Motivation 之一吧。其实这个 recognition 和 localization 两个 stream，很有 multi-task 的味道啊，Fast R-CNN 就是 multi-task loss，本文的 WSDDN 只不过因为只有 image-level label，loss 没法做成 multi-task loss，但这不影响我中间过程 multi-task 啊，这可能也可以用来解释为啥本文效果会好，因为 multi-task 可以相互促进这在 holistic scene understanding 里是被反复证明了的事情。</p>
+<p>作者认为 Spatial Transformer Networks 其实也是一项 Weakly Supervised Detection 的工作，这个观点还蛮新奇的，给的理由如下。既然给的是 Image-level 的 label，最后找出了 Object 并对齐了，这么一看的确也算是 WSL 啊。</p>
+<blockquote>
+<p>This “transformer network”, which is trained in an end-to-end fashion from image-level labels, is shown to align objects to a common reference frame, which is a proxy to detection.</p>
+</blockquote>
+<h2 id="3-Algorithm"><a href="#3-Algorithm" class="headerlink" title="3. Algorithm"></a>3. Algorithm</h2><h3 id="3-1-Model-Network-Architecture"><a href="#3-1-Model-Network-Architecture" class="headerlink" title="3.1 Model / Network Architecture"></a>3.1 Model / Network Architecture</h3><p>怎么理解 modify the SPP layer to take as input not a single region, but rather the full list R 这句话？这还是要回到 Fast R-CNN，Fast R-CNN 是输入一个 Region，做 pooling，然后就做 softmax 和 bounding box regression，是一个 Region 一个 Region 做过来的；而本文不是，因为公式（1）、公式（2）的需要，本文是一口气先对所有 Region 做完 Pooling，然后再一起都通过全连接，其实实际上根本没多大差别，无非就是公式（1）、公式（2）要等所有 Region 都到了才能算么，其实是在有了公式（1）公式（2）之后很自然的方式。</p>
+<h4 id="Classification-steam"><a href="#Classification-steam" class="headerlink" title="Classification steam"></a>Classification steam</h4><p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15172995441656.jpg" alt=""></p>
+<p>对于某一个 region，在 C 类中，计算所有这个 region 可能属于某一类的概率.</p>
+<blockquote>
+<p>The first stream associates a class score $\phi^c(x; R)$ to each region individually, performing recognition. </p>
+</blockquote>
+<h4 id="Detection-steam"><a href="#Detection-steam" class="headerlink" title="Detection steam"></a>Detection steam</h4><p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15172995730586.jpg" alt=""></p>
+<p>对于某一个特定的类，计算，在所有 region 中出现的概率（belief），的确是有点 detection 的味道.</p>
+<blockquote>
+<p>The second stream, instead, compares regions by computing a probability distribution $\phi^d(x; R)$ over them; the latter represents the belief that, among all the candidate regions in the image, R is the one that contains the most salient image structure, and is therefore a proxy to detection.</p>
+</blockquote>
+<p>In the first case, in fact, the softmax operator compares, for each region independently, class scores, whereas in the second case the softmax operator compares, for each class independently, the scores of different regions. Hence, the first branch predicts which class to associate to a region, whereas the second branch selects which regions are more likely to contain an informative image fragment.</p>
+<h4 id="Combined-region-scores-and-detection"><a href="#Combined-region-scores-and-detection" class="headerlink" title="Combined region scores and detection"></a>Combined region scores and detection</h4><p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15172996287950.jpg" alt=""></p>
+<p>上面两个 streams 得到的是两个 C <em> |R| 的矩阵，这两个矩阵做 element-wise 的点积，就是最后得分的 C </em> |R| 的矩阵啦，相当于用 Detection 那个 steam 的矩阵把 Classification 的那个矩阵给调制了一下，反过来也可以理解。</p>
+<h4 id="Image-level-classification-scores"><a href="#Image-level-classification-scores" class="headerlink" title="Image-level classification scores"></a>Image-level classification scores</h4><p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15172996672591.jpg" alt=""></p>
+<p>因为我们只有 image-level 的 label，自然我们 model 的 output 也该是要 image-level 的，所以上面公式计算的是对于某个特定的类，所有 Region 的得分总和就是这个类的 得分，在公式（2）中，如果加了所有 Region 的话得分肯定就是 1，但因为我们经过了一个 Hadamard product 调制过的，所以得分肯定是小于等于 1 的，而这个等于也只有在 公式（1）对于这一类有一个 Region 是 1，其余都是 0 的时候取到，这基本是不可能的，所以得分肯定在 (0, 1) 之内。</p>
+<p>如此看来，本文的 Output 并不是一个 binary 的 hard decision，而是一个位于 （0， 1） 之内的 soft output。当然在 cost function 里面，我们还可以用 soft 的值，在最后我们实际还是需要一个有没有物体的 binary 的结果的，作者没有提这个阈值，但既然可以理解成概率，那 0.5 应该是个合适的值吧。</p>
+<h3 id="3-2-Cost-function"><a href="#3-2-Cost-function" class="headerlink" title="3.2 Cost function"></a>3.2 Cost function</h3><p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15173007654150.jpg" alt=""></p>
+<p>这个 cost function 还是一个 image-level 的cost function。</p>
+<h4 id="Spatial-Regularizer"><a href="#Spatial-Regularizer" class="headerlink" title="Spatial Regularizer"></a>Spatial Regularizer</h4><p>作者的这个 key observation 或者说 Motivation 其实蛮好的。就是说有 overlapping 的 Region 之间其实是有 spatial smoothness 的。那当然因为空间上有重叠，对于 Object 的得分上的确应该有连续性，何况本文还是 0 到 1 之间 soft 的得分呢。</p>
+<blockquote>
+<p>As WSDDN is optimized for image-level class labels, it does not guarantee any spatial smoothness such that if a region obtains a high score for an object class, the neighboring regions with high overlap will also have high scores.</p>
+</blockquote>
+<p>a soft regularization strategy that penalizes the feature map discrepancies between the highest scoring region and the regions with at least 60% IoU during training:</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-30-15173010163157.jpg" alt=""></p>
+<h3 id="3-3-Optimization"><a href="#3-3-Optimization" class="headerlink" title="3.3 Optimization"></a>3.3 Optimization</h3><p>既然是 end-to-end，那本文肯定是用 BP 就可以训练的啦。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Bilen-CVPR-16/';
+var disqus_title = 'Notes on CVPR-16-Weakly Supervised Deep Detection Networks';
+var disqus_url = 'http://lowrank.science/Bilen-CVPR-16/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','88794833');ga('send','pageview');</script></body></html>
