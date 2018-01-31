@@ -1,0 +1,155 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR-07-An Exemplar Model for Learning Object Classes | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-31</div></div></div><div class="container post-header"><h1>Notes on CVPR-07-An Exemplar Model for Learning Object Classes</h1></div><div class="container post-content"><p>又是一篇 Andrew Zisserman 的 paper，大神真的是无处不在。这篇还是做 Weakly Supervised Object Detection，不过因为是 07 年的 CVPR，深度要等到 12 年之后才起来，所以本文还是属于传统范式。额… 其实我还是更喜欢这种传统方式的 paper 的，深度的，总有一种，哈！这就行了的感觉。</p>
+<h2 id="1-Problem-amp-Goals"><a href="#1-Problem-amp-Goals" class="headerlink" title="1. Problem &amp; Goals"></a>1. Problem &amp; Goals</h2><p>这篇论文是 07 年的 CVPR，比较早期的，问题场景设置的比较简单，就是给你一堆图片，<strong>分属于多类 Object，但每幅图像假设都只含有一类 Object，可以一幅图像内可以有多个 instance</strong>，就是学习 class-specific 的 Detection method，怎么对这一类 Object 做 Detection。Object class detection, 也就是 identifying class instances and their spatial extent. 当我们学 class-specific 的 detector 时，因为所有含有这个 object class 的都属于都属于同一类，这个其实是很理想的一个条件了。</p>
+<p>这篇 paper 的 goals 有两个，分别是：</p>
+<ol>
+<li><p>the first is to learn a region of interest (ROI) for class instances in weakly supervised training data, i.e. given only a set images known to contain instances of an object class, determine the scale and position of the instance in each image.</p>
+<ul>
+<li>啊啊啊，<strong>learn and generate a region of interest around class instances</strong>，这个我一开始看的时候理解错了，理解成 learn to generate ROI 了；</li>
+<li>如果真的是 learn to generate ROI，那就很有新意了，之前的看过的 Oquab-CVPR-15，Bilen-CVPR-16，Wei-TPAMI-16 都是用 Region Proposal 产生大量的 candidate region，背后的 assumption 是在产生大量的 region 中，已经包含了足够好的 紧致包含 object 的 Region 了，也就是本文说的 exemplar，我们要做的只是挑选出这个足够好的 region  </li>
+<li>其实本文也是 Region Proposal 的路子，和后面 R-CNN、Fast R-CNN 以及同样是 WSL 的 Oquab-CVPR-15，Bilen-CVPR-16 不同的有两点<ul>
+<li>本文的 Region Proposal 用的是 根据 discriminative local feature 的位置做 initialization；而前面提到的那些方法是用 Selective Search、Edge Box 这些方法做 initialization。</li>
+<li>前面提到的那些方法只是有一个 candidate region selection 的过程（R-CNN 这一路都是做非极大值抑制，Wei-TPAMI-16 是在输入前就做 selection），仅仅是 selection 而已；而本文中的 candidate region 不仅有 selection，更重要的是这些 candidate region 在 the first stage 的优化过程中还会有变形，也就是这些 region 的 refinement，这就是 multi-stage 的好处啦；因为 multi-stage 也就是天然的有两个 loss 啦，不同的 loss 可以做不同的事情；其实这种对 region 做 refinement 的事情，Fast R-CNN 也做了，只不过它是把这个放到了最后成为 multi-task，自然也就有了两个 loss 了。</li>
+</ul>
+</li>
+<li>learn to generate ROI 这个 Faster R-CNN 已经做掉了啦，不过那个有 bounding box annotation 好做，对于 Weakly Supervised Object Detection，怎么 learn to generate ROI？这个问题其实蛮有意思的。</li>
+<li>这一步的目的其实是将 task 从 weakly supervised 转变成 supervised</li>
+</ul>
+</li>
+<li><p>The second goal is to learn a class model from these ROIs that can be used to detect instances of the object class in (unseen) test images.</p>
+<ul>
+<li>上一步要从 training set 里显式的得到 exemplary 的目的就是为了能够给这一步的 Detection model 提供 Object level 的 training set。</li>
+<li>这一步其实就是在做普通的 supervised learning 的 object detection 了。</li>
+</ul>
+</li>
+</ol>
+<p>本文方法是个再明显不过的 multi-stage，the first stage 是产生足够多的 exemplar，有了这些 weakly supervised learning 问题被转变成了 supervised learning 问题，the second stage 就是一个典型的 supervised object detection problem 了，有很多现成的 solution。由此可见，本文的重点其实是在如何实现 the first goal。</p>
+<h2 id="2-Prior-works"><a href="#2-Prior-works" class="headerlink" title="2. Prior works"></a>2. Prior works</h2><h3 id="2-1-Solutions-to-the-first-goal"><a href="#2-1-Solutions-to-the-first-goal" class="headerlink" title="2.1 Solutions to the first goal"></a>2.1 Solutions to the first goal</h3><p>在 <a href="http://lowrank.science/Bilen-CVPR-16/">Notes on CVPR-16-Weakly Supervised Deep Detection Networks</a> 中我们提到过，目前的 Weakly Supervised Detection 方法大概可以被分为 formulate this task as MIL 和 based on the idea of identifying the similarity between image parts 这两大类，其实我感觉这两大类不是 mutually exclusive 的。在本文里就是这样，MIL 其实是需要有正负类的，但因为本位的场景设置是给定的 a set of images 里面都含有同一类 object，所以其实是没法构造出负类的。那么，能用来做的思路就肯定是第二条 based on the idea of identifying the similarity between image parts 啦。还要注意的一点事，MIL 是 non-convex optimization problem，所以 初始化 和 正则化 很重要。但第二条思路的方法，很可能也是 non-convex optimization problem，所以 初始化 和 正则化 同样很重要，值得关注。</p>
+<p>The first problem requires a method of measuring visual similarity across the set of training images in order to “tease out” the class instance in each image. 那么我们该怎么来 measuring visual similarity across the set of training images，而且 measuring visual similarity 的最终目的是能够把 the class instance 从 each image 中 tease out 出来。</p>
+<p>大家的思路都是 cast this as an optimization problem，只不过怎么构建这个 optimization problem 各有不同：</p>
+<ol>
+<li>LOCUS [23] 是 fitting a generative model<ul>
+<li>LOCUS is limited by its use of the EM algorithm, since this depends on a good initialization. 用 EM 的需要 a good initialization，怎么改进这个 initialization 似乎是个永远都可以做的内容。</li>
+<li>LOCUS 要效果好，还需要满足蛮多理想的条件。It can succeed provided the class instance is sufficiently large compared to image clutter, does not vary significantly in scale over the image set (since only a limited range of scales are tried), and is unoccluded. 这也难免的，早期的条件都比较理想，而且只能从 training set 中 get 到信息，并没有 pre-training 这种可以 transferring 机制，相比现在的少了很多额外的知识。那么问题来了，如果用不上 pre-training 就少了一大块知识，那么为何还要 develop 那些没有用 pre-training 的 statistical model？</li>
+</ul>
+</li>
+<li>文献[8] 是 fitting a Constellation model 通过 optimize model likelihood</li>
+</ol>
+<h3 id="2-2-Solutions-to-the-second-goal"><a href="#2-2-Solutions-to-the-second-goal" class="headerlink" title="2.2 Solutions to the second goal"></a>2.2 Solutions to the second goal</h3><p>既然有了 exemplar，那么怎么训练这个分类器，就是一个存粹的 supervised learning problem 了，有不少现成的 solution。作者这里给了两种：一个是 exemplar model [24]，另一个就是 SVM 啦。</p>
+<p>这里的问题是，应该只有正类的 exemplar 吧，不管是 exemplar model 的 SVM-KNN 还是 SVM 应该都需要 正类负类吧，这个 负类是哪里来的？</p>
+<h2 id="3-Method"><a href="#3-Method" class="headerlink" title="3. Method"></a>3. Method</h2><p>因为本文主要有 Exemplar Extraction （相当于 Learning）和 Detection （相当于 Testing）两个阶段，而这两阶段是分开的，有各自的 Cost function 和 Optimization，所以后面的 model 和 cost function 也会分成 Exemplar Extraction 和 Detection 两个子部分来写。</p>
+<h3 id="3-1-Data"><a href="#3-1-Data" class="headerlink" title="3.1 Data"></a>3.1 Data</h3><p>本文用的就是 VOC，但是注意，这在 MIL 中是常见的一种划分，即正负类。对于某个特定的 class 来说，包含这类 object 的图像集合是正类，不包含的就是负类。这个正类、负类本文方法用了两次，一次是计算 visual word 的判别性的时候，还有一次就是用 SVM 来做检测，也就是对 ROI 来做分类的时候，这个 SVM 肯定是 category-specific classifier，会用到正类和负类。 </p>
+<h3 id="3-2-Model-amp-Cost-function"><a href="#3-2-Model-amp-Cost-function" class="headerlink" title="3.2 Model &amp; Cost function"></a>3.2 Model &amp; Cost function</h3><h4 id="3-2-1-Initialization"><a href="#3-2-1-Initialization" class="headerlink" title="3.2.1 Initialization"></a>3.2.1 Initialization</h4><p>不管对于 Learning 还是 Testing，Region Proposal 都是必须的，本文的 Region Proposal 用的是 discriminative visual word initialization。</p>
+<blockquote>
+<p>The ROIs are initialized as a bounding box of the 64 most discriminative features.</p>
+</blockquote>
+<p>首先，这些 features 是什么？其实作者这里的原文有点误导性，本文中的 feature 有两层意思。Feature representation 有三个步骤：</p>
+<ol>
+<li>hand-crafted feature extraction，SIFT、HOG、LBP 是这一层面的，这是对这个特征点的表示，是 local feature or point-level representation。</li>
+<li>feature coding，K-Means，Vector Quantization, Sparse Coding and Gaussian Mixture Models 是在这一层面的，visual words 就是在这一阶段得到的，这是对这个特征点的简化表示（做了聚类），并将特征点与其他所有特征点之间建立了联系（属于或不属于同一个 cluster，可以一起被一个 histogram 编码）。上面引用里的 discriminative features 其实应该是 discriminative visual words 更准确。</li>
+<li>feature pooling，Spatial Pyramid Matching 是在这一层面的，这已经不是仅仅特征点了，而是编码了整个图像 or 区域的特征分布，总之是 image-level 的 representation 了，公式(1) - (2)中用来做距离度量的 feature 就是经过 hierarchical spatial histograms 表示后的 feature。</li>
+</ol>
+<p>OK，搞清楚了。本文的 Initialization 是在 SIFT 特征抽好后，做 feature coding，用 cluster center 的 visual words 来代替原来的各个特征点的 SIFT 特征。这样才可以来度量这些 visual words 的 discriminability。具体度量方法如下所示：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15173878296131.jpg" alt=""></p>
+<p>这种度量方法，根据本文，应该最早是 2004-Object class recognition using discriminative local features 里做的。因为整个 Dataset 里面包含了多个 Object class，discriminative 是指对 某个 Object class 有判别性，就是这个 visual word 只在这一类 object 中出现，不在其他类的 object 中出现。所以 discriminability 就等价于 visual words 在具体某一类中的专一性，只在这一类 object 中出现，不在其他类的 object 中出现，这个性质用公式 (3) 刻画就很显而易见了。</p>
+<p>不过这里其实隐含了一个假设，就是忽略了属于背景但是与 object 伴生的 discriminative part。可以这样忽略的背后假设是，背景里的 visual words 都是所有 object 共享的，一致分布的，或者说，大家的背景都是一样的，不存在 与 object 伴生的 discriminative part。这里其实埋了一个坑。但是，这一点作者考虑到了，所以后面有一个 Refinement 环节，就是在先跑一遍 Learning，有了 Exemplar 之后，就可以知道那些 discriminative visual words 是属于背景的了，把这些剔除掉，再重新跑一遍 Learning 算法，在这一遍中，一开始没有计算的 $\mu$ 和 $\sigma$ 都可以计算出来了，毕竟我们已经有了 object 位置了嘛，refinement 就是更精确一点。</p>
+<p>要 Initialization 多少个 ROI candidate 呢？作者讲了，The number is not crucial，实验发现 32 – 128 差别都不是很大。</p>
+<p>最后，有了 discriminative visual words，围绕这些 discriminative visual words 的 bounding box 怎么确定？可惜的是，作者只是说了一句 discriminative visual words 的 distribution in each image determines the initial region estimate，但到底是怎么 determine 的呢？文章的 4.1 部分讲了，似乎还用上了 mean-shift clustering，还有公式（4）来度量 还有 hypotheses 的好坏。这个细节就等用到的时候再深究了。</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15174055957391.jpg" alt=""></p>
+<h4 id="3-2-2-The-Exemplar-Model"><a href="#3-2-2-The-Exemplar-Model" class="headerlink" title="3.2.2 The Exemplar Model"></a>3.2.2 The Exemplar Model</h4><p>Model 的工作就是用来表示 object class 是如何被表示、被检测的，The Exemplar Model 就是怎么来表示 object class。</p>
+<p>首先来看什么是 exemplar。从下图可以看出，exemplar 其实就是一个 bounding box annotation 的图像块而已，紧密包裹着 object。通过了 Learning 的过程，应该是比较有代表性的 Object instance。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15173670324550.jpg" alt=""></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">exemplar 示意图</td>
+</tr>
+</tbody>
+</table>
+<p>We represent the class by a set of exemplars, with each exemplar recording the spatial layout of appearance patches and edges. 就是这样，这里是用 a set of exemplars 来表示model。对！没错，就是用这些比较有代表性的 Object instance 来表示这个 Object class，其实是很朴素的想法了。至于是这些图片切片还是他们对应的 feature representation，其实都是一样的，因为这些 Object instance 最后在分类器（Learning、testing 过程中）都是要表示成 feature 的。</p>
+<p>这其实是个 Lazy learning，只是找出了代表性的样本。真的做 Testing 的时候，要么就跟这些 exemplar 都比较一遍，就想典型的 Lazy learning 算法 KNN 那样。要么在这之后在训练一个 SVM，用训练好的参数模型再去处理新的样本。总之为了最后的 output，还要在这之外做一些工作。</p>
+<p>话说从 training set 里挑一些最好的 exemplar 来表示这个 class，好像这个思路也蛮普遍的。ICCV-99-A cluster-based statistical model for object detection，Rikert-ICCV-99 里面则是用 GMM 聚类后的 cluster center 们来表示 Object class。两者共同的思路在于，都在显式的来构建并表示这个 Object class，来一个 instance，则比较与这个我们已经构建好的 Object class representation 的距离，本文就是用跟 exemplar set 的距离之和来表示啦，而 ICCV-99-A cluster-based statistical model for object detection 则是用 类条件概率 来表示。对比一下我们之前已经看过的 Bilen-CVPR-16、Oquab-CVPR-15 乃至强监督的 Girshick-CVPR-14 都是没有显式构造 Object Class 这一环节的，是典型的参数化的判别模型。那么按照参数化模型的 generative model，discriminative model，discriminant function 以及 non-nonparametric model，本文属于哪一类呢？  </p>
+<h5 id="3-2-2-1-Learning-the-exemplar-model"><a href="#3-2-2-1-Learning-the-exemplar-model" class="headerlink" title="3.2.2.1 Learning the exemplar model"></a>3.2.2.1 Learning the exemplar model</h5><p>Learning the exemplar model 是被建模成一个优化问题，具体的 cost function 如下：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15173993832343.jpg" alt=""></p>
+<p>这么建模，其实就是显式地利用了同一类 object 之间外观上的相似性. The underlying assumption 就是 the object class whose model we are trying to learn has similar appearance (visual and spatial) in all images. 有了公式（2）那样的 Cost function，我们的 Optimization algorithm 就是 finds similar regions in the set of training images. </p>
+<p>注意哦，在公式 (2) 中，我们是在一幅图像中只选一个 ROI，也就是每幅图像中只有一个 ROI 参与了公式（3）的计算。虽然每幅图像都有很多 Region proposal，但是我们只保留一个 ROI，这个 ROI 是这幅图像的 ROI 中与其他所有图像所选中的 ROI 的距离之和最小的。</p>
+<blockquote>
+<p>Suppose we are given a set T of N training images, we wish to find the region in each training image which best matches with regions in the other training images.</p>
+</blockquote>
+<p>每幅图像找出来的这些 Region 的集合就是我们要找的 the exemplar set 了。</p>
+<blockquote>
+<p>These regions will define the exemplar set. </p>
+</blockquote>
+<p>$X^w, Y^w$ 就是相应的 ROI 的特征表示，the hierarchical spatial histograms of visual words and edge directions。他们之间的距离度量，如下：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15174011688347.jpg" alt=""></p>
+<p>其中</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15174012057639.jpg" alt=""></p>
+<p>A 是每个 ROI 的长宽比，$\mu$ 和 $\sigma$ 是相应的均值和方差。另外，本文里的 $\alpha$ 和 $\beta$ 都是手动调的，$\alpha$ 作者只是说手动调，没给取值。$\beta$ 给了，取 0.1。吐血的是，完事后作者给这一项补了一刀，这一项有没有其实关系都不大</p>
+<blockquote>
+<p>Modeling the aspect ratio is not essential for the method, but improves the precision of the object’s bounding box for the PASCAL VOC evaluation.</p>
+</blockquote>
+<p>而且作者后面明说了，在 Learning 的时候，aspect ratio is not considered in this stage, i.e. $\beta = 0$ </p>
+<h5 id="3-2-2-2-Refinement"><a href="#3-2-2-2-Refinement" class="headerlink" title="3.2.2.2 Refinement"></a>3.2.2.2 Refinement</h5><p>在第一次跑完 Learning 过程后，再根据初步得到的 ROI，对 discriminative visual words 做一次重新的筛选剔除掉那些是 background 但混入了最初的 discriminative visual words 行列的 visual words 后，再重新跑一遍 Learning，这就是 本算法的 Refinement。</p>
+<p>为什么要做 Refinement？At the start of the optimization the discriminability of visual words is estimated from whole training images, since there is no information about the location of the objects within the images at that stage. For this reason, some background features not directly related to the object are included as well. 因为最初计算 visual words 判别性的时候，特征是从整幅图像并不是从目标区域里面抽取的，所以也包含有背景特征了，这是为了防止不属于目标，但就在那一场景里出现的visual words 吧。</p>
+<p>只有在后面的 Refinement 阶段，才会确定 $\mu$ 和 $\sigma$</p>
+<p>很自然因为有了 refinement 阶段，那些用于做 Detection 的 exemplar 也是在 refinement 之后再得到的。The regions remaining at the end of the algorithm (i.e. those not rejected) are the exemplar model learnt for this class. </p>
+<h4 id="3-2-3-The-Detection-Model"><a href="#3-2-3-The-Detection-Model" class="headerlink" title="3.2.3 The Detection Model"></a>3.2.3 The Detection Model</h4><p>Learning a detector given the ROI 作者给了两种方式：use the exemplar model as a detector 和 将 ROIs 当做 training set 来 train other models。</p>
+<h5 id="3-2-3-1-Using-the-exemplar-model"><a href="#3-2-3-1-Using-the-exemplar-model" class="headerlink" title="3.2.3.1 Using the exemplar model"></a>3.2.3.1 Using the exemplar model</h5><p>这就是 就是用公式（1）了。公式（1）其实是 proposed region-wise 来做的，一定迭代次数后，能够让 cost function 最小的那个就是最该被检测出来的那个。</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15173834463465.jpg" alt=""></p>
+<h5 id="3-2-3-2-Using-other-models"><a href="#3-2-3-2-Using-other-models" class="headerlink" title="3.2.3.2 Using other models"></a>3.2.3.2 Using other models</h5><p>作者给的例子是用的 SVM。既然是 SVM 那么肯定是要有正类负类的，正类简单，就是 Exemplar model 学出来的那些 ROIS，负类的话，可以找其他 set 中的 ROI 来构成，其他 set 好弄，只不过之前因为都只要正类就尅了，所以就没有怎么谈及负类，负类可以自行构建。</p>
+<p>更为有趣的是，可以拿已经学好的 Exemplar model 拿去给负类做，找出那些 Exemplar model 将负类中的判成正类 ROI 的 samples，作为 SVM 的负类；这样就很有 GAN 的味道了，肯定可以提高最后判别的效果。</p>
+<p>但是，要输入 SVM 的是什么？废话，肯定是特征啊？是谁的特征？ROI 的特征？这个 ROI 哪来的？是直接 discriminative feature initialization 来的还是用 exemplar model 做完 iterative refinement 之后的？其实是后者。</p>
+<p>所以说，对于 Using the exemplar model，或者说 Directly using the exemplar model，其 Detection 流程其实是 Initialization + Using the exemplar model，背后是假设了 cost function 越小，就越是合适的 ROI。而对于 SVM 来说，是 Initialization + Using the exemplar model + SVM，也就是 cost function 提供的排序信息不一定是准确的，用了 SVM 会更准确一点。这一点也是说得通的，因为对于 直接根据 cost function 排序，其实是个根据距离度量（类似欧氏距离）来分类；通常效果是不如 SVM 的。</p>
+<p>最后，SVM 在做 binary decision 之前，其实也是有一个 score 的，就是 SVM 的 model 的值嘛。All detections are re-ranked by the SVM score，这样就可以对都是正类的结果有一个排序了。</p>
+<h3 id="3-3-Optimization"><a href="#3-3-Optimization" class="headerlink" title="3.3 Optimization"></a>3.3 Optimization</h3><p>好了，Data、Model 和 Cost function 都交代完了，剩下的就只有 Optimization 了。其实乍一看公式(1)-(2)不是都是固定的么… 其实不是的，是 ROI 在迭代变化的！</p>
+<blockquote>
+<p>In each image, a number of new positions for the ROI are hypothesized. The hypotheses are generated from the current ROI position by translation, and isotropic and anisotropic scaling. At each iteration one image is selected so that the new position of the ROI minimizes the cost function. The ROI in this image is then updated to the new position. </p>
+</blockquote>
+<p>在每一次迭代更新中，每个 ROI 都会通过 translation, and isotropic and anisotropic scaling 等操作产生很多新的 hypotheses，然后要做的就是在这些 hypotheses 中挑选一个作为新的 ROI。</p>
+<p>算法终止条件有两个，或 的关系；要么是 cost function 最后的数值收敛；要么是一对 pair 的数值远远大于其他 pair 就可以收敛了（However, those images can easily be identified as their distance to other images is significantly larger than the distances between most image pairs）</p>
+<p>OK，差不多就到这里完结了，最后奉上本文算法流程镇楼。</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-31-15174059323471.jpg" alt=""></p>
+<h2 id="4-残留的问题"><a href="#4-残留的问题" class="headerlink" title="4. 残留的问题"></a>4. 残留的问题</h2><ol>
+<li>按照参数化模型的 generative model，discriminative model，discriminant function 以及 non-nonparametric model，本文属于哪一类呢？  </li>
+<li>本文一说距离度量是用 SPM 里的 level-weighted distance，又说 the sum of squared $\chi^2$ distances，到底是哪一种？</li>
+<li>有了 discriminative visual words，围绕这些 discriminative visual words 的 bounding box 怎么确定？</li>
+</ol>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Chum-CVPR-07/';
+var disqus_title = 'Notes on CVPR-07-An Exemplar Model for Learning Object Classes';
+var disqus_url = 'http://lowrank.science/Chum-CVPR-07/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','88794833');ga('send','pageview');</script></body></html>
