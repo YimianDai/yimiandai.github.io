@@ -1,0 +1,181 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on ECCV-12-In Defence of Negative Mining for Annotating Weakly Labelled Data | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-02-01</div></div></div><div class="container post-header"><h1>Notes on ECCV-12-In Defence of Negative Mining for Annotating Weakly Labelled Data</h1></div><div class="container post-content"><p>还是一篇做 Weakly Supervised Object Detection 的，2012 年的 ECCV。文章内容不难，一下就看完了，但是本章 argue 的观点还是很有意思的。</p>
+<h2 id="1-Observation"><a href="#1-Observation" class="headerlink" title="1. Observation"></a>1. Observation</h2><p>这篇文章里作者的几个 key observation 都蛮有意思的，虽然其他文章里或多或少都有提到相同的意思，但这么明确地点出来我目前还是第一次见，值得记录一下。</p>
+<h3 id="1-1-The-principle-of-minimizing-intra-class-variance"><a href="#1-1-The-principle-of-minimizing-intra-class-variance" class="headerlink" title="1.1 The principle of minimizing intra-class variance"></a>1.1 The principle of minimizing intra-class variance</h3><p>作者一上来就开门见山地指出了 many existing approaches that <strong>perform annotation by seeking clusters of self-similar exemplars</strong>。</p>
+<ol>
+<li><p>的确是这样的，最直接体现显式地通过刻画 Exemplar 之间的 similarity 来找出这些 Exemplar 的就属 <a href="http://lowrank.science/Chum-CVPR-07/">Chum-CVPR-07</a> 了；而 <a href="http://lowrank.science/Doersch-SIGGRAPH-12/">Doersch-SIGGRAPH-12</a> 更是通过 clustering 来找那些 frequently occurring 的 region。实际上，通常对于 positive class object 的 assumption，就是 frequently occurring 且具有 discriminative 的 region；弱监督目标检测的学习过程实际就是在所有 positive class 找那些 frequently occurring 且具有 discriminative 的 region 了。这里的 discriminability 既指的是 Object 相对于 Background 的 discriminability，也指不同 class 之间 Object instance 的 discriminability.</p>
+</li>
+<li><p>通常刻画 frequently occurring 的手段就是 clustering。<a href="http://lowrank.science/Doersch-SIGGRAPH-12/">Doersch-SIGGRAPH-12</a> 用的就是这个；本质上 <a href="http://lowrank.science/Chum-CVPR-07/">Chum-CVPR-07</a> 也是聚类，只不过只聚一类，而且是从每幅图像的 N 个 candidate regions 中只挑选一个最 match 的加入这个 cluster.</p>
+</li>
+<li><p>刻画 Object 相对于 Background 的 discriminability，一个常用的手段就是计算某个 visual word 在特定的 class 中出现的次数占其在所有 class 中出现的次数的比例，比例越高，越说明这个 visual word 是这个 class 专有的。当然这背后的假设是 Background 的 visual words 是所有 class 共享的。Chum-CVPR-07 和 Doersch-SIGGRAPH-12 都用到了这种刻画 Object 相对于 Background 的 discriminability 的方式。另外一种手段，Wei-TPAMI-16 和 Oquab-CVPR-15 中采用的 Cross-hypothesis max-pooling，即只挑选 positive class 的 candidate regions 中 score 最高的那一个输入后面的分类器。事实上，Chum-CVPR-07 中每幅图像的 N 个 candidate regions 中只挑选一个最 match 的 region，也是一种 Cross-hypothesis max-pooling。与前一种方式完全是 Heuristic 的不同，后一种因为有 image-level label，在 training 的迭代优化过程中，会逐渐将 Cross-hypothesis max-pooling 挑选出 positive class 的概率增大，是训练，使得其越来越接近我们想要的样子。</p>
+</li>
+<li><p>这边岔开去一句，就是这个 Cross-hypothesis max-pooling 不管以哪种形式出现（Chum-CVPR-07 vs Wei-TPAMI-16, Oquab-CVPR-15）都是 Weakly Supervised Object Detection 里面的关键所在。对比一下 Weakly Supervised Object Detection 和 Supervised Object Detection 在 Supervision information 上的差别，对于一个确定的 positive class 来说，Weak annotation 缺少的是给我们指明哪些是 Object region，哪些是 Background，这个 Background 包含其他非当前 positive class 的 object。在 Supervised Object Detection 中，我们知道所有当前 positive class 的 object 的 region；在 Weakly Supervised Object Detection 中，我们是用 Cross-hypothesis max-pooling 猜出最大可能性那一个的 Object Region 在哪里。这是 Wei-TPAMI-16 和 Oquab-CVPR-15 这两篇文章背后的设想，对于 positive class，虽然我不知道在哪，但我知道至少有一个，那么就把我猜的最大可能性的那个当做 positive region 输入分类器，然后设计的 cost function 可以保证在优化后我的这个 “猜” 的准确率逐渐上升就好。但是对于 Bilen-CVPR-16 貌似并不是显式地采用了这种思想，还要进一步揣测作者背后的 meta-idea。</p>
+</li>
+<li><p>刻画不同 class 之间 Object instance 的 discriminability，这个就是在分类器这一环节实现的啦，因为 image-level label 是 strong 的 supervision information，所以不存在任何问题。最典型的例子就是 category-specific classifier 了，对于 softmax 其实也一样。由于分类器的 cost function 是依赖于 strong supervision information 的，weakly supervised object detection 在分类器这一端没有太多 weak 的了，站在分类器的角度，大概也只会吐槽一下输入的 feature 的判别性质量差一些，但还是一样的做。</p>
+</li>
+</ol>
+<h3 id="1-2-The-strongly-labelled-weakly-labelled-data"><a href="#1-2-The-strongly-labelled-weakly-labelled-data" class="headerlink" title="1.2 The strongly labelled weakly labelled data"></a>1.2 The strongly labelled weakly labelled data</h3><p>于我个人而言，对于 Weakly Supervised Object Detection 这个领域，是一个从 混杂着 impossible 的 神话故事和 amazing 的科幻 到 可以实现的技术问题的认识过程。</p>
+<ul>
+<li>Weak label 并不是没有 label，退一步讲，他们 unsupervised learning 还要做呢。</li>
+<li>weak label 也不是 fuzzy label，退一步讲，他们 fuzzy learning 也要做呢。</li>
+<li>weak label 也并不总是 weak 的，要看是相对于什么 level 了。相对于 object，的确是不知道 object 的 location 和 extent，但是相对于 image-label，是否包含有某一类的 object 这个 supervision information 是 strong 的，这也是我为什么把这一节的小标题取作 the strongly labelled weakly labelled data 的原因。</li>
+</ul>
+<p>用作者的话说是：</p>
+<blockquote>
+<p>a weakly labelled data-set consists of two types of images: a set of weakly-labelled positive images where the exact location of object is unknown, and a set of strongly labelled negative images which we know for sure that every location in the image does not contain the object of interest.</p>
+</blockquote>
+<p>很多时候，我们都是忽略了 negative class 这个 strong 的监督信息，其实是一种浪费，本文就是给了怎么更进一步利用负类也就是 negative miming 的一个很好的示范。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><img src="http://ohm5uq281.bkt.clouddn.com/2018-02-02-15175622308598.jpg" alt=""></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Fig. 2. In the annotating of weakly labelled data task we have a set of images or videos where the object or action of interest is present and a set of images or videos where the object or action is not present. <strong>Absence of object or action is strong information, as we know every part of the image or video is negative, whereas the presence of object or action is weak information as we do not know where the object or action is located.</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-3-Saliency-An-third-information-independent-of-class"><a href="#1-3-Saliency-An-third-information-independent-of-class" class="headerlink" title="1.3 Saliency: An third information independent of class"></a>1.3 Saliency: An third information independent of class</h3><p>除了 Intra-class information 和 Inter-class information 外，作者把 Saliency 认作 a third type of information。Saliency refers to knowledge about the appearance of foreground objects，regardless of the class of object to which they belong. 反正 Object，不管是哪一类，前景被认为是具有 Saliency 的。的确，这个 assumption 可以用在刻画 Object 相对于 Background 的 discriminability 上，Object 不管哪一类，都是 salient 的，而背景是不显著的。</p>
+<p>作者把 Saliency 可以 regardless of class 的检测前景的原因归结于：Saliency may capture generic knowledge</p>
+<blockquote>
+<p>Saliency may capture generic knowledge regarding the typical size and location of objects in photos, or express a relationship between the strength of image edges and the location of object bounding boxes [14].</p>
+</blockquote>
+<p>Saliency 在 Object Detection 中有两个作用，一个是 Region Proposal，尽量 Propose Saliency 高的区域，肯定是包含有 Object 的，这个是根据 Saliency 数值做一个 binary Classification；另一个作用是根据 Saliency 数值的高低做 ranking，数值越高，含有目标的可能性就越大。</p>
+<ol>
+<li>Saliency is typically used to prune the space of possible object or action locations a priori, allowing us to consider a reduced set of possible locations. （作用 1: Region Proposal）</li>
+<li>The measure of saliency itself can also be used for selecting positive instances.（作用 2: 给 Region 含有 Object 的可能性 score、ranking）</li>
+</ol>
+<h2 id="2-Motivation"><a href="#2-Motivation" class="headerlink" title="2. Motivation"></a>2. Motivation</h2><h3 id="2-1-Negative-Mining"><a href="#2-1-Negative-Mining" class="headerlink" title="2.1 Negative Mining"></a>2.1 Negative Mining</h3><p>既然已经将 weakly supervised learning 的 problem 建模成 seeking clusters of self-similar exemplars，也就是聚类了。</p>
+<ol>
+<li>还要岔开去一句，clustering 也可以有很多种方式，可以有所有 element 都参与 clustering 的，也可以有只挑选部分 elements 参与的。Doersch-SIGGRAPH-12 中就吐槽了所有都参与的方式，并且身体力行的用了部分参与的方式。</li>
+</ol>
+<p>我们再回到聚类，聚类是在做什么，就是在 minimizing intra-class variance。这个熟悉聚类的肯定会想到，不管是 OTSU，还是 Fisher 判别准则也好，与 minimizing intra-class variance 相对同样也可以用来作为聚类准则的还有 maximizing inter-class variance；并且这两个准则还可以一起用，同时 minimizing intra-class variance 和 maximizing inter-class variance，Fisher 判别准则就是这样。</p>
+<p>Minimizing intra-class variance 准则在弱监督目标检测里的具体表现是 perform annotation by seeking clusters of self-similar exemplars；与之相应的，maximizing inter-class variance 准则在弱监督目标检测里的具体表现就是 perform image annotation by selecting exemplars that have never occurred before in the much larger, and strongly annotated, negative training set。哈哈，这话有点绕哈，其实是负负得正的意思。Minimizing intra-class variance 准则用人话讲就是在 test image 所有的 candidate regions 中找与正类的 Exemplar set 最相近；maximizing inter-class variance 准则用人话讲就是在 test image 所有的 candidate regions 中找与负类 set 中距离最远的那个 region，假如负类足够多、包罗万象的话，跟负类里的元素都不相似，那剩下就只能也肯定是正类了。</p>
+<p>接着很自然的，也是本文最大的贡献，颇有拨乱反正的味道，是拷问了一下，对于弱监督目标检测，到底是 Minimizing intra-class variance 准则更合适，还是 Maximizing inter-class variance 更合适？</p>
+<blockquote>
+<p>we ask a question: “Which of intra- and inter-class information is more useful in practice?” </p>
+</blockquote>
+<p>本来我觉得两者应该是等价的，不过作者以 VOC 为例，给出了为什么 Maximizing inter-class variance，我就是本文中所说的 Negative Mining 对于 Weakly Supervised Object Detection 的理由。</p>
+<p>在 VOC 2007 data-set 中，对于每一个典型的 class，大约有 300 图像包含了这个 Object class （也可能同时包含了其他 class 的 object），4,700 幅不包含这个 class 的 object 的图像。假设每幅图像的 region proposal 产生 100 个 candidate region，那么我们就会有 100 <em> 4,700 也就是 470,000 个 strongly labelled negative instances，但是对于 positive instance，我们最多还是只敢有 300 个（挑选出每幅图像中正类可能性最高的那个 region 作为 positive instance）。再考虑下 region proposal 也许会遗漏 true positive instance，那么就更少了。潜在的只有<em>*小于</em></em> 300 unlabelled similar positive instances。300 VS 470,000，非常的样本数量差距了。由于我们做目标检测时候的特征向量维数往往很大，维数灾难，肯定是要样本越多越好。从这一点看来，的确是 Negative Mining 这个范式更好啊。完全被说服了…</p>
+<p>本质上其实就是 负类远远比正类容易获取，而且正类的信息是 weak 的，而负类的信息是 strong 的，所以虽然 principle 是等价的，但这两个 principle 用在这个 Weakly Supervised Learning 这个实际问题上，则是 Negative Mining 更合适一点（如果非要二选一的话，最好当然是两个都用）。</p>
+<h3 id="2-2-Saliency"><a href="#2-2-Saliency" class="headerlink" title="2.2 Saliency"></a>2.2 Saliency</h3><p>Saliency is used at two places in our framework.</p>
+<ol>
+<li>We require it to propose a small set of viable instances or potential locations of objects<ul>
+<li>本文用的是 the generic object detector [14]</li>
+<li>The first 100 samples from the generic object detector per image are used as instances.</li>
+</ul>
+</li>
+<li>We also require a saliency measure of how likely a location is to be an object or action of any class<ul>
+<li>To measure how likely an instance $x_{i,j}$ is to be a positive location of any object</li>
+<li>use the value of objectness returned by the generic object detector [14]</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-3-Normalization"><a href="#2-3-Normalization" class="headerlink" title="2.3 Normalization"></a>2.3 Normalization</h3><p>为什么要做 Normalization？</p>
+<ol>
+<li>因为 histogram 是统计个数的，那么大的 Region，包含的特征点肯定多，计数肯定大，小的 region 刚好相反 small boxes naturally contain fewer densely sampled words.</li>
+<li>肯定要把他们放到一个大家都是标准化后的度量准则里面来度量</li>
+</ol>
+<p>如果不做 Normalization 会怎么样？</p>
+<ul>
+<li>Large instances contain many dense words, and owing to the sheer number of words, typically have a large distance from their nearest negative neighbor, while small instances lie very close to their NNN. 大的区域因为 特征点多，histogram 里的数字就大，距离度量起来就很大；相反，小的区域距离度量就普遍偏小，所以这个距离度量，对于单个样本，没法反应它所有负类之间真正跟他的相似度差异，所以要做归一化。</li>
+</ul>
+<p>为什么 普通的 Normalization 不好？</p>
+<ol>
+<li>We observe that the NNN distance for instances small in size are almost always much greater than the NNN distance associated with instances large in size. </li>
+<li>小的 instance 的 NNN 距离普遍都偏大，这是什么鬼？<ul>
+<li>作者观察到这种现象，但为什么会有这种现象？因为 small region 的 visual words 比较少，一两个 feature 计数的差异，从比例上来说就会非常大 （Compared to a large box, the distribution of words associated with a small box is much more likely to have a few sharply peaked modes, and many empty bins.）</li>
+<li>实际可能非常相近的两个 region，就因为归一化后反映在比例上就蛮大的，所以就会导致，除非两个 Region 一样，如果不一样，哪怕实际是很相似的，在普通的归一化的距离度量下差异也会很大（因为数量少，分部稀疏，就很像 delta 分布，只有几个脉冲，不在那几个脉冲位置上，距离度量出来就很大</li>
+</ul>
+</li>
+<li>As a consequence, when selecting the instances that maximize the normalized distance to the nearest negative instance we select very small instances in each positive bag.</li>
+<li>causes negative mining to perform ten times worse than the random selection of positive instances 导致结果比随机选择还差</li>
+</ol>
+<p>最后用了 root-normalized histogram </p>
+<ol>
+<li>Empirically this measure performs better than either normalized or unnormalized histograms.</li>
+<li>试出来的，没话说了</li>
+</ol>
+<h2 id="Contributions"><a href="#Contributions" class="headerlink" title="Contributions"></a>Contributions</h2><p>本文的贡献，或者对我很有新意的两点应该是，negative mining + saliency measures 吧。</p>
+<h2 id="Prior-works"><a href="#Prior-works" class="headerlink" title="Prior works"></a>Prior works</h2><p>目前 automatically annotating weakly-labelled training data 的典型方式都是将其作为 a multiple-instance learning (MIL) problem 来处理。作者给了几篇典型文献：</p>
+<ol>
+<li>Nguyen, M.H., Torresani, L., de la Torre, F., Rother, C.: Weakly supervised discriminative localization and classification: a joint learning process. In: ICCV, pp. 1925–1932 (2009)</li>
+<li>Deselaers, T., Alexe, B., Ferrari, V.: Localizing Objects While Learning Their Appearance. In: Daniilidis, K., Maragos, P., Paragios, N. (eds.) ECCV 2010, Part IV. LNCS, vol. 6314, pp. 452–466. Springer, Heidelberg (2010)</li>
+<li>Siva, P., Xiang, T.: Weakly supervised object detector learning with model drift detection. In: ICCV (2011)</li>
+</ol>
+<p>更早的经典的 MIL 的文献也给了两篇：</p>
+<ol>
+<li>Maron, O., Lozano-Perez, T.: A framework for multiple-instance learning. In: NIPS (1998)</li>
+<li>Chen, Y., Bi, J., Wang, J.: Miles: Multiple instance learning via embedded instance selection. PAMI 28(12), 1931–1947 (2006)</li>
+</ol>
+<p>这篇笔记的国内外概况也就不说具体的 Prior works 了，我们来重新审视下 MIL 做弱监督目标检测的大致范式好了。</p>
+<p>MIL 是怎么看待 weakly labelled 的 image 的？</p>
+<ol>
+<li>Within a MIL framework, a single image weakly labelled with data such as: “This image contains a bike.” is represented as a bag containing a set of instances</li>
+<li>Positive bag is used to refer an image containing at least one instance of the class, while negative bags are those that contain no positive instances.</li>
+</ol>
+<p>整个 MIL 做弱监督目标检测的基本流程：Taking a MIL approach, the problem of detector learning can be solved in two stages: </p>
+<ol>
+<li>in the first stage a decision is made as to which portion of the positive images represent the objects，这一环节是 Weakly Supervised Object Detection 问题的实质，也是 Weakly Supervised Object Detection 比 Strongly Supervised Object Detection 多出来的地方，Strongly Supervised Object Detection 因为事先已经知道了 Object Region，所以是不需要去做 which portion of the positive images represent the objects 这个 decision 的。只有在弱监督中，才要做 <strong>selecting which instances in the positive training set are true positives</strong> 这个问题</li>
+<li>in the second stage a standard detector is trained from the decision made in the first stage.</li>
+</ol>
+<p>First stage 就是 Region Proposal + Selection (Cross-hypothesis max-pooling)啦，因为是输入分类器的 region 特征直接决定了最后的检测结果，所以这个输入分类器的 region 的好坏还是很重要的，所以第一阶段要尽量产生好的 region Proposal，这就是对于基于 MIL strategy 的弱监督目标检测十分重要的的 Initialization，啊哈，initialization 就是 Region Proposal 啊，另一个十分重要的是 正则化，其实就是怎么设计 cost function。</p>
+<!--对于 Region Proposal，要么一开始就挑好的（Wei-TPAMI-16 的 clustering）。对于 Supervised 那手段就富裕多了，要么是先算很多最后最非极大值抑制保留好的（基于 R-CNN 那一系列），要么最后还可以有一个 location 的 refinement（Fast R-CNN，但这个是 Supervised 的了）-->
+<p>MIL 做弱监督目标检测的 Cost function 是怎么设计的？</p>
+<blockquote>
+<p>Given a set of positive and negative bags for training, the goal of MIL is to train a classifier that can correctly classify a test bag or test instance as either positive or negative.</p>
+</blockquote>
+<p>MIL 是怎么形式化地来表达 Minimizing intra-class variance 准则和 Maximizing inter-class variance 准则的。Classical MIL approaches [11, 12] make use of two different types of information to train a classifier: intra-class and inter-class.</p>
+<ol>
+<li><strong>Intra-class</strong> information concerns the selected positive instances. The information is typically exploited by <strong>enforcing that the selected positive instances look similar to each other</strong>.</li>
+<li>In contrast <strong>inter-class</strong> information refers to the difference in appearance between selected positive and negative instances. This information is normally used by <strong>introducing a constraint that all instances selected as positive look dissimilar to the instances selected as negative</strong>.</li>
+</ol>
+<p>MIL-SVM formulation 的 论文，应该是第一篇，值得看一下</p>
+<ol>
+<li>Andrews, S., Tsochantaridis, I., Hofmann, T.: Support vector machines for multiple-instance learning. In: NIPS, pp. 577–584 (2003)</li>
+</ol>
+<h2 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h2><p>本文方法其实很简单，具体的优化函数如下</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-02-03-15176301985588.jpg" alt=""></p>
+<p>$\Vert \cdot \Vert_1$ is the $L<em>1$ norm and $N(x^+</em>{i,j})$ refers to the negative nearest neighbour of $x^+_{i,j}$.</p>
+<p>root-normalised histograms 如下：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-02-03-15176301756829.jpg" alt=""></p>
+<h2 id="残留问题"><a href="#残留问题" class="headerlink" title="残留问题"></a>残留问题</h2><ol>
+<li>作者是怎么把 negative mining and saliency measures 与 MIL-SVM formulation 融合在一起的？</li>
+</ol>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Siva-ECCV-12/';
+var disqus_title = 'Notes on ECCV-12-In Defence of Negative Mining for Annotating Weakly Labelled Data';
+var disqus_url = 'http://lowrank.science/Siva-ECCV-12/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
