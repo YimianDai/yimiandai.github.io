@@ -1,0 +1,59 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title> | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a></div><div class="post-time">2018-04-30</div></div></div><div class="container post-header"><h1></h1></div><div class="container post-content"><p>这篇日志厘清一下我之前理解的不是很清晰的一个概念。</p>
+<p>机器学习算法 4 大部分：data、model、loss、optimization。对于 loss，最大似然估计和交叉熵损失都是经常听见的。但对于一个算法来说，最终只会有一个损失，那最大似然估计和交叉熵损失之间有什么关系呢？下面的内容主要来自于 Ian Goodfellow 的 Deep Learning 一书的 5.5 节，按照我个人的理解重新梳理一下（倒叙 2333）。</p>
+<h2 id="最大似然估计"><a href="#最大似然估计" class="headerlink" title="最大似然估计"></a>最大似然估计</h2><p>首先是<strong>最大似然估计</strong>这个词，似然嘛，肯定是两个东西相似，那是哪两个呢？书里给了答案，是数据的经验分布 $\hat{p}<em>{\textrm{data}}(\mathbf{x})$ 和我们要估计且是由参数 $\theta$ 刻画的模型分布 $p</em>{\textrm{model}}(\mathbf{x};\theta)$ 之间的相似程度。虽然书里没说，但数据的经验分布 $\hat{p}_{\textrm{data}}(\mathbf{x})$ 应该如下</p>
+<p>$$\hat{p}_{\textrm{data}}(\mathbf{X}) = \frac{1}{N} \sum_i^{i = N} \delta(\mathbf{x_i})$$</p>
+<p>两个分布之间的相似程度用 KL 散度来衡量，我们有</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-04-30-15250926698001.jpg" alt=""></p>
+<p>因为数据的经验分布 $\hat{p}<em>{\textrm{data}}(\mathbf{x})$ 与模型分布 $p</em>{\textrm{model}}(\mathbf{x};\theta)$ 的参数 $\theta$ 没有关系，所以最小化上面的 KL 散度就等价于最小化负似然函数</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-04-30-15250929266080.jpg" alt=""></p>
+<p>也就是最大化似然函数</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-04-30-15250930621262.jpg" alt=""></p>
+<p>我上面给出的经验分布公式代入上式就可以得到</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-04-30-15250931735409.jpg" alt=""></p>
+<h2 id="与交叉熵损失的关系"><a href="#与交叉熵损失的关系" class="headerlink" title="与交叉熵损失的关系"></a>与交叉熵损失的关系</h2><p>好了，目前为止，我们似乎只有抽象的 $p_{\textrm{model}}(\mathbf{x};\theta)$ 与交叉熵似乎没有任何关系，别急，其实交叉熵损失是 <strong>最大似然估计</strong> 在 <strong>分类问题</strong> 下 <strong>判别模型</strong> 的很自然的具体形式。</p>
+<p>在 Bishop 的 PRML 的第一章就提到，model 有三种，generative model，discriminative model 和 discriminant function。在这里我们要用的是 discriminative model 的 likelihood function，也就是形如 $p(y | x; \theta)$，<strong>注意哦，只有 discriminative model 的 likelihood function 是这样的形式，别认为所有 likelihood 都是这样的。</strong></p>
+<p>为了简便起见，先把 $\theta$ 省去不写，判别模型的最大似然估计就变成了<br><img src="http://ohm5uq281.bkt.clouddn.com/2018-04-30-15250947389645.jpg" alt=""></p>
+<p>上面这个式子其实设定了 $y_i$ 是那个正确的 label，此时 $P(y_i | x_i)$ 才不是 0，也就不会出现 $\ln{0}$ 这种问题了。我们定义一个分布<br><img src="http://ohm5uq281.bkt.clouddn.com/2018-04-30-15250950504047.jpg" alt=""><br>那么上面的判别模型的最大似然估计就可以重写成</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-04-30-15250950998636.jpg" alt=""></p>
+<p>按照交叉熵的定义 $H(p,q) = -\sum_x p(x)\ln{q(x)}$，上面的就是交叉熵损失的形式。所以 交叉熵损失 是 <strong>最大似然估计</strong> 在 <strong>分类问题</strong> 下 <strong>判别模型</strong> 且 label 用 1-of-K 编码时候的的具体形式。</p>
+<p>不过说回来当我们写代码的时候，其实是用上面照设定了 $y_i$ 是那个正确的 label 时候的写的。如果不那么写，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cross_entropy</span><span class="params">(yhat, y)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> - nd.pick(nd.log(yhat), y)</span><br></pre></td></tr></table></figure>
+<p>对于一个长度为 K label 向量，每个样本要计算 K 次 log，而用了上面的公式只计算正确时候的情况，每个样本只要计算 1 次 log，代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def cross_entropy(yhat, y):</span><br><span class="line">    return - nd.log(nd.pick(yhat, y))</span><br></pre></td></tr></table></figure>
+<h2 id="与均方误差估计的关系"><a href="#与均方误差估计的关系" class="headerlink" title="与均方误差估计的关系"></a>与均方误差估计的关系</h2><p>同理，<strong>均方误差损失</strong> 是 <strong>最大似然估计</strong> 在 <strong>回归问题</strong> 下 采用<strong>高斯分布</strong>来刻画 <strong>判别模型</strong> 时的具体化体现。Deep Learning 书里的 5.5.1 小节讲得很清楚了。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'MLE-Cross-Entropy/';
+var disqus_title = '';
+var disqus_url = 'http://lowrank.science/MLE-Cross-Entropy/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
