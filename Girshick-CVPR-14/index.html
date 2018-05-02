@@ -1,7 +1,12 @@
-<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR-14-Rich feature hierarchies for accurate object detection and semantic segmentation | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Supervised-Learning/">Supervised-Learning</a></div><div class="post-time">2018-01-27</div></div></div><div class="container post-header"><h1>Notes on CVPR-14-Rich feature hierarchies for accurate object detection and semantic segmentation</h1></div><div class="container post-content"><p>就是这篇论文是提出了大名鼎鼎的 R-CNN，第一作者是 <a href="http://www.rossgirshick.info/" target="_blank" rel="noopener">Ross Girshick</a>，也就是 rbg 大神。rgb 是 <a href="https://cs.brown.edu/~pff/" target="_blank" rel="noopener">Pedro Felzenszwalb</a> 的博士生，而且是他的第一个博士生。Felzenszwalb 最知名的工作应该就是 DPM 了，10 年那篇 TPAMI ，Felzenszwalb 是一作，rbg 是二作。所以大神就是大神，不管做不做深度都有非常精彩的工作。Felzenszwalb 在 Grammar Models 上做了很多很好的工作，很值得 follow。</p>
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on R-CNN | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Supervised-Learning/">Supervised-Learning</a></div><div class="post-time">2018-05-02</div></div></div><div class="container post-header"><h1>Notes on R-CNN</h1></div><div class="container post-content"><h4 id="Change-Logs"><a href="#Change-Logs" class="headerlink" title="Change Logs"></a>Change Logs</h4><ul>
+<li>Updated on 2018-05-02: 添加了 Bounding Box Regression 的内容。</li>
+<li>First Commit on 2018-01-27.</li>
+</ul>
+<hr>
+<p>CVPR-14-Rich feature hierarchies for accurate object detection and semantic segmentation 就是这篇论文是提出了大名鼎鼎的 R-CNN，第一作者是 <a href="http://www.rossgirshick.info/" target="_blank" rel="noopener">Ross Girshick</a>，也就是 rbg 大神。rgb 是 <a href="https://cs.brown.edu/~pff/" target="_blank" rel="noopener">Pedro Felzenszwalb</a> 的博士生，而且是他的第一个博士生。Felzenszwalb 最知名的工作应该就是 DPM 了，10 年那篇 TPAMI ，Felzenszwalb 是一作，rbg 是二作。所以大神就是大神，不管做不做深度都有非常精彩的工作。Felzenszwalb 在 Grammar Models 上做了很多很好的工作，很值得 follow。</p>
 <p>本文的代码地址： <a href="https://github.com/rbgirshick/rcnn" target="_blank" rel="noopener">https://github.com/rbgirshick/rcnn</a></p>
 <h2 id="1-Problem-amp-Background"><a href="#1-Problem-amp-Background" class="headerlink" title="1. Problem &amp; Background"></a>1. Problem &amp; Background</h2><p>因为这篇论文的影响力太大了，很多思想已经变成了目前很多工作的基础，所以比较看的时候感觉会比较平淡。为了更好地理解这篇论文，我们必须回到当时的情景。这篇论文是 14 年的 CVPR，但是在 13 年 11 月的时候放到 arXiv 上的，正是 CVPR 论文提交的 deadline。</p>
-<p>当时，AlexNet 已经在 2012 年 ImageNet 的 Single-label Image Classification 上取得了巨大的成功。很自然的想法就是怎么把 CNN 应用到 Multi-label Image Classification、Object Detection 等的其他场景上。但毕竟是不同的 task，Single-label Image Classification，和 Multi-label Image Classification、Object Detection 这些 task 之间还是有一定的 gap 的。对于解决 Multi-label Image Classification 的尝试，昨天已经介绍过了，具体可看 <a href="http://lowrank.science/Wei-TPAMI-16/">Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification</a>. 本文要做的就是如何用在 Object Detection 上。</p>
+<p>当时，AlexNet 已经在 2012 年 ImageNet 的 Single-label Image Classification 上取得了巨大的成功。很自然的想法就是怎么把 CNN 应用到 Multi-label Image Classification、Object Detection 等的其他场景上。但毕竟是不同的 task，Single-label Image Classification，和 Multi-label Image Classification、Object Detection 这些 task 之间还是有一定的 gap 的。对于解决 Multi-label Image Classification 的尝试，昨天已经介绍过了，具体可看 <a href="http://lowrank.science/Wei-TPAMI-16/">Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification</a>. 本文要做的就是如何用在 Object Detection 上，所以 R-CNN 是 pretrained + fine-turning 的早期尝试者之一。</p>
 <h3 id="1-1-Motivation"><a href="#1-1-Motivation" class="headerlink" title="1.1 Motivation"></a>1.1 Motivation</h3><p>尽管 CNN 在分类上取得了巨大成功，很自然的想法是看能不能也把 CNN 拓展到其他任务上。这个自然想法背后的 Motivation 是什么呢？是特征。</p>
 <p>引言一开始，rbg 就写了我认为特别漂亮的一段话，摘录如下：</p>
 <blockquote>
@@ -33,11 +38,20 @@
 <p>这两个 Contribution 都非常重大。对于 Object Detection，R-CNN，Fast R-CNN，Faster R-CNN 这路下来，R-CNN 是开山鼻祖肯定绕不过。对于 Pre-training + Fine-tuning，这点就更是了啊，影响无远弗界，不仅仅在 Object Detection 了。</p>
 <p>需要注意的是，同样是 13 年放到 arXiv，同期用 pre-training 来做的文章也不少，可见这一块竞争还是很激烈的，这些相关的文献目录具体可看 <a href="http://lowrank.science/Wei-TPAMI-16/">Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification</a>.</p>
 <h2 id="2-Method"><a href="#2-Method" class="headerlink" title="2. Method"></a>2. Method</h2><h3 id="2-1-Data"><a href="#2-1-Data" class="headerlink" title="2.1 Data"></a>2.1 Data</h3><ol>
-<li>对于 pre-training: discriminatively pre-trained the CNN on a large auxiliary dataset (ILSVRC 2012) with image-level annotations </li>
-<li>对于 fine-tunning: Domain-specific fine-tuning on VOC</li>
-<li>对于 Classification: 对于每一个 category，肯定是要构建 positive 和 negative 两类啦</li>
+<li>对于 pre-training: discriminatively pre-trained the CNN on a large auxiliary dataset (ILSVRC 2012) with image-level annotations，就是 pretrained AlexNet </li>
+<li>对于 fine-tunning: Domain-specific fine-tuning on VOC<ul>
+<li>这个 VOC 是 VOC Detection，并不是 Classification，</li>
+<li>注意的是，这里是把 Object Region 和 Background Region 输入 CNN，并不是整张图像，而且每个 Region Proposal 都是被 resize 到 $227 \times 227$ 大小，为了符合 AlexNet 对输入的要求（因为 fully-connected layer 的要求）。所以只要把 AlexNet 最后分类的 1000 类改成 VOC 的 21 类就可以了，网络结构不用变，因为 R-CNN 背后的思想是 Object Detection by Region Proposal Classification，所以 Classification Network 可以直接拿来用。</li>
+<li>构造 Batch 的时候，mini-batch size 是 128，32 个 positive window，从每类里面均匀分布随机采样；96 个 Background window。之所以背景样本比 Object 样本多很多，因为实际情况就是这样的。</li>
+</ul>
+</li>
+<li>对于 Classification: 对于每一个 category，肯定是要构建 positive 和 negative 两类啦<ul>
+<li>对于完全是 背景 or 完全含有目标的 Proposal，很容易判断是 positive or Negative</li>
+<li>对于只包含部分的 Proposal，是算 IOU，阈值是 0.3，这是作者做了网格搜索验证后的结果，后面的研究似乎也都沿用了 0.3 这个值。</li>
+</ul>
+</li>
 </ol>
-<h3 id="2-2-Model"><a href="#2-2-Model" class="headerlink" title="2.2 Model"></a>2.2 Model</h3><p>R-CNN = Region Proposal + CNN + Category-specific Linear SVMs。</p>
+<h3 id="2-2-Model"><a href="#2-2-Model" class="headerlink" title="2.2 Model"></a>2.2 Model</h3><p>R-CNN = Region Proposal + CNN + Category-specific Linear SVMs + Non-Maximum Suppression + Bounding Box Regression</p>
 <ol>
 <li>The first generates category-independent region proposals.</li>
 <li>The second module is a large convolutional neural network that extracts a fixed-length feature vector from each region. </li>
@@ -57,7 +71,22 @@
 <li>why the positive and negative examples are deﬁned differently in fine-tuning versus SVM training</li>
 <li>why it’s necessary to train detection classifiers rather than simply use outputs from the final layer (fc8) of the fine-tuned CNN</li>
 </ol>
-<p>虽然没搞懂，但是不关心了…</p>
+<p>虽然没搞懂，但是不关心了，因为没有意义了，后面的模型用得都是 softmax，为了 End-to-End…</p>
+<h4 id="Module-4-Non-Maximum-Suppression"><a href="#Module-4-Non-Maximum-Suppression" class="headerlink" title="Module 4: Non-Maximum Suppression"></a>Module 4: Non-Maximum Suppression</h4><p>去除重复的 Proposal，所以 R-CNN 这里是有大量的冗余计算的，先产生大量的 Proposal，然后最后再剔除掉绝大部分，如果一开始就可以产生少量高质量的 Proposal 就好了，这就是后面改进工作（Faster R-CNN）的 Motivation 了。</p>
+<blockquote>
+<p>Given all scored regions in an image, we apply a greedy non-maximum suppression (for each class independently) that rejects a region if it has an intersection-over-union (IoU) overlap with a higher scoring selected region larger than a learned threshold.</p>
+</blockquote>
+<h4 id="Module-5-Bounding-Box-Regression"><a href="#Module-5-Bounding-Box-Regression" class="headerlink" title="Module 5: Bounding Box Regression"></a>Module 5: Bounding Box Regression</h4><p>这一块是在最初写这篇日志的时候被我忽略的，但现在 One-Stage 的方法类似 YOLO、SSD 越来越多，实际效果也很好，还是需要重新仔细审视下 Bounding Box Regression 的。作者在文章里讲了是借鉴了 DPM 模型的。</p>
+<blockquote>
+<p>Inspired by the bounding box regression employed in DPM [15], we train a linear regression model to predict a new detection window given the pool 5 features for a selective search region proposal.</p>
+</blockquote>
+<p>上面 4 步所做的只是 Pick 出一些 包含有目标的 Proposal，但至于 Proposal 是否把目标包裹得非常紧致，也就是 Proposal 的 Bounding Box 质量到底怎么是没有保证的。Bounding Box Regression 这一步就是在有了比较确信的 Proposal 后，进一步把 Bounding Box refine 一下。</p>
+<p>需要注意的是，Bounding Box Regression 回归出来的并不直接是 Bounding Box 的坐标和长宽，而是 当前 Proposal 的中心坐标距离真实 Bounding Box 中心坐标 的 offset，以及当前 Proposal 的长或宽与真实 Bounding Box 的长或宽的比率，而且这个比率还是经过 log 之后的。所以，给定的 N 个训练对 ${( P^i, G^i)}_{i = 1, \ldots, N}$，$P^i = (P^i_x, P^i_y, P^i_w, P^i_h)$ 代表预测的 Proposal 中心像素的 x、y 坐标和 Proposal 的宽度 w 和 高度 h，这一部分并不会出现在 Regression Model 里面，Regression Model 唯一的输入这个 Proposal 在 CNN 最后一层的 Feature Map 上对应的 Feature Map Patch，$G^i = (G^i_x, G^i_y, G^i_w, G^i_h)$ 也不是是 Regression 的 Output，真正的 Output 上面说了，是 当前 Proposal 的中心坐标距离真实 Bounding Box 中心坐标 的 offset 和 当前 Proposal 的长或宽与真实 Bounding Box 的长或宽的比率再 log。之所以用 offset 和 ratio 是有原因的，出于 scale-invariant translation 和 log-space translation 的考虑。输入 Linear Regression Model的变量要稍稍变换下，为了赋予 scale-invariant translation 给 the center of bounding box，以及 log-space translations of the width and height of the bounding box，Linear Model 建模如下</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-02-15252585233956.jpg" alt=""></p>
+<p>采用 Ridge Regression 来做预测</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-02-15252613172620.jpg" alt=""></p>
+<p>预测出了 offset 和 ratio，真实的坐标 和 长宽也就可以算出来了。</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-02-15252613654471.jpg" alt=""></p>
 <h3 id="2-3-Cost-function"><a href="#2-3-Cost-function" class="headerlink" title="2.3 Cost function"></a>2.3 Cost function</h3><ol>
 <li>对于 CNN，cost function 应该就是普通 CNN 的 cost function 吧。</li>
 <li>对于 SVM，肯定是 hinge loss 啦。</li>
@@ -73,7 +102,6 @@
 <li>J. Uijlings, K. van de Sande, T. Gevers, and A. Smeulders. Selective search for object recognition. IJCV, 2013.</li>
 <li>J. Carreira and C. Sminchisescu. CPMC: Automatic object segmentation using constrained parametric min-cuts. TPAMI, 2012.</li>
 </ol>
-<h2 id="4-没搞懂的"><a href="#4-没搞懂的" class="headerlink" title="4. 没搞懂的"></a>4. 没搞懂的</h2><p>把 localization 看作 a regression problem，这个我其实不是很理解，为什么能够取得好的结果，背后的机理是什么。现在火的 YOLO、SSD 就是用回到了 regression 来做了。</p>
 <hr>
 <p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
 <table>
@@ -92,7 +120,7 @@
 </div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
 var disqus_shortname = 'YimianDai';
 var disqus_identifier = 'Girshick-CVPR-14/';
-var disqus_title = 'Notes on CVPR-14-Rich feature hierarchies for accurate object detection and semantic segmentation';
+var disqus_title = 'Notes on R-CNN';
 var disqus_url = 'http://lowrank.science/Girshick-CVPR-14/';
 (function() {
    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
