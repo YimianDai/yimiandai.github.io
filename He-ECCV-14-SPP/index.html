@@ -1,0 +1,46 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on ECCV-14-Spatial Pyramid Pooling | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Convolutional-Network/">Convolutional-Network</a><a class="post-tag-link" href="/tags/Deep-Learning/">Deep-Learning</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Supervised-Learning/">Supervised-Learning</a></div><div class="post-time">2018-05-06</div></div></div><div class="container post-header"><h1>Notes on ECCV-14-Spatial Pyramid Pooling</h1></div><div class="container post-content"><blockquote>
+<p>He, K.; Zhang, X.; Ren, S. &amp; Sun, J.<br>Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition<br>Computer Vision – ECCV 2014</p>
+</blockquote>
+<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><ul>
+<li><a href="http://lowrank.science/Girshick-CVPR-14/">Notes on CVPR-14-R-CNN</a></li>
+<li><a href="http://lowrank.science/Lazebnik-CVPR-06-SPM/">Notes on CVPR-06-Spatial Pyramid Matching</a></li>
+</ul>
+<h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><p>想说的很多其实已经在 <a href="http://lowrank.science/Lazebnik-CVPR-06-SPM/">Notes on CVPR-06-Spatial Pyramid Matching</a> 里面说过了，所以这篇简短一些。</p>
+<p>引入 Spatial Pyramid Pooling 的 Motivation 是为了解决图像分类问题中网络要求固定大小输入的问题。而之所以要求固定大小是由于全连接层的存在，全连接层要求输入固定。在不能取消掉全连接层的情况下，迫于全连接层的淫威，喂给全连接层固定大小的输入要么只能网络一开始的输入就是固定的，要么在喂给全连接层之前加一个操作是的不同大小的 feature map 都转化成了一样大小的 feature。这个问题其实在上一个 CV 流行范式 SIFT + SPM + SVM 里面也存在，因为对于整幅图像 SIFT 抽的是特征集合，不同图像的集合元素个数不同，而 SVM 要的是固定输入。所以 Kaiming 大神 borrow 了 Spatial Pyramid Matching 中 Spatial Pyramid 的概念到 CNN 中，解决了 fixed-size input 的问题。具体请见 <a href="http://lowrank.science/Lazebnik-CVPR-06-SPM/">Notes on CVPR-06-Spatial Pyramid Matching</a>。</p>
+<p>在解决了 Image Classification 的 Fixed Size Input 问题后，给 Object Detection 带来了一个直接的好处，就是可以 Share Computation 了，也就是 Forward 只需要计算一次。先来看之前 R-CNN 是怎么做的（具体请看 <a href="http://lowrank.science/Girshick-CVPR-14/">Notes on CVPR-14-R-CNN</a>），对于每一个 Proposal 都要 resize 到固定大小然后再输入，之所以 Proposal Input 要 resize 到同样的大小是因为 R-CNN 用的 AlexNet 对输入的要求就必须是 fixed-size 的。有了 SPP 后，我们可以计算出 Proposal 在 最终 convnet 抽取的 Feature Map 上的映射区域然后做 SPP 得到固定大小的向量输入到全连接层。这个想法很直接，既然是全连接层要求固定输入，那么只要喂给全连接层固定输入就好了，不用管这个固定输入是一开始就固定的还是在全连接层前面刚刚变换成固定长度的。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'He-ECCV-14-SPP/';
+var disqus_title = 'Notes on ECCV-14-Spatial Pyramid Pooling';
+var disqus_url = 'http://lowrank.science/He-ECCV-14-SPP/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
