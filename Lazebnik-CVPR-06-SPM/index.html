@@ -26,7 +26,7 @@
 <p>其中的 $I^L$ 定义如下：</p>
 <p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-05-15255225541569.jpg" alt=""></p>
 <p>偷下懒，不想再解释了，个人觉得这里的符号表示有点误导性。一言以蔽之，其实就是对于每个 bin，按照不同尺度加权求intersect结果的和，然后把这 bin number 的和加起来就是了，最后得到一个标量（Kernel Matrix 中的一个值）。</p>
-<p>OK，介绍完了 SPM，再回去看下 SPP-net，其实可以发现 SPP-net 只是利用了 SPM 的 Spatial Pyramid 划分，然后用每个 Cell 内的特征拼接成最终的特征这个思想而已，并没有用 SPM 的 Matching 那部分。在 SPP-net 中，特征之前可没有经过 K-Means 聚类后的直方图表示，SPP-net 对于每个 Cell 内的特征就是用了一个 max-pooling 而已，所以每个 Feature map 每个 Cell 的输出就只有一个 最大值，然后不同尺度不同 cell 的最大值拼接起来就好了。</p>
+<p>OK，介绍完了 SPM，再回去看下 SPP-net，其实可以发现 SPP-net 利用了 SPM 的 Spatial Pyramid 划分，然后用每个 Cell 内的特征拼接成最终的特征这个思想而已，并没有用 SPM 的 Matching 那部分，特征并不是直方图而只是特征的最大值，可以直接数值计算，不用像直方图那样做 intersection 计算。在 SPP-net 中，特征之前可没有经过 K-Means 聚类后的直方图表示，SPP-net 对于每个 Cell 内的特征就是用了一个 max-pooling 而已，所以每个 Feature map 每个 Cell 的输出就只有一个 最大值，然后不同尺度不同 cell 的最大值拼接起来就好了。</p>
 <p>我们再用传统 Feature Extraction、Feature Coding 和 Feature Representation 的角度来审视下 SPP-net：</p>
 <ol>
 <li>Feature Extraction：卷积神经网络知道 Spatial Pyramid Pooling Layer 之前的部分；</li>
