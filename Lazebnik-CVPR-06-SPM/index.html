@@ -1,0 +1,72 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on CVPR-06-Spatial Pyramid Matching | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Convolutional-Network/">Convolutional-Network</a><a class="post-tag-link" href="/tags/Deep-Learning/">Deep-Learning</a><a class="post-tag-link" href="/tags/Feature-Representation/">Feature-Representation</a><a class="post-tag-link" href="/tags/Image-Classification/">Image-Classification</a><a class="post-tag-link" href="/tags/Kernel-Method/">Kernel-Method</a><a class="post-tag-link" href="/tags/Supervised-Learning/">Supervised-Learning</a></div><div class="post-time">2018-05-05</div></div></div><div class="container post-header"><h1>Notes on CVPR-06-Spatial Pyramid Matching</h1></div><div class="container post-content"><blockquote>
+<p>Lazebnik, S.; Schmid, C. &amp; Ponce, J.<br>Beyond Bags of Features: Spatial Pyramid Matching for Recognizing Natural Scene Categories<br>2006 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR’06), 2006, 2, 2169-2178</p>
+</blockquote>
+<p>看这篇论文的原因在于 SPP-net 用了这里的 Spatial Pyramid 的概念，为了更好的理解 SPP-net。需要注意的是，SIFT + SPM + SVM 这样的范式其实统治了深度学习崛起之前的计算机视觉领域，而且从之前的工作里 borrow 一些智慧来解决一些 Deep Learning 方法的问题，是一个很好的思路，SPP-net 就是一个很好的例子。</p>
+<h2 id="Motivation-Encoding-Spatial-Layout"><a href="#Motivation-Encoding-Spatial-Layout" class="headerlink" title="Motivation - Encoding Spatial Layout"></a>Motivation - Encoding Spatial Layout</h2><p>众所周知，特征表示对于计算机视觉任务至关重要。在这篇文章之前，当时主流的特征表示方法是 SIFT + BoW，SIFT 抽取 Local Feature，然后 BoW 编码这些 feature。问题在于 BoW 这种 feature representation 表示方法只能将一幅图像表示成 an orderless collection of local features，丢弃了 all information about the spatial layout of the features，因而 BoW 也就不能拿来做 capturing shape or of segmenting an object from its background 这样的任务，因为这些任务都是局部的、位置敏感的。<strong>为了解决这个特征的空间分布缺失的问题，也就是让 Feature Representation 具有 Spatial Layout Information</strong> （这是的 <strong>Motivation</strong>），这篇文章<strong>提出了基于 Spatial Pyramid 的 Feature Representation Method</strong>。当时流行的分类器是 SVM，仅仅只有 Feature Representation 是不够的，还需要能够有度量 Feature 之间相似性的东西，也就是对应的 Kernel，所以这篇文章 Borrow 了 大美女教授 Kristen Grauman 在 CVPR-05 上提出的 Pyramid Match Kernel 提出了 <strong>Spatial Pyramid Matching</strong> 。</p>
+<p>与 Deep Learning 对比一下，其实非常类似。早期 CNN 里面的 Fully connected layers 也是丢弃了 spatial layout of features，而之后为了更好的分类，乃至检测、分割这些位置敏感的任务，如何利用特征的 spatial layout 也在后续的 CNN 中不断被重视，SPP-net 是在 Fully connected layers 之前加入了 Spatial Pyramid Pooling，后面的 Fully Convolutional Network 什么的更是直接不再使用 Fully connected layers 这个丢失 spatial layout 的罪魁祸首。</p>
+<h2 id="Related-Works"><a href="#Related-Works" class="headerlink" title="Related Works"></a>Related Works</h2><p>这部分我就是想把 SPM 和 Multi-Resolution Histogram 做一个区分，为了以后重温 SPM 概念的时候清晰。</p>
+<p>在 SPM 之前，有一个 Multi-Resolution Histogram，是 04 年的 TPAMI，它的想法就是先对图像做多尺度表示，然后在这些多尺度表示上分别计算直方图，就可以获得多尺度直方图啦。这是构造多尺度的输入，从而获得多尺度的输出，这种思路很直观，在后面的 SPP-net、YOLO 上都是这么做的，是通过 multi-resolution 实现 multi-scale，我们把这种思路叫作 early multi-scale construction 吧。</p>
+<p>与之相对的，SPM 的输入尺度其实是一样的，就是最 fine 的那个尺度，但是构造直方图的直接采用多尺度的方式来构造。之前我一直把 multi-scale 和 multi-resolution 两个当成一个东西，也是写到这里的时候才意识到两个好像不太一样。先说我们通常理解的 multi-scale 是啥，其实就是一个图像 从 coarse 到 fine 程度不同的表示方式。获得从 coarse 到 fine 程度不同的表示方式可以有两种，一种是本身输入就是从 coarse 到 fine 都有的，然后用同一把尺子去量也就能得到我们想要的从 coarse 到 fine 的特征表示啦。这就是 Multi-resolution 或者说 early multi-scale construction 的思路，缺点也很明显要构造从 coarse 到 fine 的输入是个负担，而且因为就用了一把尺子去量，我感觉严格意义上不能算作 multi-scale。后一种思路就是 对于同一个 fine 的输入，采用不同的尺子去量去量自然会有不同的结果（尺子的刻度从 coarse 到 fine，比如刻度间隔是 1 米 和 1 毫米的刻画的精细程度不同），所以多尺度啊多尺度，是用不同刻度的尺子去度量的意思啊… 最典型的例子就是用高斯核来构造尺度空间，不同刻度的尺子就是不同尺度也就是均值方差（方差实际上决定了高斯核的实际作用范围）的高斯核，度量出的结果就是 输入图像和高斯核卷积的结果，而对于具体一个像素对应的卷积结果来说，则是在实际作用范围内高斯核和对应图像块的內积求和，$y = f_s(x^{(s)}) = W_s x^{(s)}$（能这么写是因为卷积是个线性操作）对于不同尺度，对于只计算一个像素为中心的图像块的內积时，输入$x^{(s)}$的实际作用范围也就是$x^{(s)}$的维数是不一样的，当然权重 $W_s$ 对应的也是不一样的，$s$ 是第 $s$ 个尺度的 index。所以我理解的多尺度，其实是 take 不同大小范围（receptive field）的输入计算相应的输出，这个尺度或者说刻度间隔，其实就是input。</p>
+<p>同高斯核来构造尺度空间不太一样的是，高斯核卷积是一个局部操作遍历整幅图像，属于 dense output。而统计直方图的 output 就是一个直方图，属于 All-to-One。但对于构造 multi-scale representation，背后的想法还是一样的，多尺度，其实是 take 不同大小范围（receptive field）的输入计算相应的输出。再一次搬出 $y = f_s(x^{(s)})$，因为统计直方图不是线性运算，所以第二个等号就去掉了。再是因为 SPM 是在 K-Means 做完 Feature Coding 后的操作，K-Means 的时候已经把直方图有多少个 bin 已经事先确定下来了，bin 个数定了，那么把 local feature set 映射成直方图的操作 $f$ 也就定下来了，跟尺度没有关系，所以重写成 $y = f(x^{(s)})$，唯一变得就是 输入计算直方图的大小范围了。细尺度就是在一块小区域内统计直方图，这样可以反映这一块小区域的特点；大尺度就是在很大的区域内统计直方图，反映大区域的整体特征，也就没法反映局部细节的信息。所以对于某一尺度内这幅图像的表示，我们是把这幅图像分割成很多小区域，然后再把这些区域上获得的直方图连接起来就是这幅图像在这一尺度上的特征表示了。</p>
+<h2 id="Method-Spatial-Pyramid-Matching"><a href="#Method-Spatial-Pyramid-Matching" class="headerlink" title="Method - Spatial Pyramid Matching"></a>Method - Spatial Pyramid Matching</h2><p>按照我个人的理解，主要分成两块来介绍这篇文章的工作，Feature Representation of SPM 和 Feature Matching of SPM。本文的贡献就是空间金字塔的特征多尺度表示方式，并且对于这种特征表示方式给出了相应的 Kernel 度量方法（主要基于 Grauman-05-CVPR-Pyramid Match Kernel）。但有意思的是，在当时这篇文章的重点都放在了如何做 Kernel 度量方法上（SVM 统治的时代），可能是因为 空间金字塔的特征多尺度表示方式 太过简单，文章着墨并不多，但现在是深度学习统治的时代，Kernel 方法不太有人用了，反而是简单的 Spatial Pyramid Feature Representation 方法留了下来对后面产生了巨大的影响（SPP-net 的 Spatial Pyramid Pooling，Fast R-CNN 的 ROI Pooling）。</p>
+<h3 id="Feature-Representation-of-SPM"><a href="#Feature-Representation-of-SPM" class="headerlink" title="Feature Representation of SPM"></a>Feature Representation of SPM</h3><p>首先，对于基于 SIFT 特征的工作，Feature Representation 其实是由 3 部分构成的：local feature extraction、feature coding 和 feature pooling。</p>
+<ol>
+<li>Local Feature Extraction 抽取 局部特征点，注意对于整张图像来说，这一步得到的是一个局部特征的<strong>集合</strong>，不同图像的集合元素是不同的，通常对于分类器来说，接受的是同样长度的<strong>向量</strong>输入，不等长的集合可是不行的，比如最近邻分类器，两个集合是没法直接计算距离的，所以需要将这些含有不同元素个数的集合表示 统一成一个具有同等维数的向量表示。SVM 因为 Kernel，虽然可以接受各种非向量的输入，比如集合，但其实只是把集合之间的比较运算推后到 Kernel 空间的內积计算而已，还是需要定义 Kernel 的具体形式来处理，所以其实是没有逃掉的。</li>
+<li>Feature Coding：把特征集合变成相应的特征向量表示的常用手段是转换成特定的<strong>直方图表示</strong>，这一环节其实是分成两步走的，第一步是 feature coding。我们先来看 直方图，直方图有 N 个 bin，想做的就是遍历下每个特征属于哪个 bin。feature coding 这一步其实做的就是怎么构造出直方图的这些 bin 来。灰度直方图的 bin 是现成的，0-255 按照灰度来就好，但 SIFT 特征可是一个高维向量，怎么弄呢？其实直方图表示，也就是把特征空间划分成 N 类，每一类就是一个 bin，最后统计特征集合的每个元素在这些类上的 <strong>分布情况</strong>，也就是直方图。好啦，那么 feature coding 的主要任务就是把特征空间划分成 N 份啦，而且是没有 label 的分类，所以就是无监督的聚类啦，这也是为什么这一步为什么往往都采用 K-Means 的原因了。得到聚类中心后，就能搞把每一个 SIFT 局部特征划分到其中一个 bin 中去了。</li>
+<li>Feature Vector Representation of Image：其实这一块也可以写成 Histogram Representation of Local Features of Image，在已经完成 Feature Coding 的基础上，怎么得到最后整张图像，也就是抽取的 SIFT 这样的 Local Feature <strong>Set</strong> 的 向量形式的表示。最简单的就是把 Feature Coding 得到的 N 类然后构成一个 Histogram 啦，这个就是 Bag-of-Words。缺点是本来特征分布是有 Spatial Layout 的，BoW 这种表示方式方式就丢弃了 Spatial Layout Information。SPM 的工作就在这里啦，提出了一种保留了 Spatial Layout 的 Histogram Representation of Local Features of Image。因此，SPM 的工作是在第 3 阶段，也就是在 K-Means 得到了 N 个聚类中心（Visual Words）后做的。</li>
+</ol>
+<p>具体做法很简单，在 Related Works 里其实已经把怎么做的都说了，论文给了一个 toy model 也很形象。</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-04-15254406187534.jpg" alt=""></p>
+<h3 id="Feature-Matching-of-SPM"><a href="#Feature-Matching-of-SPM" class="headerlink" title="Feature Matching of SPM"></a>Feature Matching of SPM</h3><p>计算两个直方图之间的匹配程度的是 intersection 运算，其实就是 measures the “overlap” between two histograms’ bins，具体定义如下，$r$ 是直方图 bin 的个数。</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-05-15255212033286.jpg" alt=""></p>
+<p>因为 Feature Coding 阶段（K-Means）在直方图之前，不管什么尺度计算的直方图都是一样的 bin number，所以 SPM 是用不同尺度对应的同一个 bin 相应的统计值来计算对应的 Match 值，然后求和得到总的 Match Value，如下：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-05-15255221117124.jpg" alt=""></p>
+<p>$M$ 是直方图的 bin 数，也就是 K-Means 聚类的聚类数，也就是上面公式里的 $r$。$X_m$ 相当于 SPM 的 Feature Representation Vector 中，抽出第 $m$ 个 bin 对应的值构成的 vector。$k^L$ 是 <em>pyramid match kernel</em>，Grauman-CVPR-05 的工作，具体定义如下</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-05-15255224427403.jpg" alt=""></p>
+<p>其中的 $I^L$ 定义如下：</p>
+<p><img src="http://ohm5uq281.bkt.clouddn.com/2018-05-05-15255225541569.jpg" alt=""></p>
+<p>偷下懒，不想再解释了，个人觉得这里的符号表示有点误导性。一言以蔽之，其实就是对于每个 bin，按照不同尺度加权求intersect结果的和，然后把这 bin number 的和加起来就是了，最后得到一个标量（Kernel Matrix 中的一个值）。</p>
+<p>OK，介绍完了 SPM，再回去看下 SPP-net，其实可以发现 SPP-net 只是利用了 SPM 的 Spatial Pyramid 划分，然后用每个 Cell 内的特征拼接成最终的特征这个思想而已，并没有用 SPM 的 Matching 那部分。在 SPP-net 中，特征之前可没有经过 K-Means 聚类后的直方图表示，SPP-net 对于每个 Cell 内的特征就是用了一个 max-pooling 而已，所以每个 Feature map 每个 Cell 的输出就只有一个 最大值，然后不同尺度不同 cell 的最大值拼接起来就好了。</p>
+<p>我们再用传统 Feature Extraction、Feature Coding 和 Feature Representation 的角度来审视下 SPP-net：</p>
+<ol>
+<li>Feature Extraction：卷积神经网络知道 Spatial Pyramid Pooling Layer 之前的部分；</li>
+<li>Feature Coding：这两个其实是一步，SPM 那里还可以拆开来讲，CNN 这里我还是合在一起吧。一旦 input image size 不在 fixed，那么对于用 CNN 提取到的特征来说，其实也是一个变动的尺寸，就像 SIFT 特征集合个数不一样一样，Spatial Pyramid 划分其实就是解决了不同尺寸的集合没法比较的问题，这个很像 SPM 里的 K-Means 做 Feature Coding。</li>
+<li>Feature Representation，对于上一步每一个小 cell 里面的特征，就用最大值来表示这一块特征。</li>
+</ol>
+<p>这样抽象看的话，其实 Deep Learning 和 传统方法还是一致的，唯一的区别只是特征抽取的方式变了，由手工设计特征变成了学习得到特征，但其他要面临的问题还是一样的。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Lazebnik-CVPR-06-SPM/';
+var disqus_title = 'Notes on CVPR-06-Spatial Pyramid Matching';
+var disqus_url = 'http://lowrank.science/Lazebnik-CVPR-06-SPM/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
