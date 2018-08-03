@@ -53,6 +53,7 @@
 <li>pred_label 也就是 valid 的 Prediction Label</li>
 <li>pred_score 也就是 valid 的 Prediction score</li>
 <li>同理，valid_gt 也是 groundtruth 里面 valid 的 index，至此之后，pred_bbox，pred_label, pred_score, gt_bbox, gt_label 都是 valid 的了，但是名字还是和之前一样，也算省事</li>
+<li>你可能会好奇，既然是 Groundtruth，怎么会有 -1 这样的 Label 么，所有 Object 的 cls_id 都是从 0 开始的嘛？这是因为不同 image 所包含的 object 个数不同，但为了把他们拼成一个 batch，所以做了 Pad 运算最后都按照这个 Batch 中 object 个数最多的来，而对于哪些根本不存在的 object， Pad 的 pad_val 是 -1，这一步就是把那些 Pad 出来的再去掉</li>
 <li>这个操作对于语义上其实很 trivial</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">valid_pred = np.where(pred_label.flat &gt;= <span class="number">0</span>)[<span class="number">0</span>]</span><br><span class="line">pred_bbox = pred_bbox[valid_pred, :]</span><br><span class="line">pred_label = pred_label.flat[valid_pred].astype(int)</span><br><span class="line">pred_score = pred_score.flat[valid_pred]</span><br><span class="line">valid_gt = np.where(gt_label.flat &gt;= <span class="number">0</span>)[<span class="number">0</span>]</span><br><span class="line">gt_bbox = gt_bbox[valid_gt, :]</span><br><span class="line">gt_label = gt_label.flat[valid_gt].astype(int)</span><br></pre></td></tr></table></figure>
@@ -152,8 +153,9 @@
 <p>在调用 <code>as_numpy</code> 的时候，isinstance(a, (list, tuple)) 是 True，又因为 isinstance(x, mx.nd.NDArray) 是 False，所以最后的 out 还是 [None]，问题出在 return np.concatenate(out, axis=0) 的时候，<code>np.concatenate(out, axis=0)</code> 就会报错 ValueError: zero-dimensional arrays cannot be concatenated</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">as_numpy</span><span class="params">(a)</span>:</span></span><br><span class="line">    <span class="string">"""Convert a (list of) mx.NDArray into numpy.ndarray"""</span></span><br><span class="line">    <span class="keyword">if</span> isinstance(a, (list, tuple)):</span><br><span class="line">        out = [x.asnumpy() <span class="keyword">if</span> isinstance(x, mx.nd.NDArray) <span class="keyword">else</span> x <span class="keyword">for</span> x <span class="keyword">in</span> a]</span><br><span class="line">        <span class="keyword">return</span> np.concatenate(out, axis=<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">elif</span> isinstance(a, mx.nd.NDArray):</span><br><span class="line">        a = a.asnumpy()</span><br><span class="line">    <span class="keyword">return</span> a</span><br></pre></td></tr></table></figure>
 <h2 id="Logs"><a href="#Logs" class="headerlink" title="Logs"></a>Logs</h2><ul>
-<li>2018-07-29 初稿</li>
-<li>2018-08-02 增加了对 <code>update</code> 输入部分的解读，即 Human Label Space vs Anchor Label Space.</li>
+<li>2018-07-29：初稿</li>
+<li>2018-08-02：增加了对 <code>update</code> 输入部分的解读，即 Human Label Space vs Anchor Label Space.</li>
+<li>2018-08-02：增加了 VOCMApMetric 计算 valid_gt 的原因：剔除 Test 阶段 Pad 操作的影响</li>
 </ul>
 <hr>
 <p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
