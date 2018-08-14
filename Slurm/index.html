@@ -1,0 +1,63 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on Slurm | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Linux/">Linux</a><a class="post-tag-link" href="/tags/Slurm/">Slurm</a></div><div class="post-time">2018-08-14</div></div></div><div class="container post-header"><h1>Notes on Slurm</h1></div><div class="container post-content"><p>为了解决抢占 GPU 资源的问题，最近 DIKU 开始推行 Slurm。</p>
+<blockquote>
+<p>Slurm 任务调度工具（前身为极简 Linux 资源管理工具，英文：Simple Linux Utility for Resource Management，取首字母，简写为 SLURM），或 Slurm，是一个用于 Linux 和 Unix 内核系统的免费、开源的任务调度工具，被世界范围内的超级计算机和计算机群广泛采用。它提供了三个关键功能。第一，为用户分配一定时间的专享或非专享的资源 (计算机节点)，以供用户执行工作。第二，它提供了一个框架，用于启动、执行、监测在节点上运行着的任务 (通常是并行的任务，例如 MPI)，第三，为任务队列合理地分配资源。</p>
+<p>大约 60％的 500 强超级计算机上都运行着 Slurm，包括 2016 年前世界上最快的计算机天河 - 2。</p>
+<p>Slurm 使用基于 Hilbert 曲线调度或肥胖 网络拓扑结构的最适算法，以便优化并行计算机中的任务分配。</p>
+</blockquote>
+<p>在用了 Slurm 之后，原来从 Local Machine 直接登录 GPU Server 这样的两层结构，变成了<br>Local Machine -&gt; Gate -&gt; Slurm -&gt; GPU Server 这样的四层结构。以前的话，直接在 Local Machine 上登录 GPU Server，但 GPU 资源会一直被霸占或者什么的，引入 Slurm 就是为了更好地让大家利用资源。现在的话，必须先从 Local Machine ssh 登录 Gate Server，然后再从 Gate Server ssh 登录 Slurm，我们能登陆的就到这里了，在 Slurm 服务器上把 任务 提交，Slurm 会自动给分配计算资源，运行完后，会有类似 <code>slurm-xxxxxx.out</code> 这样的格式的输出，就相当于程序运行的结果</p>
+<p>具体可以看 <a href="http://image.diku.dk/mediawiki/index.php/Slurm_Cluster" target="_blank" rel="noopener">http://image.diku.dk/mediawiki/index.php/Slurm_Cluster</a></p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><h4 id="Local-Machine-gt-Gate-Server"><a href="#Local-Machine-gt-Gate-Server" class="headerlink" title="Local Machine -&gt; Gate Server"></a>Local Machine -&gt; Gate Server</h4><p>在 <code>.ssh/config</code> 中添加如下内容，记得把 <kuid> 换成 KU ID</kuid></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Host gate-diku</span><br><span class="line">    HostName ssh-diku-image.science.ku.dk</span><br><span class="line">    User &lt;kuid&gt;</span><br><span class="line">Host cluster</span><br><span class="line">    HostName a00552</span><br><span class="line">    User &lt;kuid&gt;</span><br><span class="line">    ProxyCommand ssh -q -W %h:%p gate-diku</span><br><span class="line">Host gpu*-diku-image</span><br><span class="line">    User &lt;kuid&gt;</span><br><span class="line">    ProxyCommand ssh -q -W %h:%p gate-diku</span><br></pre></td></tr></table></figure>
+<p>然后运行 <code>ssh gate-diku</code> 就ssh 登录到了 Gate Server 上去了</p>
+<h4 id="Gate-Server-gt-Slurm-Server"><a href="#Gate-Server-gt-Slurm-Server" class="headerlink" title="Gate Server -&gt; Slurm Server"></a>Gate Server -&gt; Slurm Server</h4><p>登录 Gate Server 后同样的，<code>vim .ssh/config</code> 添加一样的内容，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Host gate-diku</span><br><span class="line">    HostName ssh-diku-image.science.ku.dk</span><br><span class="line">    User &lt;kuid&gt;</span><br><span class="line">Host cluster</span><br><span class="line">    HostName a00552</span><br><span class="line">    User &lt;kuid&gt;</span><br><span class="line">    ProxyCommand ssh -q -W %h:%p gate-diku</span><br><span class="line">Host gpu*-diku-image</span><br><span class="line">    User &lt;kuid&gt;</span><br><span class="line">    ProxyCommand ssh -q -W %h:%p gate-diku</span><br></pre></td></tr></table></figure>
+<p>然后运行 <code>ssh cluster</code> 就ssh 登录到了 Slurm Server 上去了。事实上，是可以直接从 Local Machine SSH 登录到 Cluster 的。</p>
+<h4 id="Slurm-Server-gt-GPU-Server"><a href="#Slurm-Server-gt-GPU-Server" class="headerlink" title="Slurm Server -&gt; GPU Server"></a>Slurm Server -&gt; GPU Server</h4><p>这一步，我们并不被允许直接登录 GPU Server 但是我们可以用 <code>sbatch XXXX.sh</code> 这样的命令提交我们的请求，也就是说我们要在 XXXX.sh 里面指定好我们要什么资源，要运行什么程序</p>
+<p>以 Start a Job on the GPU cluster 为例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># normal cpu stuff: allocate cpus, memory</span><br><span class="line">#SBATCH --ntasks=1 --cpus-per-task=10 --mem=6000M</span><br><span class="line"># we run on the gpu partition and we allocate 2 titanx gpus</span><br><span class="line">#SBATCH -p gpu --gres=gpu:titanx:2</span><br><span class="line">#We expect that our program should not run langer than 4 hours</span><br><span class="line">#Note that a program will be killed once it exceeds this time!</span><br><span class="line">#SBATCH --time=4:00:00</span><br><span class="line"></span><br><span class="line">#your script, in this case: write the hostname and the ids of the chosen gpus.</span><br><span class="line">hostname</span><br><span class="line">echo $CUDA_VISIBLE_DEVICES</span><br><span class="line">python3 yourScript.py</span><br></pre></td></tr></table></figure>
+<p>总体的原则是 需要的资源越少，越会被提前安排。</p>
+<p><code>--cpus-per-task=10</code> 指定需要多少个 CPU，<code>--gres=gpu:titanx:2</code> 指定需要什么型号的 GPU，要几个，可以 <code>--gres=gpu:1</code> 即不一定非要 titanx，gpu 只要一个，但最好还是制定一下 GPU，因为里面有一个很老的 GTX 450，且不在列表上，被分配到这个上去就坑了。</p>
+<p><code>#SBATCH --time=4:00:00</code> 指定需要多长时间，这里是 4 hour，改少一点，和实际相符，如果太长的也会被往后排；太短超过了时间很可能会被中止。</p>
+<p>注意 <code>hostname</code> 就保持不变，不要真改成什么 <code>gpu01-diku-image</code> 这种</p>
+<h3 id="查看"><a href="#查看" class="headerlink" title="查看"></a>查看</h3><h4 id="查看排队和运行情况"><a href="#查看排队和运行情况" class="headerlink" title="查看排队和运行情况"></a>查看排队和运行情况</h4><p><code>squeue | grep &lt;kuid&gt;</code></p>
+<p>如果要看实时的输出</p>
+<p><code>watch -n 1 &quot;squeue | grep &lt;kuid&gt;&quot;</code></p>
+<h4 id="实时查看-log-file-的变动"><a href="#实时查看-log-file-的变动" class="headerlink" title="实时查看 log file 的变动"></a>实时查看 log file 的变动</h4><p><code>tail -n 1 -f slurm-xxxxxx.out</code></p>
+<p>上面的 <code>1</code> 都是指 1 秒。</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><h4 id="Check-failed-err-CUDNN-STATUS-SUCCESS-6-vs-0-CUDNN-STATUS-ARCH-MISMATCH"><a href="#Check-failed-err-CUDNN-STATUS-SUCCESS-6-vs-0-CUDNN-STATUS-ARCH-MISMATCH" class="headerlink" title="Check failed: err == CUDNN_STATUS_SUCCESS (6 vs. 0) CUDNN_STATUS_ARCH_MISMATCH"></a><code>Check failed: err == CUDNN_STATUS_SUCCESS (6 vs. 0) CUDNN_STATUS_ARCH_MISMATCH</code></h4><p>这个原因是因为 GPU 太老的问题，程序被分配到很老的 GPU 上去了。在 DIKU 的 cluster 中有一个很老的 GPU，解决方法就是在 sbatch 的 shell 文件中指定好新的 GPU。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Slurm/';
+var disqus_title = 'Notes on Slurm';
+var disqus_url = 'http://lowrank.science/Slurm/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>

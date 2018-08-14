@@ -1,0 +1,166 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on MXNet Deployment | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Deep-Learning/">Deep-Learning</a><a class="post-tag-link" href="/tags/Linux/">Linux</a><a class="post-tag-link" href="/tags/MXNet/">MXNet</a></div><div class="post-time">2018-08-14</div></div></div><div class="container post-header"><h1>Notes on MXNet Deployment</h1></div><div class="container post-content"><p>目前一直在学习 MXNet，这篇日志记录下 MXNet 在不同平台上的部署和使用。</p>
+<h2 id="1-在不同平台上的部署"><a href="#1-在不同平台上的部署" class="headerlink" title="1. 在不同平台上的部署"></a>1. 在不同平台上的部署</h2><h3 id="1-1-University-Server"><a href="#1-1-University-Server" class="headerlink" title="1.1 University Server"></a>1.1 University Server</h3><p>学校或者系里的 Server 一般都是免费的，如果能够抢到机器当然是最好的啦。不过除了要抢之外，还需要注意以下几点：</p>
+<ol>
+<li>没有 root 权限，这意味着很多需要 sudo 的操作不可行</li>
+<li>Disk 往往是挂在在阵列上，磁盘与 CPU 之间的通信是靠网络传输的，所以千万不要一次性将很大的文件读入内存，否则等待你的就是 forever 的 load 了</li>
+</ol>
+<h4 id="1-1-1-Installation"><a href="#1-1-1-Installation" class="headerlink" title="1.1.1 Installation"></a>1.1.1 Installation</h4><h5 id="Step-1-Check-CUDA-Version"><a href="#Step-1-Check-CUDA-Version" class="headerlink" title="Step 1:  Check CUDA Version"></a>Step 1:  Check CUDA Version</h5><p>这个不需要 root 权限，也就是不需要 sudo</p>
+<p><code>cat /usr/local/cuda/version.txt</code></p>
+<h5 id="Step-2-conda-环境"><a href="#Step-2-conda-环境" class="headerlink" title="Step 2: conda 环境"></a>Step 2: conda 环境</h5><p><code>conda env list</code></p>
+<p>如果需要的话，删除之前的 environment，</p>
+<p><code>conda env remove --name ENVIRONMENT_NAME</code></p>
+<p>也可以更新现有的包管理器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda update conda</span><br><span class="line">pip install --upgrade pip</span><br></pre></td></tr></table></figure>
+<h5 id="Step-3-Create-Gluon-Environment"><a href="#Step-3-Create-Gluon-Environment" class="headerlink" title="Step 3: Create Gluon Environment"></a>Step 3: Create Gluon Environment</h5><p>Download Gluon Tutorial:</p>
+<p><code>git clone https://github.com/mli/gluon-tutorials-zh</code></p>
+<p>Create Virtual Environment <em>gluon</em> and activate it</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> gluon-tutorials-zh</span><br><span class="line">conda env create -f environment.yml</span><br><span class="line"><span class="built_in">source</span> activate gluon</span><br></pre></td></tr></table></figure>
+<h5 id="Step-4-Install-notedown-plugin"><a href="#Step-4-Install-notedown-plugin" class="headerlink" title="Step 4: Install notedown plugin"></a>Step 4: Install <em>notedown</em> plugin</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pip install https://github.com/mli/notedown/tarball/master</span><br><span class="line">jupyter notebook --generate-config</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"c.NotebookApp.contents_manager_class = 'notedown.NotedownContentsManager'"</span> &gt;&gt;~/.jupyter/jupyter_notebook_config.py</span><br></pre></td></tr></table></figure>
+<h5 id="Step-5-Install-the-GPU-version-of-MXNet"><a href="#Step-5-Install-the-GPU-version-of-MXNet" class="headerlink" title="Step 5: Install the GPU version of MXNet"></a>Step 5: Install the GPU version of MXNet</h5><p>因为我们的 CUDA 是 9.0，所以装对应版本的 mxnet</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip uninstall -y mxnet</span><br><span class="line">pip install mxnet-cu90mkl</span><br></pre></td></tr></table></figure>
+<p>测试安装是否成功，运行下列 python 代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mxnet <span class="keyword">as</span> mx</span><br><span class="line">mx.nd.array([<span class="number">1</span>,<span class="number">2</span>], ctx=mx.gpu(<span class="number">0</span>))</span><br></pre></td></tr></table></figure>
+<h5 id="Step-6-Install-gluonbook"><a href="#Step-6-Install-gluonbook" class="headerlink" title="Step 6: Install gluonbook"></a>Step 6: Install gluonbook</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install gluonbook</span><br></pre></td></tr></table></figure>
+<h5 id="Step-7-Install-Gluon-CV"><a href="#Step-7-Install-Gluon-CV" class="headerlink" title="Step 7: Install Gluon-CV"></a>Step 7: Install Gluon-CV</h5><p>在用之前可以用 <code>yolk -V gluoncv</code> 查看一下 pip 上面 gluon-cv 的版本号，通常是落后于最新的，所以最好还是按照下面操作手动安装。<code>pip install yolk3K</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/dmlc/gluon-cv</span><br><span class="line"><span class="built_in">cd</span> gluon-cv &amp;&amp; python setup.py install --user</span><br></pre></td></tr></table></figure>
+<p>但是如果使用了 0.3.0 版本的 Gluon-CV 在 调用的时候，会报错 <a href="https://github.com/dmlc/gluon-cv/issues/235" target="_blank" rel="noopener"><code>cannot import name &#39;SimpleQueue&#39;</code></a>，退回来用 0.2.0 版本就没这个问题了。时间戳是，2018-08-06；如果硬要用的话，解决方法应该是自己编译 MXNet 1.3，目前官方的 pip 安装只提供到 1.2.</p>
+<h5 id="Step-7-Clone-from-Gitlab"><a href="#Step-7-Clone-from-Gitlab" class="headerlink" title="Step 7: Clone from Gitlab"></a>Step 7: Clone from Gitlab</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">git <span class="built_in">clone</span> https://gitlab.com/XXXX/YYYY.git</span><br></pre></td></tr></table></figure>
+<h5 id="Step-8-下载模型园"><a href="#Step-8-下载模型园" class="headerlink" title="Step 8: 下载模型园"></a>Step 8: 下载模型园</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> gluoncv <span class="keyword">import</span> model_zoo</span><br><span class="line"><span class="comment"># load a ResNet model trained on CIFAR10</span></span><br><span class="line">cifar_resnet20 = model_zoo.get_model(<span class="string">'cifar_resnet20_v1'</span>, pretrained=<span class="keyword">True</span>)</span><br><span class="line"><span class="comment"># load a pre-trained ssd model</span></span><br><span class="line">ssd0 = model_zoo.get_model(<span class="string">'ssd_300_vgg16_atrous_voc'</span>, pretrained=<span class="keyword">True</span>)</span><br><span class="line"><span class="comment"># load ssd model with pre-trained feature extractors</span></span><br><span class="line">ssd1 = model_zoo.get_model(<span class="string">'ssd_512_vgg16_atrous_voc'</span>, pretrained_base=<span class="keyword">True</span>)</span><br><span class="line"><span class="comment"># load ssd model without initialization</span></span><br><span class="line">ssd2 = model_zoo.get_model(<span class="string">'ssd_512_resnet50_v1_voc'</span>, pretrained_base=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="1-1-2-Using"><a href="#1-1-2-Using" class="headerlink" title="1.1.2 Using"></a>1.1.2 Using</h4><h5 id="Checking-Issues-Before-Using-the-Machines"><a href="#Checking-Issues-Before-Using-the-Machines" class="headerlink" title="Checking Issues Before Using the Machines"></a>Checking Issues Before Using the Machines</h5><ol>
+<li>Which GPUs are available? - <code>nvidia-smi</code></li>
+<li>Is there enough host memory? - <code>htop</code></li>
+<li>Are there available CPUs? - <code>htop</code></li>
+</ol>
+<h5 id="Using-the-machines-in-general"><a href="#Using-the-machines-in-general" class="headerlink" title="Using the machines in general"></a>Using the machines in general</h5><ol>
+<li>The <code>screen</code>-program can be used for executing programs despite terminating the ssh-connection. Please make sure to close your unused screens.</li>
+</ol>
+<h3 id="AWS"><a href="#AWS" class="headerlink" title="AWS"></a>AWS</h3><h5 id="Step-1-Update-System"><a href="#Step-1-Update-System" class="headerlink" title="Step 1: Update System"></a>Step 1: Update System</h5><p><code>sudo apt-get update &amp;&amp; sudo apt-get install -y build-essential git libgfortran3</code></p>
+<h5 id="Step-2-Install-CUDA"><a href="#Step-2-Install-CUDA" class="headerlink" title="Step 2: Install CUDA"></a>Step 2: Install CUDA</h5><p>访问 <a href="https://developer.nvidia.com/cuda-toolkit-archive" target="_blank" rel="noopener">https://developer.nvidia.com/cuda-toolkit-archive</a> 选择对应的 CUDA 驱动下载</p>
+<p>我选择 9.0 的版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run</span><br><span class="line">sudo sh cuda_9.0.176_384.81_linux-run</span><br></pre></td></tr></table></figure>
+<p>然后测试下安装成功了么</p>
+<p><code>nvidia-smi</code></p>
+<p>最后，将 CUDA 加入到库的路径中，以方便其他库找到它，注意因为我是 9.0，所以是 9.0 的版本。</p>
+<p><code>echo &quot;export LD_LIBRARY_PATH=\${LD_LIBRARY_PATH}:/usr/local/cuda-9.0/lib64&quot; &gt;&gt;.bashrc</code></p>
+<h5 id="Step-3-Install-Conda"><a href="#Step-3-Install-Conda" class="headerlink" title="Step 3: Install Conda"></a>Step 3: Install Conda</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh</span><br><span class="line">bash Miniconda3-latest-Linux-x86_64.sh</span><br></pre></td></tr></table></figure>
+<p>安装完成后，运行一次 <code>source ~/.bashrc</code> 让 CUDA 和 conda 生效</p>
+<p><code>source ~/.bashrc</code></p>
+<p>更新现有的包管理器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">conda update conda</span><br><span class="line">pip install --upgrade pip</span><br></pre></td></tr></table></figure>
+<h5 id="Step-4-Install-MXNet"><a href="#Step-4-Install-MXNet" class="headerlink" title="Step 4: Install MXNet"></a>Step 4: Install MXNet</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/mli/gluon-tutorials-zh.git</span><br><span class="line"><span class="built_in">cd</span> gluon-tutorials-zh/</span><br><span class="line">conda env create -f environment.yml</span><br></pre></td></tr></table></figure>
+<p>默认环境里安装了 CPU 版本的 MXNet。现在我们将它替换成 GPU 版本的 MXNet（1.2.1 版）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> activate gluon</span><br><span class="line">pip uninstall mxnet</span><br><span class="line">pip install mxnet-cu90==1.2.1</span><br></pre></td></tr></table></figure>
+<h5 id="Step-5-运行-Jupyter-notebook"><a href="#Step-5-运行-Jupyter-notebook" class="headerlink" title="Step 5: 运行 Jupyter notebook"></a>Step 5: 运行 Jupyter notebook</h5><p>cd 到目标文件夹</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jupyter notebook</span><br></pre></td></tr></table></figure>
+<p>测试安装是否成功，运行下列 python 代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mxnet <span class="keyword">as</span> mx</span><br><span class="line">mx.nd.array([<span class="number">1</span>,<span class="number">2</span>], ctx=mx.gpu(<span class="number">0</span>))</span><br></pre></td></tr></table></figure>
+<h5 id="Step-6-Install-gluonbook-1"><a href="#Step-6-Install-gluonbook-1" class="headerlink" title="Step 6: Install gluonbook"></a>Step 6: Install gluonbook</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install gluonbook</span><br></pre></td></tr></table></figure>
+<h5 id="Step-7-Install-Gluon-CV-1"><a href="#Step-7-Install-Gluon-CV-1" class="headerlink" title="Step 7: Install Gluon-CV"></a>Step 7: Install Gluon-CV</h5><p>在用之前可以用 <code>yolk -V gluoncv</code> 查看一下 pip 上面 gluon-cv 的版本号，通常是落后于最新的，所以最好还是按照下面操作手动安装。</p>
+<p>安装 yolk</p>
+<p><code>pip install yolk3k</code></p>
+<p>安装 gluoncv</p>
+<p><code>pip install gluoncv</code></p>
+<h5 id="Step-8-Clone-from-Gitlab"><a href="#Step-8-Clone-from-Gitlab" class="headerlink" title="Step 8: Clone from Gitlab"></a>Step 8: Clone from Gitlab</h5><p>首先我们要设置 ssh，也就是将 AWS 这台机器上产生的秘钥，放到 Gitlab 的秘钥上，这样两者就认识了。但因为我们没法在 AWS 的机器里打开图形界面，所以 AWS 机器上产生的秘钥要先 download 到我本地的机子上，然后再复制其里面的内容到 Gitlab 网页上。</p>
+<p>在 AWS 机子上产生秘钥，因为 AWS 的机子是 Linux，所以根据<a href="https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/#platform-linux" target="_blank" rel="noopener">这个网页</a></p>
+<p>Generating a new SSH key</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -b 4096 -C <span class="string">"your_email@example.com"</span></span><br></pre></td></tr></table></figure>
+<p>Adding your SSH key to the ssh-agent</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">eval</span> <span class="string">"<span class="variable">$(ssh-agent -s)</span>"</span></span><br><span class="line">ssh-add ~/.ssh/id_rsa</span><br></pre></td></tr></table></figure>
+<p>Download id_rsa to local machine，请到 local machine 的 terminal 上（不是 AWS 登录的那个）</p>
+<p><code>scp -i &quot;XXXX.pem&quot; username@remote:~/.ssh/id_rsa.pub ~/Downloads</code></p>
+<p>里面的 username@remote 就是 在 AWS 中 实例 -&gt; 连接 后的登录命令中可以看到。把下下来的文件打开，然后复制复制到 右上角头像 -&gt; Settings -&gt; SSH Keys 里面。</p>
+<p>Clone from Gitlab</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">git <span class="built_in">clone</span> https://gitlab.com/XXXX/YYYY.git</span><br></pre></td></tr></table></figure>
+<h5 id="Step-9-下载模型园"><a href="#Step-9-下载模型园" class="headerlink" title="Step 9: 下载模型园"></a>Step 9: 下载模型园</h5><p>在 python 中运行</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> gluoncv <span class="keyword">import</span> model_zoo</span><br><span class="line"><span class="comment"># load a ResNet model trained on CIFAR10</span></span><br><span class="line">cifar_resnet20 = model_zoo.get_model(<span class="string">'cifar_resnet20_v1'</span>, pretrained=<span class="keyword">True</span>)</span><br><span class="line"><span class="comment"># load a pre-trained ssd model</span></span><br><span class="line">ssd0 = model_zoo.get_model(<span class="string">'ssd_300_vgg16_atrous_voc'</span>, pretrained=<span class="keyword">True</span>)</span><br><span class="line"><span class="comment"># load ssd model with pre-trained feature extractors</span></span><br><span class="line">ssd1 = model_zoo.get_model(<span class="string">'ssd_512_vgg16_atrous_voc'</span>, pretrained_base=<span class="keyword">True</span>)</span><br><span class="line"><span class="comment"># load ssd model without initialization</span></span><br><span class="line">ssd2 = model_zoo.get_model(<span class="string">'ssd_512_resnet50_v1_voc'</span>, pretrained_base=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<h5 id="Step-10-Upload-your-own-dataset"><a href="#Step-10-Upload-your-own-dataset" class="headerlink" title="Step 10: Upload your own dataset"></a>Step 10: Upload your own dataset</h5><p>在 自己的 local machine 上</p>
+<p><code>scp -i &quot;XXXX.pem&quot; -r /file/to/send username@remote:/where/to/put</code></p>
+<p>-r 表示文件夹，递归复制整个目录</p>
+<h5 id="Step-11-映射到本地"><a href="#Step-11-映射到本地" class="headerlink" title="Step 11: 映射到本地"></a>Step 11: 映射到本地</h5><p><code>ssh -i &quot;XXXX.pem&quot; -N -f -L 8888:localhost:8890 user_name@server_address</code></p>
+<h5 id="Step-xxx-关闭不使用的实例"><a href="#Step-xxx-关闭不使用的实例" class="headerlink" title="Step xxx: 关闭不使用的实例"></a>Step xxx: 关闭不使用的实例</h5><blockquote>
+<p>因为云服务按使用时长计费，我们通常会在不使用实例时将其关闭。</p>
+<p>如果较短时间内还将重新开启实例，右击图 11.16 中的示例，选择 “Instance State” → “Stop” 将实例停止，等下次使用时选择 “Instance State” → “Start” 重新开启实例。这种情况下，开启的实例将保留其停止前硬盘上的存储（例如无需再安装 CUDA 和其他运行环境）。然而，停止状态的实例也会因其所保留的硬盘空间而产生少量计费。</p>
+<p>如果较长时间内不会重新开启实例，右击图 11.16 中的示例，选择 “Image” → “Create” 创建镜像。然后，选择 “Instance State” → “Terminate” 将实例终结（硬盘不再产生计费）。当下次使用时，我们可按本节中创建并运行 EC2 实例的步骤重新创建一个基于保存镜像的实例。唯一的区别在于，在图 11.10 的第一步 “1. Chosse AMI” 中，我们需要通过左栏 “My AMIs” 选择之前保存的镜像。这样创建的实例将保留镜像上硬盘的存储（例如无需再安装 CUDA 和其他运行环境）。</p>
+</blockquote>
+<h5 id="ImportError-libGL-so-1-cannot-open-shared-object-file-No-such-file-or-directory"><a href="#ImportError-libGL-so-1-cannot-open-shared-object-file-No-such-file-or-directory" class="headerlink" title="ImportError: libGL.so.1: cannot open shared object file: No such file or directory"></a>ImportError: libGL.so.1: cannot open shared object file: No such file or directory</h5><p><code>sudo apt install libgl1-mesa-glx</code></p>
+<h3 id="Own-Computer"><a href="#Own-Computer" class="headerlink" title="Own Computer"></a>Own Computer</h3><h2 id="共同操作"><a href="#共同操作" class="headerlink" title="共同操作"></a>共同操作</h2><p>list all versions of a package that’s available</p>
+<p><a href="https://stackoverflow.com/questions/4888027/python-and-pip-list-all-versions-of-a-package-thats-available" target="_blank" rel="noopener">https://stackoverflow.com/questions/4888027/python-and-pip-list-all-versions-of-a-package-thats-available</a></p>
+<p>对 Python 3 来说是 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install yolk3k</span><br><span class="line">yolk -V gluoncv</span><br></pre></td></tr></table></figure>
+<h5 id="Uninstall-a-package"><a href="#Uninstall-a-package" class="headerlink" title="Uninstall a package"></a>Uninstall a package</h5><p><code>pip uninstall xxxx</code></p>
+<h5 id="Map-remote-port-to-local-port"><a href="#Map-remote-port-to-local-port" class="headerlink" title="Map remote port to local port"></a>Map remote port to local port</h5><ol>
+<li>First, activate virtual environment on remote server, e.g., <ol>
+<li><code>cd gluon_tutorial</code></li>
+<li><code>source activate gluon</code></li>
+</ol>
+</li>
+<li>Second, port forwarding, <code>ssh -N -f -L 8888:localhost:8890 qcn484@imgpu1</code>, 8890 is the port on remote server, 8888 is port of localhost, open <localhost:8888> on my laptop.</localhost:8888></li>
+</ol>
+<h5 id="Upload-and-Download-files-via-FTP-Client"><a href="#Upload-and-Download-files-via-FTP-Client" class="headerlink" title="Upload and Download files via FTP Client"></a>Upload and Download files via FTP Client</h5><ol>
+<li>Choose <strong>SFTP</strong> Protocol, only SFTP</li>
+<li>Server: <code>ssh-diku-image.science.ku.dk</code></li>
+<li>KU Username</li>
+<li>KU Passwork</li>
+<li>Port 22, Done</li>
+</ol>
+<h5 id="Check-the-occupied-port-and-kill-the-progress"><a href="#Check-the-occupied-port-and-kill-the-progress" class="headerlink" title="Check the occupied port and kill the progress"></a>Check the occupied port and kill the progress</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lsof -i:xxxx # xxxx is the port you want to check</span><br><span class="line">kill yyyy    # yyyy is the pid you want to kill</span><br></pre></td></tr></table></figure>
+<h5 id="SSH-Login-Without-Password-Using-ssh-keygen-amp-ssh-copy-id"><a href="#SSH-Login-Without-Password-Using-ssh-keygen-amp-ssh-copy-id" class="headerlink" title="SSH Login Without Password Using ssh-keygen &amp; ssh-copy-id"></a>SSH Login Without Password Using <code>ssh-keygen</code> &amp; <code>ssh-copy-id</code></h5><p>According to <a href="https://www.thegeekstuff.com/2008/11/3-steps-to-perform-ssh-login-without-password-using-ssh-keygen-ssh-copy-id" target="_blank" rel="noopener">3 Steps to Perform SSH Login Without Password Using ssh-keygen &amp; ssh-copy-id</a></p>
+<p>Assuming you already have <code>~/.ssh/id_rsa.pub</code>, just using <code>ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host</code>.</p>
+<h5 id="Using-scp"><a href="#Using-scp" class="headerlink" title="Using scp"></a>Using <code>scp</code></h5><p>If you are on the computer from which you <strong>want to send file to a remote computer</strong>:</p>
+<p><code>scp /file/to/send username@remote:/where/to/put</code></p>
+<p><code>scp &lt;file&gt; username@ipadress:</code></p>
+<p>On the other hand if you are on the computer <strong>wanting to receive file from a remote computer</strong>:</p>
+<p><code>scp username@remote:/file/to/send /where/to/put</code></p>
+<p>Do not forget the final <code>:</code></p>
+<h5 id="Sync-codes-among-different-machines"><a href="#Sync-codes-among-different-machines" class="headerlink" title="Sync codes among different machines"></a>Sync codes among different machines</h5><p><code>git pull origin master:master</code></p>
+<h5 id="Add-SSH-key-to-GitHub-GitLab-Coding-net-Account"><a href="#Add-SSH-key-to-GitHub-GitLab-Coding-net-Account" class="headerlink" title="Add SSH key to GitHub/GitLab/Coding.net Account"></a>Add SSH key to GitHub/GitLab/Coding.net Account</h5><p>on Mac</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ pbcopy &lt; ~/.ssh/id_rsa.pub</span><br><span class="line"># Copies the contents of the id_rsa.pub file to your clipboard</span><br></pre></td></tr></table></figure>
+<p>on Windows</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ clip &lt; ~/.ssh/id_rsa.pub</span><br><span class="line"># Copies the contents of the id_rsa.pub file to your clipboard</span><br></pre></td></tr></table></figure>
+<p>on Linux</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install xclip</span><br><span class="line"># Downloads and installs xclip. If you don&apos;t have `apt-get`, you might need to use another installer (like `yum`)</span><br><span class="line">$ xclip -sel clip &lt; ~/.ssh/id_rsa.pub</span><br><span class="line"># Copies the contents of the id_rsa.pub file to your clipboard</span><br></pre></td></tr></table></figure>
+<h5 id="同时推送多个"><a href="#同时推送多个" class="headerlink" title="同时推送多个"></a>同时推送多个</h5><p>在 <code>.git/config</code> 下添加下面的，然后以后就可以 <code>git push all master</code>，当然，你还要让这台机子的 ssh key 添加到两个 repo 对应的网站上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[remote &quot;all&quot;]</span><br><span class="line">	url = git@git.coding.net:XXXX/YYYY.git</span><br><span class="line">	url = git@gitlab.com:XXXX/YYYY.git</span><br></pre></td></tr></table></figure>
+<h5 id="Uninstall-CUDA-and-NVIDIA-Driver"><a href="#Uninstall-CUDA-and-NVIDIA-Driver" class="headerlink" title="Uninstall CUDA and NVIDIA Driver"></a>Uninstall CUDA and NVIDIA Driver</h5><ol>
+<li><p>To uninstall the CUDA Toolkit, run the uninstall script in <code>/usr/local/cuda-9.0/bin</code></p>
+</li>
+<li><p>To uninstall the NVIDIA Driver, run <code>nvidia-uninstall</code></p>
+</li>
+</ol>
+<h2 id="自动化脚本"><a href="#自动化脚本" class="headerlink" title="自动化脚本"></a>自动化脚本</h2><p>按照前面内容部署好以后，并不是一劳永逸。因为穷，我用的都是 AWS 上的 spot instance，这个只有 running 和 terminate 两种。虽然可以创建成 image，然后下次申请的时候按照 image 重开，但是有时会遇上 nVidia 驱动挂掉的问题。所以这时候如果有自动化脚本可以省去我们很多事情就好了</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'MXNet-Deployment/';
+var disqus_title = 'Notes on MXNet Deployment';
+var disqus_url = 'http://lowrank.science/MXNet-Deployment/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
