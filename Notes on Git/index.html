@@ -1,0 +1,43 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Git/">Git</a></div><div class="post-time">2018-08-15</div></div></div><div class="container post-header"><h1>Notes on</h1></div><div class="container post-content"><p>记录一些 Git 操作</p>
+<h5 id="Show-a-list-of-the-files-that-are-being-tracked"><a href="#Show-a-list-of-the-files-that-are-being-tracked" class="headerlink" title="Show a list of the files that are being tracked?"></a>Show a list of the files that are being tracked?</h5><p>If you want to list all the files currently being tracked under the branch <code>master</code>, you could use this command:</p>
+<p><code>git ls-tree -r master --name-only</code></p>
+<h5 id="Force-checkout-on-remote-branches"><a href="#Force-checkout-on-remote-branches" class="headerlink" title="Force checkout on remote branches"></a>Force checkout on remote branches</h5><p>remote server name: origin<br>remote branch name: master</p>
+<p><code>git checkout -f origin/master</code></p>
+<h5 id="Force-“git-push”-to-overwrite-remote-files"><a href="#Force-“git-push”-to-overwrite-remote-files" class="headerlink" title="Force “git push” to overwrite remote files"></a>Force “git push” to overwrite remote files</h5><p><code>git push -f &lt;remote&gt; &lt;branch&gt;</code></p>
+<p>不过还是尽量保持 git 推送关系简单的好，像只是为了摸索、测试下函数功能就不需要放在 Git 的 repo 里了，这些改动都是和版本无关的无关改动，而且 一旦 AWS、学校 Server、MAC 上都编辑，很容易乱掉。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Alipay_Middle.jpg" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="http://ohm5uq281.bkt.clouddn.com/2018-01-23-Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Notes on Git/';
+var disqus_title = 'Notes on';
+var disqus_url = 'http://lowrank.science/Notes on Git/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
