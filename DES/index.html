@@ -1,0 +1,52 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Single-Shot Object Detection with Enriched Semantics | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Attention-Mechanism/">Attention-Mechanism</a><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Object-Detection/">Object-Detection</a><a class="post-tag-link" href="/tags/Semantic-Segmentation/">Semantic-Segmentation</a></div><div class="post-time">2019-01-19</div></div></div><div class="container post-header"><h1>Single-Shot Object Detection with Enriched Semantics</h1></div><div class="container post-content"><blockquote>
+<p>Single-Shot Object Detection with Enriched Semantics </p>
+</blockquote>
+<p>CVPR 2018 的文章。</p>
+<h4 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h4><p>这篇文章的 Motivation 是 SSD 算法对小目标的检测只是利用了浅层的特征，缺少高层语义，如果能让浅层特征能够有更多的语义，就可以改善小目标检测的性能。这篇文章给出了一种做 Semantic Enrichment 的方式。</p>
+<p>语义可以简单地看做是数据所对应的现实世界中的事物所代表的概念的含义，以及这些含义之间的关系，是数据在某个领域上的解释和逻辑表示。</p>
+<p>这个 Semantic Enrichment 是通过把一个高层语义分割任务最后的 Feature Map 作为 Attention 权重加到 Detection 的 低层特征上去，这种 Semantic Enrichment 具体的操作方式就是 spatial attention mechanism，通过 element-wise multiplication 上 Spatial Attention Weight Map，直接对最底层的 Detection Layer 的 Feature Map（conv4_3）来 suppress or emphasize 用于检测的低层 feature maps。Semantic Enrichment 具体的表现，用 BAM 论文的话来说则是：denoises low-level features such as background texture features at the early stage；focuses on the exact target which is a high-level semantic （Spatial 维度上）. </p>
+<p>问题在于这个 Attention Map 怎么来的？作者是通过一个 Semantic Segmentation 分支得到的，只不过这里的标注有点粗略，就是把 BBox 里面的所有像素都标注成了那个 BBox 对应的 label。</p>
+<p>下图把这种通过 weighted 上 Attention Map 来提高特征语义的思路展示得很清楚，A 是原图；B 应该是低层的 Detection Layer 对应的低层特征，上下两行分别对应的是 狗 对应类别的特征图 和 人 对应类别的特征图，可以看到不管是狗还是人的特征图上，都有大量无关的特征显著存在；C 是两者对应的由 Semantic Segmentation 得来的 Attention weight map；D 就是 B 和 C 做了 element-wise multiplication 之后的结果，可以看到对于每一类的无关特征都被压制的干净了。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%202.png" alt=""></p>
+<h4 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h4><p>文章的整个网络架构如下图所示，由 Detection Module、Segmentation Module 和 Global Activation Module 三部分组成。其实 Detection Module 就是 SSD，Segmentation Module 就是 FCN（用 dilated convolution 的，为了保持大小不变），Global Activation Module 就是 Squeeze-and-Excitation Block。</p>
+<p>使用 SE Block 的目的是不仅仅要在 Spatial 维度上 提升有用的特征并抑制对当前任务用处不大的特征，在 Channel 维度上也这么做。因此这篇论文和 BAM 和 CBAM 一样都是同时做了 Spatial 和 Channel Attention 的文章。文章中的说法是用于提高 high level 的 feature map 的语义信息，我理解的提高 feature map 的语义信息的方式还是通过 attention weight 抑制干扰特征来实现的。 SE Block 的思想是在 Channel 维度上解耦，让某些 channel 就对应某些 image class；这篇文章的思想也是如此，只不过是 channel 对应某些 object class。这篇文章里的 SE Block 也就是 global activate module 的作用是学习 channel 和 object class 的关系，以提高效果。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%201.png" alt=""></p>
+<h5 id="Segmentation-branch"><a href="#Segmentation-branch" class="headerlink" title="Segmentation branch"></a>Segmentation branch</h5><p>需要一提的是，在这篇文章的 Semantic Branch 的 Output 有两个， 这是因为一个 Output 通道数是要等于类别数，这是为了计算 Loss；还有另外一个 Output 是为了生成 Attention Weight，通道数必须和 Detection Branch 的 Feature Maps 通道数一样。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%203.png" alt=""></p>
+<h4 id="Loss"><a href="#Loss" class="headerlink" title="Loss"></a>Loss</h4><p>Loss 就是正常的 Object Detection 和 Semantic Segmentation 的 loss 之和，只不过 Semantic Segmentation 里的 Groundtruth Truth 就是 BBox 的范围，但是计算还是和一般的 Semantic Segmentation 是一样的。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'DES/';
+var disqus_title = 'Single-Shot Object Detection with Enriched Semantics';
+var disqus_url = 'http://lowrank.science/DES/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>

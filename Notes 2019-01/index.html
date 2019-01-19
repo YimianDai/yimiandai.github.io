@@ -558,17 +558,6 @@
 <p>有了 corresponding 关系后，两者之间的 Loss 就可以如下算出来</p>
 <p>$$<br>\begin{aligned} l <em> { d } \left( \mathbf { d } , \mathbf { d } ^ { \prime } ; s \right) &amp; = \lambda </em> { d } <em> s </em> \max \left( 0 , m <em> { p } - \mathbf { d } ^ { T } \mathbf { d } ^ { \prime } \right) \ &amp; + ( 1 - s ) * \max \left( 0 , \mathbf { d } ^ { T } \mathbf { d } ^ { \prime } - m </em> { n } \right) \end{aligned}<br>$$</p>
 <p>这项 Loss 容易理解。如果 s = 1，则表示这两个点是 corresponding 的，那么就是第一个惩罚项非零，惩罚两者的 Description 不够接近；如果 s = 0，则表示这两点是不 corresponding 的，那么就惩罚第二项，惩罚两者的 Description 接近了。其中，$m_p = 1, m_n = 0.2$</p>
-<h3 id="31-Look-and-Think-Twice-Capturing-Top-Down-Visual-Attention-with-Feedback-Convolutional-Neural-Networks"><a href="#31-Look-and-Think-Twice-Capturing-Top-Down-Visual-Attention-with-Feedback-Convolutional-Neural-Networks" class="headerlink" title="[31] Look and Think Twice: Capturing Top-Down Visual Attention with Feedback Convolutional Neural Networks"></a>[31] Look and Think Twice: Capturing Top-Down Visual Attention with Feedback Convolutional Neural Networks</h3><p>2015 CVPR</p>
-<blockquote>
-<p>神经网络里的 attention 机制是（非常）松散地基于人类的视觉注意机制。人类的视觉注意机制已经被充分地研究过了，而且提出了多个不同的模型，所有的模型归根结底都是按照 “高分辨率” 聚焦在图片的某个特定区域并以 “低分辨率” 感知图像的周边区域的模式，然后不断地调整聚焦点。<br>其实它和我们的直觉恰恰相反。人类的注意力是节省计算资源的。当专注于一件事时，我们能忽略其它事情。(现在的 Attention 反而是增加成本)</p>
-</blockquote>
-<p>作者把现有的 CNN 叫作 feedforward deep convolutional neural networks，这应该说的是做 Inference 的时候，只有 Forward，没有 feedback；而人的视觉 human visual cortex，通常会有比 feedforward 更多的 feedback connections，这就是本文的 Motivation，introduce the background of feed- backs in the human visual cortex，develop a computational feedback mechanism in deep neural networks</p>
-<p>具体表现在除了 feedforward inference 之外，还有引入了一个 a feedback loop 来 infer the activation status of hidden layer neurons according to the “goal” of the network</p>
-<h3 id="32-Deep-Image-Homography-Estimation"><a href="#32-Deep-Image-Homography-Estimation" class="headerlink" title="[32] Deep Image Homography Estimation"></a>[32] Deep Image Homography Estimation</h3><p>还是 Magic Leap 的文章，跟上一篇 SuperPoint 是同一个作者 Daniel DeTone。</p>
-<blockquote>
-<p>Instead of manually engineering corner-ish features, line-ish features, etc, is it possible for the algorithm to learn its own set of primitives?</p>
-</blockquote>
-<p><strong><em>从上面这段话看来，作者不是要做不是人工设计的特征，而是自己学特征么？但从标题看，作者更是要做学怎么估计 Homography?</em></strong></p>
 <h2 id="To-Read-List"><a href="#To-Read-List" class="headerlink" title="To Read List"></a>To Read List</h2><ol>
 <li>[1] 郑南宁. 认知过程的信息处理和新型人工智能系统[J]. 中国基础科学. 2000(8): 9-18.</li>
 <li>[2] ICCV-2015-Look and think twice: capturing top-down visual attention with feedback convolutional neural networks（在 CNN 的卷积层加上层间的反馈连接，将高级的语义和全局信息传到下层，通过语义标签的反馈，可以激活特定的与目标语义相关的神经元，从而实现自顶向下的视觉注意，定位复杂背景中的潜在目标。）</li>
@@ -577,6 +566,38 @@
 <li>Scale-Aware Trident Networks for Object Detection 主要要解决的问题便是目标检测中最为棘手的 scale variation 问题</li>
 </ol>
 <p>[2 - 5] 都是为了更好地模拟脑，将将反馈引入神经网络的尝试（脑皮层中反馈神经元连接比前 馈多得多，但是传 统的深度神经网络模型里一般只有前馈连接，尚缺乏对 反馈的建模）</p>
+<h3 id="Look-and-Think-Twice-Capturing-Top-Down-Visual-Attention-with-Feedback-Convolutional-Neural-Networks"><a href="#Look-and-Think-Twice-Capturing-Top-Down-Visual-Attention-with-Feedback-Convolutional-Neural-Networks" class="headerlink" title="Look and Think Twice: Capturing Top-Down Visual Attention with Feedback Convolutional Neural Networks"></a>Look and Think Twice: Capturing Top-Down Visual Attention with Feedback Convolutional Neural Networks</h3><p>2015 CVPR</p>
+<blockquote>
+<p>神经网络里的 attention 机制是（非常）松散地基于人类的视觉注意机制。人类的视觉注意机制已经被充分地研究过了，而且提出了多个不同的模型，所有的模型归根结底都是按照 “高分辨率” 聚焦在图片的某个特定区域并以 “低分辨率” 感知图像的周边区域的模式，然后不断地调整聚焦点。<br>其实它和我们的直觉恰恰相反。人类的注意力是节省计算资源的。当专注于一件事时，我们能忽略其它事情。(现在的 Attention 反而是增加成本)</p>
+</blockquote>
+<p>作者把现有的 CNN 叫作 feedforward deep convolutional neural networks，这应该说的是做 Inference 的时候，只有 Forward，没有 feedback；而人的视觉 human visual cortex，通常会有比 feedforward 更多的 feedback connections，这就是本文的 Motivation，introduce the background of feed- backs in the human visual cortex，develop a computational feedback mechanism in deep neural networks</p>
+<p>具体表现在除了 feedforward inference 之外，还有引入了一个 a feedback loop 来 infer the activation status of hidden layer neurons according to the “goal” of the network</p>
+<p>人类视觉还存在一个由上到下任务驱动的注意力机制，在搜索物体的时候，接受来自 由上到下的 刺激，并在反馈回路里压制不相干的神经元。这里其实有个 re-search 的过程，这也是为什么会叫 looking and thinking twice 的原因</p>
+<blockquote>
+<p>偏向注意竞争模型 (Biased competition of selection attention) 可以很好地解释这个过程。该模型的第一个也是最基本的假设就是，<strong>同时呈现的多个物体会竞争视觉皮层的神经表征</strong>。落在神经元同一接受野 (receptive field) 的<strong>多个刺激并不是以独立的方式得到加工的，它们会相互抑制</strong>。多个视觉皮层都出现了这种抑制交互，包括 V2, V4, MT, MST 和 IT。<a href="https://www.zhihu.com/question/56305243/answer/157803639" target="_blank" rel="noopener">出处</a></p>
+<p>“偏好竞争模型”（biased competition model）。根据这个模型，在任何给定的时间，大脑中都有大量的感官信息或认知表征是活跃的，但是大脑的计算资源只能加工有限数量的表征。因此，各种表征总是在争夺神经资源。在这个竞争环境中，注意作为一种选择机制，它可以有偏好地选择某些信息，使其得到更精细的加工。<a href="https://zhuanlan.zhihu.com/p/39257265" target="_blank" rel="noopener">出处</a> (那是什么决定了 有些表征争夺神经资源成功了，有些失败了？ passes the high-level semantic information down to the low- level perception, controls the selectivity of neuron activations in an extra loop in addition to the feedforward process. This results in the “Top-Down” attention in human cognition，这就是 top-down 机制，但究竟什么是 top-down 机制，还不够清楚)</p>
+</blockquote>
+<p>这里说的反馈，不是指在 Training 时候的反馈，而是 Train 好之后权重都固定下来之后做 Inference 的时候，目前的前馈网络就只有一个简单的前馈，而在人脑里，即使是在做 Inference 的时候，高位皮层对低位皮层还是有调节作用的，那就不是一个简单的 Forward 了</p>
+<h4 id="怎么看待目标检测？"><a href="#怎么看待目标检测？" class="headerlink" title="怎么看待目标检测？"></a>怎么看待目标检测？</h4><p>目前的 Object detection and localization 用的都是 treating detection / localization as a <strong>searching</strong> process with clear “goals.” 这个范式。</p>
+<p>为了实现 <strong>searching</strong>，要么用 Sliding window，要么用 Region Proposal，然而这么做既 computational intensive 又是 naturally bottom-up: selecting candidate regions, performing feed-forward classification and making decisions.</p>
+<h3 id="Deep-Image-Homography-Estimation"><a href="#Deep-Image-Homography-Estimation" class="headerlink" title="Deep Image Homography Estimation"></a>Deep Image Homography Estimation</h3><p>还是 Magic Leap 的文章，跟上一篇 SuperPoint 是同一个作者 Daniel DeTone。</p>
+<blockquote>
+<p>Instead of manually engineering corner-ish features, line-ish features, etc, is it possible for the algorithm to learn its own set of primitives?</p>
+</blockquote>
+<p><strong><em>从上面这段话看来，作者不是要做不是人工设计的特征，而是自己学特征么？但从标题看，作者更是要做学怎么估计 Homography?</em></strong></p>
+<h3 id="Single-Shot-Object-Detection-with-Enriched-Semantics"><a href="#Single-Shot-Object-Detection-with-Enriched-Semantics" class="headerlink" title="Single-Shot Object Detection with Enriched Semantics"></a>Single-Shot Object Detection with Enriched Semantics</h3><p>CVPR 2018 的文章。</p>
+<h4 id="Motivation-1"><a href="#Motivation-1" class="headerlink" title="Motivation"></a>Motivation</h4><p>这篇文章的 Motivation 是 SSD 算法对小目标的检测只是利用了浅层的特征，缺少高层语义，如果能让浅层特征能够有更多的语义，就可以改善小目标检测的性能。这篇文章给出了一种做 Semantic Enrichment 的方式。</p>
+<p>语义可以简单地看做是数据所对应的现实世界中的事物所代表的概念的含义，以及这些含义之间的关系，是数据在某个领域上的解释和逻辑表示。</p>
+<p>这个 Semantic Enrichment 是通过把一个高层语义分割任务最后的 Feature Map 作为 Attention 权重加到 Detection 的 低层特征上去，这种 Semantic Enrichment 具体的操作方式就是 spatial attention mechanism，通过 element-wise multiplication 上 Spatial Attention Weight Map，直接对最底层的 Detection Layer 的 Feature Map（conv4_3）来 suppress or emphasize 用于检测的低层 feature maps。Semantic Enrichment 具体的表现，用 BAM 论文的话来说则是：denoises low-level features such as background texture features at the early stage；focuses on the exact target which is a high-level semantic （Spatial 维度上）. </p>
+<p>问题在于这个 Attention Map 怎么来的？作者是通过一个 Semantic Segmentation 分支得到的，只不过这里的标注有点粗略，就是把 BBox 里面的所有像素都标注成了那个 BBox 对应的 label。</p>
+<p>下图把这种通过 weighted 上 Attention Map 来提高特征语义的思路展示得很清楚，A 是原图；B 应该是低层的 Detection Layer 对应的低层特征，上下两行分别对应的是 狗 对应类别的特征图 和 人 对应类别的特征图，可以看到不管是狗还是人的特征图上，都有大量无关的特征显著存在；C 是两者对应的由 Semantic Segmentation 得来的 Attention weight map；D 就是 B 和 C 做了 element-wise multiplication 之后的结果，可以看到对于每一类的无关特征都被压制的干净了。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%202.png" alt=""></p>
+<h4 id="Model-1"><a href="#Model-1" class="headerlink" title="Model"></a>Model</h4><p>文章的整个网络架构如下图所示，由 Detection Module、Segmentation Module 和 Global Activation Module 三部分组成。其实 Detection Module 就是 SSD，Segmentation Module 就是 FCN（用 dilated convolution 的，为了保持大小不变），Global Activation Module 就是 Squeeze-and-Excitation Block。</p>
+<p>使用 SE Block 的目的是不仅仅要在 Spatial 维度上 提升有用的特征并抑制对当前任务用处不大的特征，在 Channel 维度上也这么做。因此这篇论文和 BAM 和 CBAM 一样都是同时做了 Spatial 和 Channel Attention 的文章。文章中的说法是用于提高 high level 的 feature map 的语义信息，我理解的提高 feature map 的语义信息的方式还是通过 attention weight 抑制干扰特征来实现的。 SE Block 的思想是在 Channel 维度上解耦，让某些 channel 就对应某些 image class；这篇文章的思想也是如此，只不过是 channel 对应某些 object class。这篇文章里的 SE Block 也就是 global activate module 的作用是学习 channel 和 object class 的关系，以提高效果。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%201.png" alt=""></p>
+<h5 id="Segmentation-branch"><a href="#Segmentation-branch" class="headerlink" title="Segmentation branch"></a>Segmentation branch</h5><p>需要一提的是，在这篇文章的 Semantic Branch 的 Output 有两个， 这是因为一个 Output 通道数是要等于类别数，这是为了计算 Loss；还有另外一个 Output 是为了生成 Attention Weight，通道数必须和 Detection Branch 的 Feature Maps 通道数一样。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%203.png" alt=""></p>
+<h4 id="Loss-1"><a href="#Loss-1" class="headerlink" title="Loss"></a>Loss</h4><p>Loss 就是正常的 Object Detection 和 Semantic Segmentation 的 loss 之和，只不过 Semantic Segmentation 里的 Groundtruth Truth 就是 BBox 的范围，但是计算还是和一般的 Semantic Segmentation 是一样的。</p>
 <hr>
 <p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
 <table>
