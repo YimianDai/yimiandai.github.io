@@ -1,0 +1,59 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Residual Attention Network for Image Classification | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Attention-Mechanism/">Attention-Mechanism</a><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Image-Classification/">Image Classification</a><a class="post-tag-link" href="/tags/Residual-Learning/">Residual-Learning</a></div><div class="post-time">2019-01-21</div></div></div><div class="container post-header"><h1>Residual Attention Network for Image Classification</h1></div><div class="container post-content"><blockquote>
+<p>Residual Attention Network for Image Classification</p>
+</blockquote>
+<p>CVPR 2017 的文章，是比较早的一篇 Soft Attention 的工作。</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>窃以为这篇文章的动机在于 bring more discriminative feature representation by the attention mechanism，具体地说是通过在 feedforward network structure 中 incorporates the soft attention 来 generate attention-aware features。这些 attention-aware features 质量更好，更有利于分类，因为这些特征 enhances different representations of objects at that location。为了实现这个目的，文章中给出了 Attention Module 的方式。但之间堆叠这些 Attention Module 会产生梯度消失问题，网络不能很深。为了解决这个问题，类似于 Residual Block，文章给出了一种 Attention Residual Learning 方式。因此，本文所提出的 Residual Attention Network 其实就是 Attention Module + Attention Residual Learning。</p>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><p>Residual Attention Network = Attention Module + Attention Residual Learning</p>
+<p>这篇文章的 Residual Attention Network 的架构如下 </p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Residual%20Attention%20Network%20Fig%202.png" alt=""></p>
+<h3 id="Attention-Module"><a href="#Attention-Module" class="headerlink" title="Attention Module"></a>Attention Module</h3><p>Soft Attention 的方式就是学出一个权重分布，再拿这个权重分布施加在相应的特征之上。在目前我看过的 Attention 的论文里，比如 SENet、BAM、CBAM、DES，这个相应的特征就是计算 Attention 权重的输入。这是因为在 SENet 中，Attention Module 只是一个主要特征抽取模块之外 add-on 的模块，起到的作用是改进已经由主要模块抽取的特征的质量；而在本文中，本文的 Attention Module 是要成为像 Residual Block 那样的基础性模块，是用来抽取特征的，只不过抽取的是 attention-aware features 质量更好。因此，本文的 <strong>Attention Module = trunk branch + mask branch</strong>。 其中，trunk branch 负责往常的特征抽取，可以是 pre-activation Residual Unit, ResNeXt and Inception 中的任一种 state-of-the-art network structure。至于 Soft Mask Branch，如下图所示，是一个 hourglass 结构，encoder-decoder 结构。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Residual%20Attention%20Network%20Fig%203.png" alt=""></p>
+<p><em>Fig. 2 感觉有点怪，文章并没有提到它。但要注意的是，mask branch 和 trunk branch 的 receptive field 是不同的，至于为何不同，作者也没有讲。</em></p>
+<h3 id="Attention-Residual-Learning"><a href="#Attention-Residual-Learning" class="headerlink" title="Attention Residual Learning"></a>Attention Residual Learning</h3><p>在给定 trunk branch output $T(x)$ 和 mask branch output $M(x)$，通常按照一般的 Soft Attention 的方式，Attention Module $H$ 的输出会是</p>
+<p>$$<br>H <em> { i , c } ( x ) = M </em> { i , c } ( x ) * T _ { i , c } ( x )<br>$$</p>
+<p>$M(x)$ 的作用是 feature selectors，用来 enhance good features and suppress noises from trunk features. 然而，由于 mask 里的权重位于 0-1 之间，多个 Attention Module 堆叠后（网络变深），梯度就会消失，而网络深度加深是获取最后好性能的一大关键。文章给出了一种 attention residual learning 方式来解决这个问题，也就是把 Attention Module $H$ 的输出变成</p>
+<p>$$<br>H _ { i , c } ( x ) = \left( 1 + M ( x ) \right) \cdot T ( x )<br>$$</p>
+<p>注意，此 Residual 非彼 Residual。在 ResNet 中，Residual Learning 是 $H <em> { i , c } ( x ) = x + F </em> { i , c } ( x )$ 这样的。在同样 Soft Attention 的 BAM 和 CBAM 中也采用了 Residual Learning，但它们的 Residual 也是 ResNet 方式的标准的 Residual Learning 的方式，与本文不同。</p>
+<h3 id="Spatial-Attention-and-Channel-Attention"><a href="#Spatial-Attention-and-Channel-Attention" class="headerlink" title="Spatial Attention and Channel Attention"></a>Spatial Attention and Channel Attention</h3><p>Attention 说白了就是一个 0 到 1 的权重，最后只要每个点的数值都在 0-1 之内就行，那这个权重具体怎么算出来呢？这就是公式（4）、（5）、（6）了。这三个公式分别对应着，是既对 Spatial 又对 Channel 做 Attention，还是只对 Channel 施加 Attention，后者只对对 Spatial 施加 Attention。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Residual%20Attention%20Network%20Eq%204%205%206.png" alt=""></p>
+<p>这里有个概念要澄清一下。虽然都叫 Channel Attention，之前在 SENet、BAM、CBAM 中，我们说 Channel Attention 是 Channel-wise Attention，不同 Channel 不同，但同一个 Channel 内的所有 Spatial Position 都是同一个权重；因为做了 Global Average Pooling，这里整个特征的 Channel Attention Weight 是一个 Channel 数的<strong>向量</strong>。在<strong>这篇文章</strong>里的 Channel Attention 是说计算某个点（each spatial and channel position ）的时候，计算出来的<strong>权值仅与该点同个 Channel 上的其他点有关，与 Spatial 点无关</strong>；这里整个特征的 Channel Attention Weight 仍然是跟特征向量相同大小的张量，因为没有像 SENet 那样做 Global Average Pooling。</p>
+<p>概括一下，在 SENet、BAM、CBAM 中的 Channel Attention 是只有 Channel 维度不一样，<strong>Spatial 维度所有点的权重都一样</strong>；而本文的 Channel Attention 是只在<strong>计算权重也就是归一化</strong>的时候考虑了 Channel 维度上的点，而没有考虑 Spatial 权重上的点，因此<strong>不同 Spatial 上点的权重还是不同的</strong>，因为他们各自 Channel 维度上的向量不同。</p>
+<p>例如，公式（5）performs L2 normalization within all channels for each spatial position to remove spatial information. 这个的确是 remove spatial information 了，因为得到的权重只与一个 spatial position 上的所有点之间的相互大小有关，与其他 Spatial Point 无关；但需要一提的是，公式（5）的 channel Attention 得到的还是一个 $H \times W \times C$ 的张量。</p>
+<p>最后的效果是 mixed attention，也就是既对 Spatial 又对 Channel 做 Attention 效果最好。这与我们的直觉也是相符的。</p>
+<h2 id="Loss"><a href="#Loss" class="headerlink" title="Loss"></a>Loss</h2><p>这篇文章没有专门讲 Loss，但既然是分类，一般就是 cross entropy loss 吧。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的一大动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Residual-Attention/';
+var disqus_title = 'Residual Attention Network for Image Classification';
+var disqus_url = 'http://lowrank.science/Residual-Attention/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
