@@ -1,0 +1,56 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on Semantic Point Detector | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Feature-Point-Detection/">Feature-Point-Detection</a><a class="post-tag-link" href="/tags/Image-Classification/">Image Classification</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2019-01-22</div></div></div><div class="container post-header"><h1>Notes on Semantic Point Detector</h1></div><div class="container post-content"><blockquote>
+<p>Semantic Point Detector</p>
+</blockquote>
+<p>ACM Multimedia 2011 的文章。</p>
+<h2 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h2><p>这篇文章的动机在于 local features （Feature point Detection + Feature Description）其实是图像内容的一种表示方式，在深度学习兴起之前的主流范式就是 SIFT 这些特征点检测器 + Bag of Visual Worlds 对局部特征编码 + SVM 分类。但是当前的 interest point detector 主要是为了图像匹配设计的，选取这些特征点的出发点是 invariant under a certain family of transformations，让 the correspondence establishment between images with the same object or scene 足够的robust，而非是针对描述图像内容、揭示语义信息来最优设计的。</p>
+<p>这篇文章的 Motivation 就在于 propose a learning-based point detector called semantic point detector which aims to select a set of points that can better represent the image. 通俗地讲，就是 SIFT 这些特征点，会检测出图像中所有的特征点，包括我们不希望被检测出的背景或者其他类别中的特征点，而这篇文章的 semantic point detector 就是希望学习出一个仅会检测感兴趣类别物体上的兴趣点的兴趣点检测器。具体的效果如下图所示，第一排是传统检测子检测出的特征点，大量的特征点位于背景上；第二排是这篇文章的 semantic point detector 检出的，大多数特征点集中在前景目标上。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%202.png" alt=""></p>
+<p>看到这里，会不由自主地产生一个疑问，<strong>单个局部的角点本身，也会具有语义吗？</strong>其实一个特征点不仅仅只是这个点本身，尤其是我们对特征点描述的时候，还包括了其周围的区域。具体到本文，与其说本文给出的是一个如其标题所说的 Semantic Point Detector，不如说实际上这篇文章做的是 <strong>Semantic Patch Detector</strong>。这篇文章具体的做法是将图像转化成 a set of 32x32 patches，步长是 4 个像素。论文中没说怎么在得到 Semantic Patch 后得到 Semantic Point，最直接的方式就是取中心点了。下图是一些 Semantic patches 的示例</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%203.png" alt=""></p>
+<p>既然是 Semantic Point Detector，就要有 label 来赋予 Detector 语义信息。最直接的方式当然有现成的人肉 label 好的 Semantic interest point，但这个太不现实了。这篇文章采用的是一个 Weakly Supervised Learning 的方式。对于每一个类，可以根据是否还有该类物体，构造出相应的 a set of positive images 和 a set of negative images。基于 Background Patch 会在正类和负类中都出现，而 Semantic Patch 只会在正类中出现，以此来完成对于 Semantic Patch Detector 的学习。到这里，可以发现，本文要做的问题，很类似于一个 Weakly Supervised Object Detection 问题，区别在于，Object Detection 的 Object 大小会变动，而本文只要判断固定大小的 Patch 是 Positive 还是 Negative 即可。因此，本文实际上是一个 <strong>Weakly Supervised Patch Classification</strong> 问题。弱监督则是表现在，需要预测 Patch-level 的 label，但只给了 image-level 的 label。</p>
+<p>Weakly Supervised Learning 的核心问题就在于怎么用 Weak label 上的 loss 来改善在具体任务上的 Prediction。这篇文章是怎么建立 Weak Label 和 Accurate Prediction 之间的关系的呢，具体地说，是怎么把 image-level classification 和 patch-level classification 给联系起来的呢？本文是用了两点，第一点是 image representation 是用所有 patch representation 的 <strong>linear combination</strong>，第二点是采用了 <strong>linear SVM</strong> 作为分类器。在给定 local patch descriptor $\phi \left( I _ { p } \right)$ 的情况下，image $I$ 的 Representation 就是 </p>
+<p>$$<br>\Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } \phi \left( I </em> { p } \right)<br>$$</p>
+<p>由此，图像 $I$ 在 linear SVM 下的 score $f ( I ) = w ^ { T } \Phi ( I )$ 也是所有 patch 在 linear SVM 下的 score 的 linear combination，具体如下式所示</p>
+<p>$$<br>f ( I ) = w ^ { T } \Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } w ^ { T } \phi \left( I </em> { p } \right) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } f \left( I </em> { p } \right)<br>$$</p>
+<p>最后 patch-level classifier 的表示就是 $f \left( I <em> { p } \right) = w ^ { T } \phi \left( I </em> { p } \right)$。一言以蔽之，本文如何用 image-level classification 来指导 patch-level classification？本文的做法是，直接拿学到的 image-level classifier 作为 patch-level classifier 来使用，根本不是指导，而是自己亲下火线了。</p>
+<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><p>emmm… 好像 Model 上面说的差不多了，补充些细节。patch representation 用的是 Super-Vector coding，感兴趣的可以看原文的公式(1), (2), (3)。</p>
+<p>对于 多类的情况，也很简单，相应的类别就是对应 score 最高的那个。</p>
+<p>模型的示意图如下</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%201.png" alt=""></p>
+<h2 id="Loss"><a href="#Loss" class="headerlink" title="Loss"></a>Loss</h2><p>Loss 就是正常的 SVM 的 hinge loss 啦，一个典型的正负类分类的 loss。</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
+var disqus_shortname = 'YimianDai';
+var disqus_identifier = 'Semantic Point/';
+var disqus_title = 'Notes on Semantic Point Detector';
+var disqus_url = 'http://lowrank.science/Semantic Point/';
+(function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
+    $(".fancybox").fancybox();
+});
+</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+e.src='//www.google-analytics.com/analytics.js';
+r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>

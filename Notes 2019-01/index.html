@@ -571,7 +571,7 @@
 <h5 id="Segmentation-branch"><a href="#Segmentation-branch" class="headerlink" title="Segmentation branch"></a>Segmentation branch</h5><p>需要一提的是，在这篇文章的 Semantic Branch 的 Output 有两个， 这是因为一个 Output 通道数是要等于类别数，这是为了计算 Loss；还有另外一个 Output 是为了生成 Attention Weight，通道数必须和 Detection Branch 的 Feature Maps 通道数一样。</p>
 <p><img src="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%203.png" alt=""></p>
 <h4 id="Loss-1"><a href="#Loss-1" class="headerlink" title="Loss"></a>Loss</h4><p>Loss 就是正常的 Object Detection 和 Semantic Segmentation 的 loss 之和，只不过 Semantic Segmentation 里的 Groundtruth Truth 就是 BBox 的范围，但是计算还是和一般的 Semantic Segmentation 是一样的。</p>
-<h3 id="Residual-Attention-Network-for-Image-Classification"><a href="#Residual-Attention-Network-for-Image-Classification" class="headerlink" title="Residual Attention Network for Image Classification"></a>Residual Attention Network for Image Classification</h3><p>CVPR 2017 的文章，是比较早的一篇 Soft Attention 的工作。</p>
+<h3 id="33-Residual-Attention-Network-for-Image-Classification"><a href="#33-Residual-Attention-Network-for-Image-Classification" class="headerlink" title="[33] Residual Attention Network for Image Classification"></a>[33] Residual Attention Network for Image Classification</h3><p>CVPR 2017 的文章，是比较早的一篇 Soft Attention 的工作。</p>
 <h4 id="Motivation-2"><a href="#Motivation-2" class="headerlink" title="Motivation"></a>Motivation</h4><p>窃以为这篇文章的动机在于 bring more discriminative feature representation by the attention mechanism，具体地说是通过在 feedforward network structure 中 incorporates the soft attention 来 generate attention-aware features。这些 attention-aware features 质量更好，更有利于分类，因为这些特征 enhances different representations of objects at that location。为了实现这个目的，文章中给出了 Attention Module 的方式。但之间堆叠这些 Attention Module 会产生梯度消失问题，网络不能很深。为了解决这个问题，类似于 Residual Block，文章给出了一种 Attention Residual Learning 方式。因此，本文所提出的 Residual Attention Network 其实就是 Attention Module + Attention Residual Learning。</p>
 <h4 id="Model-2"><a href="#Model-2" class="headerlink" title="Model"></a>Model</h4><p>Residual Attention Network = Attention Module + Attention Residual Learning</p>
 <p>这篇文章的 Residual Attention Network 的架构如下 </p>
@@ -633,6 +633,23 @@
 </tr>
 </tbody>
 </table>
+<h3 id="Semantic-Point-Detector"><a href="#Semantic-Point-Detector" class="headerlink" title="Semantic Point Detector"></a>Semantic Point Detector</h3><p>ACM Multimedia 2011 的文章。</p>
+<h4 id="Motivation-3"><a href="#Motivation-3" class="headerlink" title="Motivation"></a>Motivation</h4><p>这篇文章的动机在于 local features （Feature point Detection + Feature Description）其实是图像内容的一种表示方式，在深度学习兴起之前的主流范式就是 SIFT 这些特征点检测器 + Bag of Visual Worlds 对局部特征编码 + SVM 分类。但是当前的 interest point detector 主要是为了图像匹配设计的，选取这些特征点的出发点是 invariant under a certain family of transformations，让 the correspondence establishment between images with the same object or scene 足够的robust，而非是针对描述图像内容、揭示语义信息来最优设计的。</p>
+<p>这篇文章的 Motivation 就在于 propose a learning-based point detector called semantic point detector which aims to select a set of points that can better represent the image. 通俗地讲，就是 SIFT 这些特征点，会检测出图像中所有的特征点，包括我们不希望被检测出的背景或者其他类别中的特征点，而这篇文章的 semantic point detector 就是希望学习出一个仅会检测感兴趣类别物体上的兴趣点的兴趣点检测器。具体的效果如下图所示，第一排是传统检测子检测出的特征点，大量的特征点位于背景上；第二排是这篇文章的 semantic point detector 检出的，大多数特征点集中在前景目标上。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%202.png" alt=""></p>
+<p>看到这里，会不由自主地产生一个疑问，<strong>单个局部的角点本身，也会具有语义吗？</strong>其实一个特征点不仅仅只是这个点本身，尤其是我们对特征点描述的时候，还包括了其周围的区域。具体到本文，与其说本文给出的是一个如其标题所说的 Semantic Point Detector，不如说实际上这篇文章做的是 <strong>Semantic Patch Detector</strong>。这篇文章具体的做法是将图像转化成 a set of 32x32 patches，步长是 4 个像素。论文中没说怎么在得到 Semantic Patch 后得到 Semantic Point，最直接的方式就是取中心点了。下图是一些 Semantic patches 的示例</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%203.png" alt=""></p>
+<p>既然是 Semantic Point Detector，就要有 label 来赋予 Detector 语义信息。最直接的方式当然有现成的人肉 label 好的 Semantic interest point，但这个太不现实了。这篇文章采用的是一个 Weakly Supervised Learning 的方式。对于每一个类，可以根据是否还有该类物体，构造出相应的 a set of positive images 和 a set of negative images。基于 Background Patch 会在正类和负类中都出现，而 Semantic Patch 只会在正类中出现，以此来完成对于 Semantic Patch Detector 的学习。到这里，可以发现，本文要做的问题，很类似于一个 Weakly Supervised Object Detection 问题，区别在于，Object Detection 的 Object 大小会变动，而本文只要判断固定大小的 Patch 是 Positive 还是 Negative 即可。因此，本文实际上是一个 <strong>Weakly Supervised Patch Classification</strong> 问题。弱监督则是表现在，需要预测 Patch-level 的 label，但只给了 image-level 的 label。</p>
+<p>Weakly Supervised Learning 的核心问题就在于怎么用 Weak label 上的 loss 来改善在具体任务上的 Prediction。这篇文章是怎么建立 Weak Label 和 Accurate Prediction 之间的关系的呢，具体地说，是怎么把 image-level classification 和 patch-level classification 给联系起来的呢？本文是用了两点，第一点是 image representation 是用所有 patch representation 的 <strong>linear combination</strong>，第二点是采用了 <strong>linear SVM</strong> 作为分类器。在给定 local patch descriptor $\phi \left( I _ { p } \right)$ 的情况下，image $I$ 的 Representation 就是 </p>
+<p>$$<br>\Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } \phi \left( I </em> { p } \right)<br>$$</p>
+<p>由此，图像 $I$ 在 linear SVM 下的 score $f ( I ) = w ^ { T } \Phi ( I )$ 也是所有 patch 在 linear SVM 下的 score 的 linear combination，具体如下式所示</p>
+<p>$$<br>f ( I ) = w ^ { T } \Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } w ^ { T } \phi \left( I </em> { p } \right) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } f \left( I </em> { p } \right)<br>$$</p>
+<p>最后 patch-level classifier 的表示就是 $f \left( I <em> { p } \right) = w ^ { T } \phi \left( I </em> { p } \right)$。一言以蔽之，本文如何用 image-level classification 来指导 patch-level classification？本文的做法是，直接拿学到的 image-level classifier 作为 patch-level classifier 来使用，根本不是指导，而是自己亲下火线了。</p>
+<h4 id="Model-3"><a href="#Model-3" class="headerlink" title="Model"></a>Model</h4><p>emmm… 好像 Model 上面说的差不多了，补充些细节。patch representation 用的是 Super-Vector coding，感兴趣的可以看原文的公式(1), (2), (3)。</p>
+<p>对于 多类的情况，也很简单，相应的类别就是对应 score 最高的那个。</p>
+<p>模型的示意图如下</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%201.png" alt=""></p>
+<h4 id="Loss-3"><a href="#Loss-3" class="headerlink" title="Loss"></a>Loss</h4><p>Loss 就是正常的 SVM 的 hinge loss 啦，一个典型的正负类分类的 loss。</p>
 </div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
 var disqus_shortname = 'YimianDai';
 var disqus_identifier = 'Notes 2019-01/';

@@ -63,6 +63,21 @@
 <h3 id="5-1-Why-Phase？"><a href="#5-1-Why-Phase？" class="headerlink" title="5.1 Why Phase？"></a>5.1 Why Phase？</h3><p>虽然 Spatio-temporal saliency detection using phase spectrum of quaternion fourier transform 一文指出了相位才是 Spectral Residual 方法中能够检测显著性的关键，但文中给出的相位能够指示突变信号位置的解释很难让我信服，因为背景中也会有强边缘这样的突变信号，为何就没有反应在显著性图里呢？个人觉得真正要解释其本质原因，还是需要跟人眼视觉系统背后的生物机制联系起来。</p>
 <h3 id="5-2-How-to-plot-1D-Log-Spectrum-of-an-image"><a href="#5-2-How-to-plot-1D-Log-Spectrum-of-an-image" class="headerlink" title="5.2 How to plot 1D Log Spectrum of an image?"></a>5.2 How to plot 1D Log Spectrum of an image?</h3><p>还有一个让我困惑的问题是，<a href="http://ieeexplore.ieee.org/document/4270292/" target="_blank" rel="noopener">Saliency Detection: A Spectral Residual Approach</a> 一文中的 Figure 1、Figure 3 这样明明是图像的 Spectrum，照理应该是二维的，但其展示的一维的 Spectrum 究竟是怎么画出来的。唯一可以知道的线索是，该图是 $256 \times 256$ 大小的，而 Figure 1 中频率的上限就是 128，也就是说，信号的采样频率刚好是图像的尺寸，从而信号频谱的上限正好是采样率的一半。如果正在读此文的您知道如何画出 1D 的 Spectrum，请务必在评论中留言告诉我，谢谢~</p>
 <p>感谢您一直阅读到这里，如果我的文章有错误或不足之处，请务必在评论中留言指出，千万不用客气，万分感谢~</p>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
 </div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
 var disqus_shortname = 'YimianDai';
 var disqus_identifier = 'Spectral-Residual/';

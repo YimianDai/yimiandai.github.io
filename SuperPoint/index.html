@@ -25,7 +25,7 @@
 <h4 id="interest-point-detector-loss"><a href="#interest-point-detector-loss" class="headerlink" title="interest point detector loss"></a>interest point detector loss</h4><p>interest point detector loss 具体如下</p>
 <p>$$<br>\mathcal { L } <em> { p } ( \mathcal { X } , Y ) = \frac { 1 } { H </em> { c } W <em> { c } } \sum </em> { h = 1 \atop w = 1 } ^ { H <em> { c } , W </em> { c } } l <em> { p } \left( \mathbf { x } </em> { h w } ; y _ { h w } \right)<br>$$</p>
 <p>其中 </p>
-<p>$$<br>l <em> { p } \left( \mathbf { x } </em> { h w } ; y \right) = - \log \left( \frac { \exp \left( \mathbf { x } <em> { h w y } \right) } { \sum </em> { k = 1 } ^ { 65 } \exp \left( \mathbf { x } _ { h w k } \right) } \right)<br>$$</p>
+<p>$$<br>l <em> { p } \left( \mathbf{ x } </em> { h w } ; y \right) = - \log \left( \frac { \exp \left( \mathbf { x } <em> { h w y } \right) } { \sum </em> { k = 1 } ^ { 65 } \exp \left( \mathbf { x } _ { h w k } \right) } \right)<br>$$</p>
 <p>Y 就是 MagicPoint 在原图上检测出的兴趣点，作为 pseudo groundtruth interest point，X 则是 SuperPoint 网络的 Detector 在原图上检测出的兴趣点，在第一次迭代的时候，X 和 Y 应该是一样的，因为 MagicPoint 就是没有 descriptor head 的 SuperPoint，但随着 SuperPoint 的迭代优化，X 是会发生变化的。<strong><em>这个时候这个 Loss 会去惩罚跟 Y 不一样的 X，也许 X 检出了更多的点呢，这一点合理吗？</em></strong> </p>
 <p>虽然 MagicPoint 会 misses many potential interest point locations，但已经算是 performs surprising well on real images 了。所以 MagicPoint 检出的点作为 pseudo groundtruth，后面由 MagicPoint -&gt; SuperPoint，不再努力检测出更多的点，而是致力于 boost repeatability（检测出尽量多的点 与 检测出的点在 large viewpoint changes 还具有很好的 repeatability 这是两个性质。）</p>
 <p>MagicPoint performs reasonably well on real world images 但还不够好，相比于其他经典检测子，但是 Homographic Adaptation 也就是  self-supervised approach for training on real-world images 提高了性能（提高性能不一定非要从减小 Prediction 和 Groundtruth Annotation 的任务中来，也可以是构建其他 Loss，这就是 Self-Supervised 的精髓吧 ）</p>
@@ -34,7 +34,7 @@
 <p>其中 $S$ 是一个指示矩阵，指示第 $hw$ 个 cell 是否与 $h’w’$ 个 cell 是 corresponding 的。怎么判断两者是否 corresponding 依据下面这个公式，原图上的特征点做单应性变换后 与 原图做单应性变换检测出的特征点（先检测后变换，还是先变换后检测的区别），如果一个落在另一个的 邻域内，就算是 corresponding 的。</p>
 <p><img src="https://raw.githubusercontent.com/YimianDai/images/master/SuperPoint%20Eq%204.png" alt=""></p>
 <p>原图上的特征点做单应性变换后 与 原图做单应性变换检测出的特征点如果在完美的检测和单应性变换下应该是一致的，形式化表示如下。上面的公式其实就是把下面等式两边的两项差距小于 8 的都认为满足这个约束，是同一个点。其实下面这个式子是 <strong>repeatability 具体的形式化表示。</strong> repeatability 被刻画成了单应性约束。</p>
-<p>$$<br>\mathcal { H } \mathbf { x } = f _ { \theta } ( \mathcal { H } ( I ) )<br>$$</p>
+<p>$$<br>\mathcal{ H } \mathbf { x } = f _ { \theta } ( \mathcal { H } ( I ) )<br>$$</p>
 <p>有了 corresponding 关系后，两者之间的 Loss 就可以如下算出来</p>
 <p>$$<br>\begin{aligned} l <em> { d } \left( \mathbf { d } , \mathbf { d } ^ { \prime } ; s \right) &amp; = \lambda </em> { d } <em> s </em> \max \left( 0 , m <em> { p } - \mathbf { d } ^ { T } \mathbf { d } ^ { \prime } \right) \ &amp; + ( 1 - s ) * \max \left( 0 , \mathbf { d } ^ { T } \mathbf { d } ^ { \prime } - m </em> { n } \right) \end{aligned}<br>$$</p>
 <p>这项 Loss 容易理解。如果 s = 1，则表示这两个点是 corresponding 的，那么就是第一个惩罚项非零，惩罚两者的 Description 不够接近；如果 s = 0，则表示这两点是不 corresponding 的，那么就惩罚第二项，惩罚两者的 Description 接近了。其中，$m_p = 1, m_n = 0.2$</p>
