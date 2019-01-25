@@ -1,4 +1,414 @@
-<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a><a class="post-tag-link" href="/tags/Image-Classification/">Image-Classification</a><a class="post-tag-link" href="/tags/Machine-Learning/">Machine-Learning</a><a class="post-tag-link" href="/tags/Weakly-Supervised-Learning/">Weakly-Supervised-Learning</a></div><div class="post-time">2018-01-26</div></div></div><div class="container post-header"><h1>Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification</h1></div><div class="container post-content"><p>这篇论文是 2016 年的 TPAMI，作者 <a href="https://weiyc.github.io/" target="_blank" rel="noopener">Yunchao Wei</a> 在 Weakly supervised object detection and semantic segmentation 上做了很多很棒的工作，值得 follow 一下。这篇论文在 14 年被放到 arXiv 的时候，还有另外一个名字，CNN: Single-label to Multi-label，而且 arXiv 版本 14 页，内容比 8 页的 TPAMI 版本更加多一些。</p>
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="这篇论文是 2016 年的 TPAMI，作者 Yunchao Wei 在 Weakly supervised object detection and semantic segmentation 上做了很多很棒的工作，值得 follow 一下。这篇论文在 14 年被放到 arXiv 的时候，还有另外一个名字，CNN: Single-label to Multi-label，而且 arXiv 版本">
+<meta name="keywords" content="Computer-Vision,Machine-Learning,Weakly-Supervised-Learning,Image-Classification">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification">
+<meta property="og:url" content="http://lowrank.science/Wei-TPAMI-16/index.html">
+<meta property="og:site_name" content="Grok">
+<meta property="og:description" content="这篇论文是 2016 年的 TPAMI，作者 Yunchao Wei 在 Weakly supervised object detection and semantic segmentation 上做了很多很棒的工作，值得 follow 一下。这篇论文在 14 年被放到 arXiv 的时候，还有另外一个名字，CNN: Single-label to Multi-label，而且 arXiv 版本">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png">
+<meta property="og:updated_time" content="2019-01-22T22:17:10.026Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification">
+<meta name="twitter:description" content="这篇论文是 2016 年的 TPAMI，作者 Yunchao Wei 在 Weakly supervised object detection and semantic segmentation 上做了很多很棒的工作，值得 follow 一下。这篇论文在 14 年被放到 arXiv 的时候，还有另外一个名字，CNN: Single-label to Multi-label，而且 arXiv 版本">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://lowrank.science/Wei-TPAMI-16/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification | Grok</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Grok</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">抱残守缺</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Startseite</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archiv</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lowrank.science/Wei-TPAMI-16/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yimian Dai"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Grok"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2018-01-26 00:00:00" itemprop="dateCreated datePublished" datetime="2018-01-26T00:00:00-07:00">2018-01-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2019-01-22 15:17:10" itemprop="dateModified" datetime="2019-01-22T15:17:10-07:00">2019-01-22</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这篇论文是 2016 年的 TPAMI，作者 <a href="https://weiyc.github.io/" target="_blank" rel="noopener">Yunchao Wei</a> 在 Weakly supervised object detection and semantic segmentation 上做了很多很棒的工作，值得 follow 一下。这篇论文在 14 年被放到 arXiv 的时候，还有另外一个名字，CNN: Single-label to Multi-label，而且 arXiv 版本 14 页，内容比 8 页的 TPAMI 版本更加多一些。</p>
 <h2 id="1-Problem-amp-Aim"><a href="#1-Problem-amp-Aim" class="headerlink" title="1. Problem &amp; Aim"></a>1. Problem &amp; Aim</h2><p>从 CNN: Single-label to Multi-label 这个名字就可以看出来，这篇文章的目的或者说要解决的问题就是怎样让在 single-label image classification 中取得巨大成功的 CNN 能够 copes with multi-label images。</p>
 <p>为什么说本文也算弱监督呢？</p>
 <ul>
@@ -144,24 +554,454 @@
 </tr>
 </tbody>
 </table>
-</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
-var disqus_shortname = 'YimianDai';
-var disqus_identifier = 'Wei-TPAMI-16/';
-var disqus_title = 'Notes on TPAMI-16-HCP A Flexible CNN Framework for Multi-label Image Classification';
-var disqus_url = 'http://lowrank.science/Wei-TPAMI-16/';
-(function() {
-   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Computer-Vision/" rel="tag"># Computer-Vision</a>
+          
+            <a href="/tags/Machine-Learning/" rel="tag"># Machine-Learning</a>
+          
+            <a href="/tags/Weakly-Supervised-Learning/" rel="tag"># Weakly-Supervised-Learning</a>
+          
+            <a href="/tags/Image-Classification/" rel="tag"># Image-Classification</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Oquab-CVPR-15/" rel="next" title="Notes on CVPR-15-Is object localization for free?">
+                <i class="fa fa-chevron-left"></i> Notes on CVPR-15-Is object localization for free?
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Bilen-CVPR-16/" rel="prev" title="Notes on CVPR-16-Weakly Supervised Deep Detection Networks">
+                Notes on CVPR-16-Weakly Supervised Deep Detection Networks <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yimian Dai</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">Tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Problem-amp-Aim"><span class="nav-number">1.</span> <span class="nav-text">1. Problem &amp; Aim</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Motivation"><span class="nav-number">2.</span> <span class="nav-text">2. Motivation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Motivation-on-Multi-label-Image-Classification"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Motivation on Multi-label Image Classification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Motivation-on-CNN"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Motivation on CNN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Motivation-on-fine-tunning？"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Motivation on fine-tunning？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Challenge"><span class="nav-number">3.</span> <span class="nav-text">3. Challenge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Contributions"><span class="nav-number">4.</span> <span class="nav-text">4. Contributions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Prior-works"><span class="nav-number">5.</span> <span class="nav-text">5. Prior works</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-BoW-framework"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 BoW framework</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-1-Feature-representation"><span class="nav-number">5.1.1.</span> <span class="nav-text">5.1.1 Feature representation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-2-Classification"><span class="nav-number">5.1.2.</span> <span class="nav-text">5.1.2 Classification</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-3-Context-modelling"><span class="nav-number">5.1.3.</span> <span class="nav-text">5.1.3 Context modelling</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-Deep-learning-framework"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 Deep learning framework</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Method"><span class="nav-number">6.</span> <span class="nav-text">6. Method</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-Data"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-Model"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 Model</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-1-Hypotheses-Extraction"><span class="nav-number">6.2.1.</span> <span class="nav-text">6.2.1 Hypotheses Extraction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-2-Modified-CNN"><span class="nav-number">6.2.2.</span> <span class="nav-text">6.2.2 Modified CNN</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-Cost-function"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 Cost function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-Optimization"><span class="nav-number">6.4.</span> <span class="nav-text">6.4 Optimization</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yimian Dai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.4.4</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v6.7.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
-    $(".fancybox").fancybox();
-});
-</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-e.src='//www.google-analytics.com/analytics.js';
-r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

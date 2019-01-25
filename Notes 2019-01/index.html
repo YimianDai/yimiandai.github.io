@@ -1,4 +1,438 @@
-<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><meta name="description"/><title>Notes 2019-01 | Grok</title><link rel="stylesheet" type="text/css" href="/css/normalize.css"/><link rel="stylesheet" type="text/css" href="/css/highlight.css"/><link rel="stylesheet" type="text/css" href="/css/font.css"/><link rel="stylesheet" type="text/css" href="/css/noise.css"/><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"/><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"/></head><body><article class="wrapper"><div class="post-main"><div class="nav"><nav class="container"><a class="sidebar-nav-item active" href="/">Home</a><a class="sidebar-nav-item" href="/archives">Archives</a></nav><div class="container post-meta"><div class="post-tags"><a class="post-tag-link" href="/tags/Attention/">Attention</a><a class="post-tag-link" href="/tags/Cognition/">Cognition</a><a class="post-tag-link" href="/tags/Computer-Vision/">Computer-Vision</a></div><div class="post-time">2019-01-17</div></div></div><div class="container post-header"><h1>Notes 2019-01</h1></div><div class="container post-content"><h2 id="论文"><a href="#论文" class="headerlink" title="论文"></a>论文</h2><h3 id="1-时空异常探测方法研究综述"><a href="#1-时空异常探测方法研究综述" class="headerlink" title="[1] 时空异常探测方法研究综述"></a>[1] 时空异常探测方法研究综述</h3><h4 id="什么是异常"><a href="#什么是异常" class="headerlink" title="什么是异常"></a>什么是异常</h4><p>异常探测旨在从海量数据中挖掘不符合普适性规律、表现出“与众不同”特性的数据或模式</p>
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="论文[1] 时空异常探测方法研究综述什么是异常异常探测旨在从海量数据中挖掘不符合普适性规律、表现出“与众不同”特性的数据或模式 “异 常 ”亦 称 为 离 群 点 、孤 立 点（所以说 abnormal 和 outlier 是一回事）  1980 年 ，Hawkins给出异常的本质性定义，即“严重偏离其他对象 的观测数据，以至于令人怀疑它是由不同机制产生 的 ” 1994 年 ，Barnet t">
+<meta name="keywords" content="Computer-Vision,Cognition,Attention">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Notes 2019-01">
+<meta property="og:url" content="http://lowrank.science/Notes 2019-01/index.html">
+<meta property="og:site_name" content="Grok">
+<meta property="og:description" content="论文[1] 时空异常探测方法研究综述什么是异常异常探测旨在从海量数据中挖掘不符合普适性规律、表现出“与众不同”特性的数据或模式 “异 常 ”亦 称 为 离 群 点 、孤 立 点（所以说 abnormal 和 outlier 是一回事）  1980 年 ，Hawkins给出异常的本质性定义，即“严重偏离其他对象 的观测数据，以至于令人怀疑它是由不同机制产生 的 ” 1994 年 ，Barnet t">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Measure%20of%20Memory.jpg">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Memory%20Fomula.jpg">
+<meta property="og:image" content="http://www.52nlp.cn/wp-content/uploads/2018/12/%E5%9B%BE%E7%89%87-1-11.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/SuperPoint%20Overview.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/SuperPoint%20Decoders.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/SuperPoint%20Eq%2010.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/SuperPoint%20Fig%205.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/SuperPoint%20Eq%205.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/SuperPoint%20Eq%204.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%202.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%201.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/DES%20Fig%203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Residual%20Attention%20Network%20Fig%202.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Residual%20Attention%20Network%20Fig%203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Residual%20Attention%20Network%20Eq%204%205%206.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%202.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%201.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Fig%201.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Tab%201.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Tab%202.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Tab%203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%204.png">
+<meta property="og:updated_time" content="2019-01-25T22:10:44.342Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Notes 2019-01">
+<meta name="twitter:description" content="论文[1] 时空异常探测方法研究综述什么是异常异常探测旨在从海量数据中挖掘不符合普适性规律、表现出“与众不同”特性的数据或模式 “异 常 ”亦 称 为 离 群 点 、孤 立 点（所以说 abnormal 和 outlier 是一回事）  1980 年 ，Hawkins给出异常的本质性定义，即“严重偏离其他对象 的观测数据，以至于令人怀疑它是由不同机制产生 的 ” 1994 年 ，Barnet t">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Measure%20of%20Memory.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="http://lowrank.science/Notes 2019-01/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Notes 2019-01 | Grok</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Grok</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">抱残守缺</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Startseite</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archiv</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lowrank.science/Notes 2019-01/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yimian Dai"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Grok"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Notes 2019-01
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Post created: 2019-01-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-01-17T00:00:00-07:00">2019-01-17</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Updated at: 2019-01-25 15:10:44" itemprop="dateModified" datetime="2019-01-25T15:10:44-07:00">2019-01-25</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">in</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="论文"><a href="#论文" class="headerlink" title="论文"></a>论文</h2><h3 id="1-时空异常探测方法研究综述"><a href="#1-时空异常探测方法研究综述" class="headerlink" title="[1] 时空异常探测方法研究综述"></a>[1] 时空异常探测方法研究综述</h3><h4 id="什么是异常"><a href="#什么是异常" class="headerlink" title="什么是异常"></a>什么是异常</h4><p>异常探测旨在从海量数据中挖掘不符合普适性规律、表现出“与众不同”特性的数据或模式</p>
 <p>“异 常 ”亦 称 为 离 群 点 、孤 立 点（所以说 abnormal 和 outlier 是一回事）</p>
 <ol>
 <li>1980 年 ，Hawkins给出<strong>异常的本质性定义</strong>，即“<strong>严重偏离其他对象 的观测数据，以至于令人怀疑它是由不同机制产生 的</strong> ”</li>
@@ -591,6 +1025,100 @@
 <p>例如，公式（5）performs L2 normalization within all channels for each spatial position to remove spatial information. 这个的确是 remove spatial information 了，因为得到的权重只与一个 spatial position 上的所有点之间的相互大小有关，与其他 Spatial Point 无关；但需要一提的是，公式（5）的 channel Attention 得到的还是一个 $H \times W \times C$ 的张量。</p>
 <p>最后的效果是 mixed attention，也就是既对 Spatial 又对 Channel 做 Attention 效果最好。这与我们的直觉也是相符的。</p>
 <h4 id="Loss-2"><a href="#Loss-2" class="headerlink" title="Loss"></a>Loss</h4><p>这篇文章没有专门讲 Loss，但既然是分类，一般就是 cross entropy loss 吧。</p>
+<h3 id="34-Semantic-Point-Detector"><a href="#34-Semantic-Point-Detector" class="headerlink" title="[34] Semantic Point Detector"></a>[34] Semantic Point Detector</h3><p>ACM Multimedia 2011 的文章。</p>
+<h4 id="Motivation-3"><a href="#Motivation-3" class="headerlink" title="Motivation"></a>Motivation</h4><p>这篇文章的动机在于 local features （Feature point Detection + Feature Description）其实是图像内容的一种表示方式，在深度学习兴起之前的主流范式就是 SIFT 这些特征点检测器 + Bag of Visual Worlds 对局部特征编码 + SVM 分类。但是当前的 interest point detector 主要是为了图像匹配设计的，选取这些特征点的出发点是 invariant under a certain family of transformations，让 the correspondence establishment between images with the same object or scene 足够的robust，而非是针对描述图像内容、揭示语义信息来最优设计的。</p>
+<p>这篇文章的 Motivation 就在于 propose a learning-based point detector called semantic point detector which aims to select a set of points that can better represent the image. 通俗地讲，就是 SIFT 这些特征点，会检测出图像中所有的特征点，包括我们不希望被检测出的背景或者其他类别中的特征点，而这篇文章的 semantic point detector 就是希望学习出一个仅会检测感兴趣类别物体上的兴趣点的兴趣点检测器。具体的效果如下图所示，第一排是传统检测子检测出的特征点，大量的特征点位于背景上；第二排是这篇文章的 semantic point detector 检出的，大多数特征点集中在前景目标上。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%202.png" alt=""></p>
+<p>看到这里，会不由自主地产生一个疑问，<strong>单个局部的角点本身，也会具有语义吗？</strong>其实一个特征点不仅仅只是这个点本身，尤其是我们对特征点描述的时候，还包括了其周围的区域。具体到本文，与其说本文给出的是一个如其标题所说的 Semantic Point Detector，不如说实际上这篇文章做的是 <strong>Semantic Patch Detector</strong>。这篇文章具体的做法是将图像转化成 a set of 32x32 patches，步长是 4 个像素。论文中没说怎么在得到 Semantic Patch 后得到 Semantic Point，最直接的方式就是取中心点了。下图是一些 Semantic patches 的示例</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%203.png" alt=""></p>
+<p>既然是 Semantic Point Detector，就要有 label 来赋予 Detector 语义信息。最直接的方式当然有现成的人肉 label 好的 Semantic interest point，但这个太不现实了。这篇文章采用的是一个 Weakly Supervised Learning 的方式。对于每一个类，可以根据是否还有该类物体，构造出相应的 a set of positive images 和 a set of negative images。基于 Background Patch 会在正类和负类中都出现，而 Semantic Patch 只会在正类中出现，以此来完成对于 Semantic Patch Detector 的学习。到这里，可以发现，本文要做的问题，很类似于一个 Weakly Supervised Object Detection 问题，区别在于，Object Detection 的 Object 大小会变动，而本文只要判断固定大小的 Patch 是 Positive 还是 Negative 即可。因此，本文实际上是一个 <strong>Weakly Supervised Patch Classification</strong> 问题。弱监督则是表现在，需要预测 Patch-level 的 label，但只给了 image-level 的 label。</p>
+<p>Weakly Supervised Learning 的核心问题就在于怎么用 Weak label 上的 loss 来改善在具体任务上的 Prediction。这篇文章是怎么建立 Weak Label 和 Accurate Prediction 之间的关系的呢，具体地说，是怎么把 image-level classification 和 patch-level classification 给联系起来的呢？本文是用了两点，第一点是 image representation 是用所有 patch representation 的 <strong>linear combination</strong>，第二点是采用了 <strong>linear SVM</strong> 作为分类器。在给定 local patch descriptor $\phi \left( I _ { p } \right)$ 的情况下，image $I$ 的 Representation 就是 </p>
+<p>$$<br>\Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } \phi \left( I </em> { p } \right)<br>$$</p>
+<p>由此，图像 $I$ 在 linear SVM 下的 score $f ( I ) = w ^ { T } \Phi ( I )$ 也是所有 patch 在 linear SVM 下的 score 的 linear combination，具体如下式所示</p>
+<p>$$<br>f ( I ) = w ^ { T } \Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } w ^ { T } \phi \left( I </em> { p } \right) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } f \left( I </em> { p } \right)<br>$$</p>
+<p>最后 patch-level classifier 的表示就是 $f \left( I <em> { p } \right) = w ^ { T } \phi \left( I </em> { p } \right)$。一言以蔽之，本文如何用 image-level classification 来指导 patch-level classification？本文的做法是，直接拿学到的 image-level classifier 作为 patch-level classifier 来使用，根本不是指导，而是自己亲下火线了。</p>
+<h4 id="Model-3"><a href="#Model-3" class="headerlink" title="Model"></a>Model</h4><p>emmm… 好像 Model 上面说的差不多了，补充些细节。patch representation 用的是 Super-Vector coding，感兴趣的可以看原文的公式(1), (2), (3)。</p>
+<p>对于 多类的情况，也很简单，相应的类别就是对应 score 最高的那个。</p>
+<p>模型的示意图如下</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%201.png" alt=""></p>
+<h4 id="Loss-3"><a href="#Loss-3" class="headerlink" title="Loss"></a>Loss</h4><p>Loss 就是正常的 SVM 的 hinge loss 啦，一个典型的正负类分类的 loss。</p>
+<h3 id="35-图像物体分类与检测算法综述"><a href="#35-图像物体分类与检测算法综述" class="headerlink" title="[35] 图像物体分类与检测算法综述"></a>[35] 图像物体分类与检测算法综述</h3><ol>
+<li>目的上：<strong>物体分类</strong>要回答的问题是这张图片中是否包含某类物体（我感觉是要回答包含哪类物体）；<strong>物体检测</strong>要回答的问题则是一张图像中在什么位置存在一个什么物体</li>
+<li>手段上：<strong>物体分类</strong>算法通过手工特征或者特征学习方法<strong>对整个图像进行全局描述</strong>，然后使用分类器判断是否存在某类物体；除特征表达外，<strong>物体结构是物体检测任务不同于物体分类的最重要之处</strong></li>
+<li>常用方法：物体分类方法多<strong>侧重于学习特征表达</strong>，典型的包括词包模型(Bag-of-Words)、深度学习模型；物体检测方法则<strong>侧重于结构学习</strong>，以形变部件模型为代表</li>
+</ol>
+<p>物体分类与检测研究存在的困难与挑战，下图概括的很好</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Fig%201.png" alt=""></p>
+<p>把物体分类与检测研究存在的困难与挑战分为了<strong>实例</strong>、<strong>类别</strong>和<strong>语义</strong>三个层次，这点我以前没有想到可以把难点扩为 3 个层次</p>
+<ol>
+<li>实例层次<ul>
+<li>光照条件、拍摄视角、距离的不同、物体自身的非刚体形变以及其他物体的部分遮挡，使得物体<strong>实例的表观特征产生很大的变化</strong></li>
+</ul>
+</li>
+<li>类别层次<ul>
+<li>首先是<strong>类内差大</strong>，也即属于同一类的物体表观特征差别比较大，其原因有前面提到的各种实例层次的 变化，但<strong>这里更强调的是类内不同实例的差别</strong>（椅子形状千千万）</li>
+<li>其次是<strong>类间模糊性</strong>，即不同类的物体实例具有一定的相似性（哈士奇和狼），特别是物体类别越多导致类间差越小</li>
+<li>再次是<strong>背景的干扰</strong>，背景可能是非常复杂的、对我们感兴趣的物体存在干扰的</li>
+</ul>
+</li>
+<li>语义层次<ul>
+<li>多重稳定性，也就是图像的二义性（一张图像是年轻女人还是年老女人，是兔子还是鸭子）</li>
+</ul>
+</li>
+</ol>
+<p>主流物体分类与识别数据库下表概括的很好</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Tab%201.png" alt=""></p>
+<h4 id="基于词包模型的物体分类"><a href="#基于词包模型的物体分类" class="headerlink" title="基于词包模型的物体分类"></a>基于词包模型的物体分类</h4><p>作者这里把基于词包模型的物体分类分为了 <strong>底层特征、特征编码、空间约束、分类器设计、模型融合</strong>这几个层次，前三个跟 <a href="http://lowrank.science/Lazebnik-CVPR-06-SPM/">Notes on CVPR-06-Spatial Pyramid Matching</a> 里面总结的 local feature extraction、feature coding 和 feature pooling 三个是一样的，现在看来 feature pooling 叫作 Spatial Feature Pooling 更好一些。</p>
+<p>下表对<strong>分类算法</strong>概括地很好：</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Tab%202.png" alt=""></p>
+<h5 id="Step-1-底层特征提取"><a href="#Step-1-底层特征提取" class="headerlink" title="Step 1: 底层特征提取"></a>Step 1: 底层特征提取</h5><p>底层特征提取方式有两种:一种 是基于兴趣点检测，另一种是采用密集提取的方式。</p>
+<p>兴趣点检测算法通过某种准则选择具有明确定义的、局部纹理特征比较明显的像素点、边缘、角点、区块等，并且通常能够获得一定的几何不变性，从而可以在较小的开销下得到更有意义的表达，最常用的兴趣点检测算子有Haris 角点检测子、FAST 算子、LoG、DoG等.（注意，基于兴趣点检测的底层特征就是 像素点、边缘、角点、区块，这里的 兴趣点 是没有 descriptor 的，特征就是 兴趣点本身，而不是 descriptor）</p>
+<p>密集提取的方式，从图像中按固定的步长、尺度提取出大量的<strong>局部特征描述</strong>，大量的局部描述尽管具有更高的冗余度，但信息更加丰富，后面再使用词包模型进行有效表达后通常可以得到比兴趣点检测更好的性能. 常用的局部特征包括SIFT、HOG、LBP等.（因为密集提取的方式提取的是 局部特征描述，而非仅仅点的位置，所以信息更加丰富）</p>
+<p>为什么密集提取方式更好？在底层特征提取阶段，通过提取到大量的冗余特征，最大限度的对图像进行底层描述，防止丢失过多的有用信息，这些底层描述中的冗余信息主要靠后面的<strong>特征编码和特征汇聚得到抽象和简并</strong></p>
+<p>为啥要特征学习？手工设计的底层特征描述子作为视觉信息处理的第一步，往往会<strong>过早地丢失有用的信息</strong>，直接从图像像素<strong>学习到任务相关的特征描述</strong>是比手工特征更为有效的手段</p>
+<h5 id="Step-2-特征编码"><a href="#Step-2-特征编码" class="headerlink" title="Step 2: 特征编码"></a>Step 2: 特征编码</h5><p>这一块基于词包模型的物体分类算法的重点，绝大部分论文都是在这一块做工作。</p>
+<p>一个很自然的问题，<strong>既然底层特征提取环节已经抽取了特征，直接用于后面的空间特征汇聚不好吗？为什么还要做特征编码？这个编码在编码什么？</strong> </p>
+<p>论文中的说法是，密集提取的底层特征中包含了大量的冗余与噪声，为提高特征表达的鲁棒性，需要使用一种特征变换算法对底层特征进行编码，从而获得更具区分性、更加鲁棒的特征表达，这一步对物体识别的性能具有至关重要的作用，因而大量的研究工作都集中在寻找更加强大的特征编码方法。</p>
+<p>但我觉得，真正的原因在于，底层特征，比如 SIFT， 虽然有 descriptor，但是这些 <strong>descriptor 只能用来计算两两相似度的，是无法用于空间特征汇聚环节的汇聚操作的</strong>（依据特征的什么性质汇聚？怎么汇聚？）。因此，肯定要有一个特征变换环节，由原来的底层特征变为空间特征汇聚环节能够使用的特征，这个环节就是特征编码环节。而且空间特征汇聚是对于图像分类必须的，因为底层特征提取到的是一个由元素数量不同的集合，不能直接输入需要固定长度向量输入的 SVM。因此，空间特征汇聚不可避免，由此，特征编码也是必须的。</p>
+<h6 id="向量量化编码"><a href="#向量量化编码" class="headerlink" title="向量量化编码"></a>向量量化编码</h6><p>使用一个较小的特征集合(视觉词 典)来对底层特征进行描述，达到<strong>特征压缩</strong>的目的</p>
+<p>向量量化编码只在最近的视觉单词上响应为1，因而又称为硬量化编码、硬投票编码，这意味着向量量化编码只能<strong>对局部特征进行很粗糙的重构</strong></p>
+<h6 id="软量化编码"><a href="#软量化编码" class="headerlink" title="软量化编码"></a>软量化编码</h6><p>为什么要软量化？硬量化编码的缺点是什么？</p>
+<p>图像局部特征常常存在一定的模糊性，即<strong>一个局部特征可能和多个视觉单词差别很小</strong>，这个时候若使用向量量化编码 将只利用距离最近的视觉单词，而<strong>忽略了其他相似性很高的视觉单词</strong></p>
+<p>软量化编码(又称核视觉词典编码)算法，局部特征不再使用一个视觉单词描述，而是由距离最近的 K 个视觉单词加权后进行描述，有效解决了视觉单词的模糊性问题</p>
+<h6 id="稀疏编码"><a href="#稀疏编码" class="headerlink" title="稀疏编码"></a>稀疏编码</h6><p>将稀疏编码应用到物体分类领域，替代了之前的向量量化编码和软量化编码，得到<strong>一个高维的高度稀疏的特征表达，大大提高了特征表达的线性可分性</strong>，仅仅使用线性分类器就得到了当时最好的物体分类结果，将物体分类的研究推向了一个新的高度上（关于 稀疏表示分类的文章太多了，关键在于 高维的高度稀疏的特征表达导致了 线性可分性）</p>
+<p>这里岔开去一点，找 Bag of visual words 的模式套一下 Sparse Representation Classification，SRC 的分类器的样本就是图像，所以这里的底层特征不再是 local features 的 集合，就是图像本身；因为不再是 local features，所以也就不存在 local features 聚合的问题；因此，稀疏编码本身就是在做分类。</p>
+<h6 id="局部线性约束编码"><a href="#局部线性约束编码" class="headerlink" title="局部线性约束编码"></a>局部线性约束编码</h6><p>稀疏编码的问题？为什么要引入局部线性约束?稀疏编码存在一个问题，即相似的局部特征可能经过稀疏编码后在不同的视觉单词上产生响应，这种变换的不连续性必然会产生编码后特征的不匹配，影响特征的区分性能</p>
+<p>局部线性约束编码的提出就是为了解决这一问题，它通过加入局部线性约束，在一个局部流形上对底层特征进行编码重构，这样既可以保证得到的特征编码不会有稀疏编码存在的不连续问题，也保持了稀疏编码的特征稀疏性.局部线性约束编码中，局部性是局部线性约束编码中的一个核心思想，通过引入局部性，一定程度上改善了特征编码过程的连续性问题，即距离相近的局部特征在经过编码之后应该依然能够落在一个局部流形上.局部线性约束编码可以得到稀疏的特征表达，与稀疏编码不同之处就在于稀疏编码无法保证相近的局部特征编码之后落在相近的局部流形</p>
+<h6 id="显著性编码"><a href="#显著性编码" class="headerlink" title="显著性编码"></a>显著性编码</h6><p>显著性编码引入了视觉显著性的概念，如果一个局部特征到最近和次近的视觉单词的距离差别很小，则认为这个局部特征是不“显著的”，从而编码后的响应也很小.</p>
+<h6 id="Fisher-向量编码"><a href="#Fisher-向量编码" class="headerlink" title="Fisher 向量编码"></a>Fisher 向量编码</h6><p>基本思想: 编码局部特征和视觉单词的差</p>
+<h5 id="Step-3-空间特征汇聚"><a href="#Step-3-空间特征汇聚" class="headerlink" title="Step 3: 空间特征汇聚"></a>Step 3: 空间特征汇聚</h5><p>空间特征汇聚是特征编码后进行的<strong>特征集整合操作</strong>，通过对编码后的特征，每一维都取其最大值或者平均值，<strong>得到一个紧致的特征向量作为图像的特征表达</strong>. 这一步得到的图像表达可以<strong>获得一定的特征不变性</strong>，同时也避免了使用特征集进行图像表达的高额代价.（目的是从 局部特征集合 set/collection 中得到 整个图像的一个特征表示向量）</p>
+<h6 id="空间金字塔匹配"><a href="#空间金字塔匹配" class="headerlink" title="空间金字塔匹配"></a>空间金字塔匹配</h6><p>由于图像通常具有极强的空间结构约束，空间金字塔匹配(Spatial Pyramid Matching，<br>SPM)[9]提出将图像均匀分块，然后每个区块里面单独做特征汇聚操作并将所有特征向量拼接起来作为图像最终的特征表达</p>
+<h4 id="深度学习模型"><a href="#深度学习模型" class="headerlink" title="深度学习模型"></a>深度学习模型</h4><p>自动编码器是<strong>基于 特征重构的无监督特征学习单元</strong>，加入不同的约 束，可以得到不同的变化，包括去噪自动编码器、稀 疏 自 动 编 码 器</p>
+<h5 id="词包模型与-CNN-的异同"><a href="#词包模型与-CNN-的异同" class="headerlink" title="词包模型与 CNN 的异同"></a>词包模型与 CNN 的异同</h5><p>在词包模型中，对底层特征进行特征编码的过程，实际上近似等价于卷积神经网络中的卷积层，而汇聚层所进行的操作也与词包模型中的汇聚操作一样.</p>
+<p>不同之处在于，<strong>词包模型实际上相当于只包含了一个卷积层和一个汇聚层，且模型采用无监督方式进行特征表达学习</strong>，而卷积神经网络则包含了更多层的简单、复杂细胞，可以进行更为复杂的特征变换，并且其学习过程是有监督过程的，滤波器权重可以根据数据与任务不断进行调整，从而学习到更有意义的特征表达.（因此，卷积神经网络具有更为强大的特征表达能力）</p>
+<p>要注意分类算法的发展趋势：高计算强度，高内存消耗等，多特征、非线性分类器等这些在 PASCAL 竞赛中广为使用的算法和策略无法在 ImageNet 这样规模的数据库上高效实现.在性能和效率的权衡中，逐渐被更为简单高效的算法(单特征、特征压缩、线性分类器等)替代（总而言之是要 简单、有效）</p>
+<h4 id="物体检测"><a href="#物体检测" class="headerlink" title="物体检测"></a>物体检测</h4><p>物体检测任务与物体分类任务最重要的不同在于，<strong>物体结构信息</strong>在物体检测中起着至关重要的作用，而物体分类则更多考虑的是物体或者图像的全局表达。（那这些物体检测算法是怎么刻画物体结构信息的？）</p>
+<p>物体检测的输入是包含物体的窗口，而物体分类则是整个图像，就给定窗口而言，物体分类和物体检测在特征提取、特征编码、分类器设计方面很大程度是相通的。（物体检测与物体分类的相似之处）</p>
+<p><strong>滑动窗口</strong>方法比较简单，它是通过使用训练好的模板在输入图像的多个尺度上进行滑动扫描，通过确定最大响应位置找到目标物体的外接窗口.（训练好的模板是什么？）</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Huang%20Review%20Tab%203.png" alt=""></p>
+<p>相比 分类算法，检测算法多了一个 检测策略，把 空间特征汇聚 换成了 上下文，但其实 检测算法也有空间特征汇聚，比如 faster r-cnn，但是 上下文是目标检测独有的。</p>
+<h5 id="结构化学习"><a href="#结构化学习" class="headerlink" title="结构化学习"></a>结构化学习</h5><p>与物体分类问题不同，物体检测问题从数学上是研究输入图像X与输出物体窗口Y之间的关系，这里Y的取值不再是一个实数，而是<strong>一组“结构化”的数据，指定了物体的外接窗口和类别</strong>，是一个典型的<strong>结构化学习问题</strong>.</p>
+<p>弱标签结构化支持向量机(Weak-Label Structrual SVM，WL-SSVM)是一种更加一般的结构化学习框架，它的提出主要是为了处理标签空间和输出空间不一致的问题，对于多个输出符合一个标签的情况，每个样本标签都被认为是“弱标签”（可以认为弱监督学习问题是<strong>标签空间和输出空间不一致的问题</strong>）</p>
+<h4 id="物体检测和物体分类的统一性"><a href="#物体检测和物体分类的统一性" class="headerlink" title="物体检测和物体分类的统一性"></a>物体检测和物体分类的统一性</h4><p>分类模型建立了以词包模型和深度学习模型 为基础的体系框架，检测模型则以可形变模型为核 心发展出多种方法</p>
+<h5 id="物体检测可以取代物体分类"><a href="#物体检测可以取代物体分类" class="headerlink" title="物体检测可以取代物体分类?"></a>物体检测可以取代物体分类?</h5><p>在模型区分性比较强的情况下，也就是物体检测能给出准确的结果的情况下，物体检测在一定程度上可以回答“什么物体在什么地方”，但在真实的世界中，很多情况下模版不能唯一的反映出物体类别的唯一性，只能给 出“可能有什么物体在什么地方”，此时物体分类的介入就很有必要了.由此可见，物体检测是不能替代 物体分类的.（这里讲得其实是 Object Detection 会有 Classification Loss 和 Localization Loss 两个，Object Detection 还可以有先 Localization 再 Recognition 的思路，所以不一定要同时做出来，可以有先后的做出来；如果粒度比较细，就让专注分类的来做，而不是让 Localization 来拖累网络的专注性）</p>
+<h5 id="物体检测和物体分类之间的差异性和互补性"><a href="#物体检测和物体分类之间的差异性和互补性" class="headerlink" title="物体检测和物体分类之间的差异性和互补性"></a>物体检测和物体分类之间的差异性和互补性</h5><p><strong>物体检测</strong>主要采用的是可变的部件模型，更多的<strong>关注局部特征</strong>，物体分类中主要的模型是词包模型，从两者的处理流程来看，他们利用的信息是不同的，物体检测更多的是利用了物体自身的信息，也就是局部信息，<strong>物体分类</strong>更多的是利用了图像的信息，也就是<strong>全局的信息</strong>. 他们各有优劣，局部信息考虑了 更多的物体结构信息，这使得物体检测和分类的准确性更高，但同时也带来物体分类的鲁棒性不强的问题; 全局信息考虑了更多的是图像的全局统计信息，尤其是图像的语义信息，这使得能考虑更多的信 息来进行判断，但信息量的增加可能带来准确度的提高，也可能由于冗余降低分类的性能，但是从统计意义而言，其鲁棒性是能够得到一定的提高的.由此 可见，物体检测和物体分类之间存在着较大的差异 性，同时也就说明存在着比较大的互补性.（我是没看懂，物体检测不就是 Classification on Proposed Region 这个思路么？没啥区别吧？）</p>
+<h4 id="物体分类与检测的发展方向"><a href="#物体分类与检测的发展方向" class="headerlink" title="物体分类与检测的发展方向"></a>物体分类与检测的发展方向</h4><p>物体分类中<strong>全局表达</strong>更关键；物体检测中<strong>物体结构</strong>更为关键。</p>
+<ol>
+<li>专注于学习结构，即结构化学习.观察变量与其他变量构成结构化的图模型，<strong>通过学习得到各个变量之间的关系</strong>，结构包括有向图模型(贝叶斯网络)、无向图模型(马尔科夫网络). 结构化学习通常变量具有显式的物理意义，变量之间的连接也具有较强的因果关系，解释性较好.</li>
+<li>专注于学习层次化表达，即深度学习.（这个好像做不动了吧？基础架构不动了，但通过Attention改善特征质量好像还可以做）</li>
+</ol>
+<p>两条思路各有侧重，但并不是互相独立的.在这两条发展线路的基础上，建立更为统一的物体识别框架，同时处理物体分类与检测任务，是一个更加值得研究的方向. 如何<strong>利用物体检测和物体分类之间的互补性去构建统一的物体识别框架</strong>（利用物体检测和物体分类的统一性）是计算机视觉和视觉认知领域的研究热点，也是视觉认知计算模型研究的重点之一</p>
+<h4 id="层次化学习-深度学习-存在的难点与挑战"><a href="#层次化学习-深度学习-存在的难点与挑战" class="headerlink" title="层次化学习(深度学习)存在的难点与挑战"></a>层次化学习(深度学习)存在的难点与挑战</h4><ol>
+<li>解释性差（真的差吗？文章里的解释没法说服我）</li>
+<li>模型复杂度高，优化困难.</li>
+<li>计算强度高：对于深度学习，输入一个视觉信号，所有的神经元都会进行计算，人为加的一些稀疏约束只是会使某些神经元输出为0，但不代表该神经元“处于不活动”状态</li>
+<li><strong>模型缺少结构约束</strong>.深度学习模型通常只对网络的“输入-输出”进行建模，却<strong>缺少必要的结构先验的约束</strong>.例如，对人脸关键点可以采用卷积神经网络进行回归，网络学习到的是一种隐式的“输入-输出”结构，却完全没有加入显式的结构先验；<strong>将显式结构先验嵌入深度学习模型中</strong>，可以有效降低网络参数空间的规模，减少局部极值的问题（怎么将显式结构先验嵌入深度学习模型中？）</li>
+</ol>
 <h2 id="To-Read-List"><a href="#To-Read-List" class="headerlink" title="To Read List"></a>To Read List</h2><ol>
 <li>[1] 郑南宁. 认知过程的信息处理和新型人工智能系统[J]. 中国基础科学. 2000(8): 9-18.</li>
 <li>[2] ICCV-2015-Look and think twice: capturing top-down visual attention with feedback convolutional neural networks（在 CNN 的卷积层加上层间的反馈连接，将高级的语义和全局信息传到下层，通过语义标签的反馈，可以激活特定的与目标语义相关的神经元，从而实现自顶向下的视觉注意，定位复杂背景中的潜在目标。）</li>
@@ -633,41 +1161,527 @@
 </tr>
 </tbody>
 </table>
-<h3 id="Semantic-Point-Detector"><a href="#Semantic-Point-Detector" class="headerlink" title="Semantic Point Detector"></a>Semantic Point Detector</h3><p>ACM Multimedia 2011 的文章。</p>
-<h4 id="Motivation-3"><a href="#Motivation-3" class="headerlink" title="Motivation"></a>Motivation</h4><p>这篇文章的动机在于 local features （Feature point Detection + Feature Description）其实是图像内容的一种表示方式，在深度学习兴起之前的主流范式就是 SIFT 这些特征点检测器 + Bag of Visual Worlds 对局部特征编码 + SVM 分类。但是当前的 interest point detector 主要是为了图像匹配设计的，选取这些特征点的出发点是 invariant under a certain family of transformations，让 the correspondence establishment between images with the same object or scene 足够的robust，而非是针对描述图像内容、揭示语义信息来最优设计的。</p>
-<p>这篇文章的 Motivation 就在于 propose a learning-based point detector called semantic point detector which aims to select a set of points that can better represent the image. 通俗地讲，就是 SIFT 这些特征点，会检测出图像中所有的特征点，包括我们不希望被检测出的背景或者其他类别中的特征点，而这篇文章的 semantic point detector 就是希望学习出一个仅会检测感兴趣类别物体上的兴趣点的兴趣点检测器。具体的效果如下图所示，第一排是传统检测子检测出的特征点，大量的特征点位于背景上；第二排是这篇文章的 semantic point detector 检出的，大多数特征点集中在前景目标上。</p>
-<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%202.png" alt=""></p>
-<p>看到这里，会不由自主地产生一个疑问，<strong>单个局部的角点本身，也会具有语义吗？</strong>其实一个特征点不仅仅只是这个点本身，尤其是我们对特征点描述的时候，还包括了其周围的区域。具体到本文，与其说本文给出的是一个如其标题所说的 Semantic Point Detector，不如说实际上这篇文章做的是 <strong>Semantic Patch Detector</strong>。这篇文章具体的做法是将图像转化成 a set of 32x32 patches，步长是 4 个像素。论文中没说怎么在得到 Semantic Patch 后得到 Semantic Point，最直接的方式就是取中心点了。下图是一些 Semantic patches 的示例</p>
-<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%203.png" alt=""></p>
-<p>既然是 Semantic Point Detector，就要有 label 来赋予 Detector 语义信息。最直接的方式当然有现成的人肉 label 好的 Semantic interest point，但这个太不现实了。这篇文章采用的是一个 Weakly Supervised Learning 的方式。对于每一个类，可以根据是否还有该类物体，构造出相应的 a set of positive images 和 a set of negative images。基于 Background Patch 会在正类和负类中都出现，而 Semantic Patch 只会在正类中出现，以此来完成对于 Semantic Patch Detector 的学习。到这里，可以发现，本文要做的问题，很类似于一个 Weakly Supervised Object Detection 问题，区别在于，Object Detection 的 Object 大小会变动，而本文只要判断固定大小的 Patch 是 Positive 还是 Negative 即可。因此，本文实际上是一个 <strong>Weakly Supervised Patch Classification</strong> 问题。弱监督则是表现在，需要预测 Patch-level 的 label，但只给了 image-level 的 label。</p>
-<p>Weakly Supervised Learning 的核心问题就在于怎么用 Weak label 上的 loss 来改善在具体任务上的 Prediction。这篇文章是怎么建立 Weak Label 和 Accurate Prediction 之间的关系的呢，具体地说，是怎么把 image-level classification 和 patch-level classification 给联系起来的呢？本文是用了两点，第一点是 image representation 是用所有 patch representation 的 <strong>linear combination</strong>，第二点是采用了 <strong>linear SVM</strong> 作为分类器。在给定 local patch descriptor $\phi \left( I _ { p } \right)$ 的情况下，image $I$ 的 Representation 就是 </p>
-<p>$$<br>\Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } \phi \left( I </em> { p } \right)<br>$$</p>
-<p>由此，图像 $I$ 在 linear SVM 下的 score $f ( I ) = w ^ { T } \Phi ( I )$ 也是所有 patch 在 linear SVM 下的 score 的 linear combination，具体如下式所示</p>
-<p>$$<br>f ( I ) = w ^ { T } \Phi ( I ) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } w ^ { T } \phi \left( I </em> { p } \right) = \frac { 1 } { P } \sum <em> { p = 1 } ^ { P } f \left( I </em> { p } \right)<br>$$</p>
-<p>最后 patch-level classifier 的表示就是 $f \left( I <em> { p } \right) = w ^ { T } \phi \left( I </em> { p } \right)$。一言以蔽之，本文如何用 image-level classification 来指导 patch-level classification？本文的做法是，直接拿学到的 image-level classifier 作为 patch-level classifier 来使用，根本不是指导，而是自己亲下火线了。</p>
-<h4 id="Model-3"><a href="#Model-3" class="headerlink" title="Model"></a>Model</h4><p>emmm… 好像 Model 上面说的差不多了，补充些细节。patch representation 用的是 Super-Vector coding，感兴趣的可以看原文的公式(1), (2), (3)。</p>
-<p>对于 多类的情况，也很简单，相应的类别就是对应 score 最高的那个。</p>
-<p>模型的示意图如下</p>
-<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Semantic%20Point%20Detector%20Fig%201.png" alt=""></p>
-<h4 id="Loss-3"><a href="#Loss-3" class="headerlink" title="Loss"></a>Loss</h4><p>Loss 就是正常的 SVM 的 hinge loss 啦，一个典型的正负类分类的 loss。</p>
-</div></div><div class="post-main post-comment"><div id="disqus_thread"></div><script type="text/javascript">
-var disqus_shortname = 'YimianDai';
-var disqus_identifier = 'Notes 2019-01/';
-var disqus_title = 'Notes 2019-01';
-var disqus_url = 'http://lowrank.science/Notes 2019-01/';
-(function() {
-   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
+<h3 id="Discriminative-learning-of-deep-convolutional-feature-point-descriptors"><a href="#Discriminative-learning-of-deep-convolutional-feature-point-descriptors" class="headerlink" title="Discriminative learning of deep convolutional feature point descriptors"></a>Discriminative learning of deep convolutional feature point descriptors</h3><p>ICCV 2015 的文章。</p>
+<p>本文想做的目的是 Representing local image patches in an invariant and dis- criminative manner</p>
+<blockquote>
+<p>In our case discriminative training does not rely on labels of individual patches, but rather on pairs of cor- responding, or non-corresponding patches. 这是不是也是一种 weakly supervised learning？</p>
+</blockquote>
+<p>use a Siamese network architecture </p>
+<p>treating the CNN outputs as patch descriptors（CNN 的 output 直接作为 patch descriptor）</p>
+<p>minimize a loss that enforces the L2 norm of their difference to be small for corresponding patches and large otherwise （Loss 就是 让一样的 pair 之间的 L2 norm 尽量小，不一样的尽量的大）</p>
+<p>作者提出的 a strategy of aggressive mining of “hard” positives and negatives 到底是什么？</p>
+<p>这里首先有个问题，it may be unclear whether CNNs are equally appropriate for patch-level applications where semantic information may be missing，也就是说 Patch 里面的 semantics 不够，那么 CNN 适合来做 patch 吗？</p>
+<p>simply use the L2 distance to compare patches 是本文的一个卖点</p>
+<p>这篇文章其实是来解决 descriptor 的 repeatability 的，这里的 repeatability 由同一对 pair 通过 Siamese 网络判断是不是同一对来保证，对于实际上是同一对但有视角变化的 pair 来说，应该要输出相近的 descriptor</p>
+<p>最后一层的输入是 8<em>8，滤波器是 5</em>5，如果不做 padding，那么滤波后的大小就是 4 <em> 4，又因为 Pooling 的 大小是 4 </em> 4，所以最后输出的就是一个 1 <em> 1 </em> 128 的向量</p>
+<h3 id="3DMatch-Learning-Local-Geometric-Descriptors-from-RGB-D-Reconstructions"><a href="#3DMatch-Learning-Local-Geometric-Descriptors-from-RGB-D-Reconstructions" class="headerlink" title="3DMatch: Learning Local Geometric Descriptors from RGB-D Reconstructions"></a>3DMatch: Learning Local Geometric Descriptors from RGB-D Reconstructions</h3><p>2017 CVPR</p>
+<p>本文的目标是想做什么？ our goal is to create a function ψ that maps the local volumetric region (or 3D patch) around a point on a 3D surface to a descriptor vector，也就是想做一个 3D 的 local Feature descriptor</p>
+<p>同 2D 一样，这个 3D 的 local Feature descriptor 也要具有 repeatability，具体表现就是 Given any two points, an ideal function ψ maps their local 3D patches to two descrip- tors, where a smaller l2 distance between the descriptors in- dicates a higher likelihood of correspondence.</p>
+<p>本文的 3D local Feature descriptor 是学出来的，要学习就要有 data 和 label，本文的 data 和 label 的来源是 making use of data from existing high quality RGB-D scene reconstructions，<strong>我没看到是什么意思，到底怎么来的？</strong></p>
+<p>文章说，each reconstruction contains millions of points that are observed from multiple different scanning views，是说 3D 模型可以转啊，也就是不同的视角，这就是现成的匹配数据（同 Homographical adaptation 在 2D 平面上变化一个道理，都是用来做自监督的）</p>
+<p><strong><em>文章通篇再讲 descriptor，关键在于 Detector 是怎么产生的，文中的 interest point 是怎么产生的？</em></strong></p>
+<p>是直接对 patch 做的，关键是你怎么知道哪些 patch 是相关的，哪些不是的？</p>
+<p>因为知道 3D 点的 3D position，然后随着帧的变化，只要在不同帧的这个 3D position 周围的两个 3D patch 就是匹配的 pair</p>
+<h3 id="Discriminative-learning-of-deep-convolutional-feature-point-descriptors-1"><a href="#Discriminative-learning-of-deep-convolutional-feature-point-descriptors-1" class="headerlink" title="Discriminative learning of deep convolutional feature point descriptors"></a>Discriminative learning of deep convolutional feature point descriptors</h3><p>ICCV 2015 的文章</p>
+<blockquote>
+<p>使用卷积网络提取图像局部特征，得到的 patch 描述之间的距离可以直接用欧式距离度量。可以在各种应用中直接替代 SIFT 等特征。网络是用 Contrastive Loss 训练的</p>
+</blockquote>
+<p>develop 128-D descriptors whose euclidean distances reflect patch similarity，and which can be used as a drop-in replacement for any task involving SIFT</p>
+<h3 id="Quad-networks-unsupervised-learning-to-rank-for-interest-point-detection"><a href="#Quad-networks-unsupervised-learning-to-rank-for-interest-point-detection" class="headerlink" title="Quad-networks: unsupervised learning to rank for interest point detection"></a>Quad-networks: unsupervised learning to rank for interest point detection</h3><p>用人肉去 label interest point 是不现实的，it is often unclear what points are “interesting”, human labelling cannot be used to find a truly unbiased solution. Therefore, the task requires an un- supervised formulation. 所以作者打算用无监督的来做</p>
+<p>有意思的是作者还尝试了 cross-modal interest point detection between RGB and depth images，这个可以关注一下</p>
+<p>Learning an interest point detector is a task where labelling ambiguity goes to extremes. 对于 label 而言，interest point 的 label 是非常模棱两可的，没有很清晰的标准。</p>
+<p>我们想要得到什么？a sparse set of image locations which can be detected repeatably even if the image undergoes a significant viewpoint or illumination change</p>
+<p><strong><em>retaining the top/bottom quantiles of the response function (contrast filtering) 和 retaining the local extrema of the response function (non-maximum suppression) 这两有啥区别啊？</em></strong></p>
+<p>为什么叫做  quadruple？因为这个涉及到 ranking，所以按照公式（1），会有两个点，然后又是经过变换 t 前后的，所以一共会有 4 个点。</p>
+<p>按照公式（2），因为 H 是一个  a single real-valued response function，所以如果两个点在变换前后的 ranking 不发生改变，则这个 ranking agreement function 的数值会是正的，否则就会是 负的</p>
+<p>$$<br>\begin{array} { l } { R \left( p <em> { d } ^ { i } , p </em> { d } ^ { j } , p <em> { t ( d ) } ^ { i } , p </em> { t ( d ) } ^ { i } , p <em> { t ( d ) } ^ { j } | w \right) = } \ { \left( H \left( p </em> { d } ^ { i } | w \right) - H \left( p <em> { d } ^ { j } | w \right) \right) \left( H \left( p </em> { t ( d ) } ^ { i } | w \right) - H \left( p _ { t ( d ) } ^ { j } | w \right) \right) } \end{array}<br>$$</p>
+<p>the set of corresponding point indexes 到底是什么？是变换前后 matching 的点。</p>
+<p>那这里只讲了 detect 到一些特征点后，怎么保证 detect 的 invariant，<strong><em>但没有涉及如何 detect，以及如何做 matching？</em></strong></p>
+<p>observation 2 里面的 visible 到底是什么意思？</p>
+<h3 id="LIFT-Learned-Invariant-Feature-Transform"><a href="#LIFT-Learned-Invariant-Feature-Transform" class="headerlink" title="LIFT: Learned Invariant Feature Transform"></a>LIFT: Learned Invariant Feature Transform</h3><p>ECCV 2016 的文章</p>
+<p>LIFT 的训练数据来源于使用 Structure from Motion(SfM) 算法得到的特征点</p>
+<p>Feature descriptors are designed to provide discriminative representations of salient image patches, while being robust to transformations such as viewpoint or illumination changes. 注意哦，Feature descriptor 就是来描述 salient image patches 的。</p>
+<p>There are datasets that can be used to train feature descriptors [24] and orientation estimators [9]. 竟然有特征点描述子的训练集？</p>
+<p>特征点检测就是通过 provides a score map S 以及 perform a soft argmax [12] on the score map S and return the location x of a single potential feature point 来完成的吧，那么问题来了，就是<strong>首先你的 score map S 是怎么产生的？</strong></p>
+<p>learning first the Descriptor, then the Orientation Estimator given the learned descriptor, and finally the Detector, conditioned on the other two 是说这三部分网络，当学习一个的时候，就固定另外两个的权重？</p>
+<p>发现好像这类文章里的 Descriptor 网络的输入都是 Patch</p>
+<p>softargmax is a function which computes the Center of Mass，万万没想到 softargmax 竟然是计算重心的？真的假的？按照公式 7 真的是的啊</p>
+<h3 id="LF-Net-Learning-Local-Features-from-Images"><a href="#LF-Net-Learning-Local-Features-from-Images" class="headerlink" title="LF-Net: Learning Local Features from Images"></a>LF-Net: Learning Local Features from Images</h3><p>NIPS 2018 的文章</p>
+<p>涉及到了 depth maps 啊，可以是 laser scanners 或者说 shape-from-structure algorithms 来的</p>
+<h3 id="Fast-Efficient-Object-Detection-Using-Selective-Attention"><a href="#Fast-Efficient-Object-Detection-Using-Selective-Attention" class="headerlink" title="Fast Efficient Object Detection Using Selective Attention"></a>Fast Efficient Object Detection Using Selective Attention</h3><h4 id="Motivation-4"><a href="#Motivation-4" class="headerlink" title="Motivation"></a>Motivation</h4><p>通常的 Object Detection 算法计算量非常大，比如通常每幅图像会 propose $10 ^ { 4 } - 10 ^ { 5 }$ 个 proposal，而绝大部分这些 Region proposal 都是 uninformative Background，处理这些都是不必要的（但是不处理又不知道是不是背景，只有处理后才知道是不是必要的），所以现在大部分 Detector 的设计是极度多余且低效的（superfluous and inefficient），本文的目的就是要 减少这些不必要的 computational cost</p>
+<p>本文是要 introduce a new object detection paradigm</p>
+<p>用显著性检测来做 Region Proposal 的缺点在于 not all objects of interest are detected; just objects that grab human attention, which is inadequate for general ob- ject detection.（但本文不是也有这个问题么）</p>
+<p>saliency-based approaches 想法是好的，但方式做错了 These saliency-based approaches were inspired by the right idea; however, their implementations may not have been an accurate reflection of how saliency works in natural vision.</p>
+<p>本文最大的依仗，也是作者从 人类视觉的 salience detection and selective attention 机制中得到的启发是  the processing of low-resolution achromatic visual information from the retina is key to its speed and efficiency</p>
+<p>作者调研了 visual neuro-science 的文献，特别是关于 superior colliculus（上丘，主司与视觉相关的眼动功能，负责基于视觉信息的空间定位）, selective attention, and the retino-collicular（视网膜丘） visual pathway</p>
+<p>作者从 biological vision systems 知道的：</p>
+<ol>
+<li>a midbrain structure known as the superior colliculus receives <strong>heavily-reduced achromatic visual information</strong> from the eye, which it then uses to compute a saliency map that <strong>highlights object-only regions</strong> for further cognitive analyses</li>
+<li>the degree of visual information reduction is species-dependent and consequently dependent on the visual environment</li>
+</ol>
+<p>未来工作，现在的计算显著性的算法是固定 input resolution，也就是 degree of visual compression，下一步希望能够  automatically learns the optimal input resolution</p>
+<p>本文把 RPN 强调成 superior colliculus RPN</p>
+<p>以前认为 the saliency map was generated in the primary visual cortex (V1)，但最近的研究发现 the saliency map is actually generated in a significantly smaller and more primitive structure called the superior colliculus (SC).</p>
+<p>本文要调研的就是 the underlying cause of efficiency in human and primate vision systems</p>
+<p>object detection in human and primate vision 概括一下就是： the retinocollicular pathway (dashed gray line in Figure 3) shrinks the high-resolution color image projected onto the retina from the visual field into a tiny colorless, e.g. low-resolution grayscale, image, which can then be scanned quickly by the SC to highlight peripheral regions worth attending to via the saliency map. The SC then aligns the fovea to attend to one of these re- gions, thereby sending higher-acuity, e.g. high-resolution color, visual information to the LGN and beyond for further processing. In doing so, a new image of the visual field is now projected onto the retina, and the cycle repeats.</p>
+<p>流程如下图所示</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%203.png" alt=""></p>
+<p><strong><em>本文跟其他那种 Saliency based Region Proposal 方法有什么区别？</em></strong> 其他也有用 64 * 64 的降采样图像来做的啊？</p>
+<p>superior colliculus (SC) 负责产生 saliency map，SC 的输入是 a low-resolution achromatic image</p>
+<p>本文就 two main contributions：</p>
+<ol>
+<li>unveiling the mechanism behind speed and efficiency in selective visual attention（这一块算传递消息吧）（就是 Section 3）</li>
+<li>establishing a new RPN based on this mechanism 那重点就是看这个 RPN 是怎么实现的？(就是 Section 4）</li>
+</ol>
+<p>图 4 就是本文提出的 Superior colliculus region proposal network (SC-RPN) architecture</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%204.png" alt=""></p>
+<p>323 × 3 kernels 是什么意思？</p>
+<h1 id="Understanding-Visual-Selective-Attention"><a href="#Understanding-Visual-Selective-Attention" class="headerlink" title="Understanding Visual Selective Attention"></a>Understanding Visual Selective Attention</h1><h2 id="Bottom-Up-Saliency"><a href="#Bottom-Up-Saliency" class="headerlink" title="Bottom-Up Saliency"></a>Bottom-Up Saliency</h2><h3 id="Biological-Mechanism"><a href="#Biological-Mechanism" class="headerlink" title="Biological Mechanism"></a>Biological Mechanism</h3><h3 id="Computational-Model"><a href="#Computational-Model" class="headerlink" title="Computational Model"></a>Computational Model</h3>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Computer-Vision/" rel="tag"># Computer-Vision</a>
+          
+            <a href="/tags/Cognition/" rel="tag"># Cognition</a>
+          
+            <a href="/tags/Attention/" rel="tag"># Attention</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/SuperPoint/" rel="next" title="Notes on SuperPoint">
+                <i class="fa fa-chevron-left"></i> Notes on SuperPoint
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/DES/" rel="prev" title="Single-Shot Object Detection with Enriched Semantics">
+                Single-Shot Object Detection with Enriched Semantics <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yimian Dai</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">Kategorien</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">Tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#论文"><span class="nav-number">1.</span> <span class="nav-text">论文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-时空异常探测方法研究综述"><span class="nav-number">1.1.</span> <span class="nav-text">[1] 时空异常探测方法研究综述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是异常"><span class="nav-number">1.1.1.</span> <span class="nav-text">什么是异常</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#现有方法的局限性"><span class="nav-number">1.1.2.</span> <span class="nav-text">现有方法的局限性:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#传统异常探测方法"><span class="nav-number">1.1.3.</span> <span class="nav-text">传统异常探测方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-弱监督深层神经网络遥感图像目标检测模型"><span class="nav-number">1.2.</span> <span class="nav-text">[2] 弱监督深层神经网络遥感图像目标检测模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-人工智能的回顾与展望"><span class="nav-number">1.3.</span> <span class="nav-text">[3] 人工智能的回顾与展望</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#深度学习"><span class="nav-number">1.3.1.</span> <span class="nav-text">深度学习</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#深度学习的基本动机"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">深度学习的基本动机</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#深度学习的不足"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">深度学习的不足</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类脑计算"><span class="nav-number">1.3.2.</span> <span class="nav-text">类脑计算</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#深度学习中引入记忆机制"><span class="nav-number">1.3.3.</span> <span class="nav-text">深度学习中引入记忆机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#智能制造"><span class="nav-number">1.3.4.</span> <span class="nav-text">智能制造</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重点资助方向"><span class="nav-number">1.3.5.</span> <span class="nav-text">重点资助方向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是双清论坛？"><span class="nav-number">1.3.6.</span> <span class="nav-text">什么是双清论坛？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-人工智能中的推理-进展与挑战"><span class="nav-number">1.4.</span> <span class="nav-text">[4] 人工智能中的推理:进展与挑战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是推理？"><span class="nav-number">1.4.1.</span> <span class="nav-text">什么是推理？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#因果推理"><span class="nav-number">1.4.2.</span> <span class="nav-text">因果推理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#记忆驱动的推理"><span class="nav-number">1.4.3.</span> <span class="nav-text">记忆驱动的推理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是逻辑学派"><span class="nav-number">1.4.4.</span> <span class="nav-text">什么是逻辑学派</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是知识工程学派"><span class="nav-number">1.4.5.</span> <span class="nav-text">什么是知识工程学派</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-人工智能的未来-–-神经科学启发的类脑计算综述"><span class="nav-number">1.5.</span> <span class="nav-text">[5] 人工智能的未来 – 神经科学启发的类脑计算综述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Neurobiology-and-Computational-Neuroscience"><span class="nav-number">1.5.1.</span> <span class="nav-text">Neurobiology and Computational Neuroscience</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#人脑强大但低功耗"><span class="nav-number">1.5.2.</span> <span class="nav-text">人脑强大但低功耗</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三代人工神经网络"><span class="nav-number">1.5.3.</span> <span class="nav-text">三代人工神经网络</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类脑计算的研究趋势"><span class="nav-number">1.5.4.</span> <span class="nav-text">类脑计算的研究趋势</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-史忠植：人工智能-第十二章-类脑智能"><span class="nav-number">1.6.</span> <span class="nav-text">[6] 史忠植：人工智能 第十二章 类脑智能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-李德毅院士：从脑认知到人工智能"><span class="nav-number">1.7.</span> <span class="nav-text">[7] 李德毅院士：从脑认知到人工智能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#从功能上逼近脑"><span class="nav-number">1.7.1.</span> <span class="nav-text">从功能上逼近脑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#记忆认知"><span class="nav-number">1.7.2.</span> <span class="nav-text">记忆认知</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重新认识卷积（利用卷积表达认知和记忆）"><span class="nav-number">1.7.3.</span> <span class="nav-text">重新认识卷积（利用卷积表达认知和记忆）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#交互认知"><span class="nav-number">1.7.4.</span> <span class="nav-text">交互认知</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#卷积神经网络的三大局限"><span class="nav-number">1.7.5.</span> <span class="nav-text">卷积神经网络的三大局限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脑认知单元-vs-图灵模型"><span class="nav-number">1.7.6.</span> <span class="nav-text">脑认知单元 vs 图灵模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脑认知形式化的尺度选择"><span class="nav-number">1.7.7.</span> <span class="nav-text">脑认知形式化的尺度选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-郑南宁-人工智能的下一步是什么"><span class="nav-number">1.8.</span> <span class="nav-text">[8] 郑南宁:人工智能的下一步是什么?</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#非完整信息处理问题"><span class="nav-number">1.8.1.</span> <span class="nav-text">非完整信息处理问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-脑科学与类脑研究概述"><span class="nav-number">1.9.</span> <span class="nav-text">[9] 脑科学与类脑研究概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Minsky-干了神经网络两次"><span class="nav-number">1.9.1.</span> <span class="nav-text">Minsky 干了神经网络两次</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#图灵机计算的本质"><span class="nav-number">1.9.2.</span> <span class="nav-text">图灵机计算的本质</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脑科学与类脑研究"><span class="nav-number">1.9.3.</span> <span class="nav-text">脑科学与类脑研究</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-人工智能中的联结主义和符号主义"><span class="nav-number">1.10.</span> <span class="nav-text">[10] 人工智能中的联结主义和符号主义</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#符号主义"><span class="nav-number">1.10.1.</span> <span class="nav-text">符号主义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#海马体与梦"><span class="nav-number">1.10.2.</span> <span class="nav-text">海马体与梦</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高级中枢向低级中枢反馈"><span class="nav-number">1.10.3.</span> <span class="nav-text">高级中枢向低级中枢反馈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#层次特征"><span class="nav-number">1.10.4.</span> <span class="nav-text">层次特征</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-视觉选择性注意的模型化计算及其应用前景"><span class="nav-number">1.11.</span> <span class="nav-text">[11] 视觉选择性注意的模型化计算及其应用前景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#什么是注意？"><span class="nav-number">1.11.1.</span> <span class="nav-text">什么是注意？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Marr-视觉理论"><span class="nav-number">1.11.2.</span> <span class="nav-text">Marr 视觉理论</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#视觉信息处理通路"><span class="nav-number">1.11.3.</span> <span class="nav-text">视觉信息处理通路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VSA-模型化计算"><span class="nav-number">1.11.4.</span> <span class="nav-text">VSA 模型化计算</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#VSA-模型化计算的关键环节"><span class="nav-number">1.11.4.1.</span> <span class="nav-text">VSA 模型化计算的关键环节</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自下而上兴趣图"><span class="nav-number">1.11.4.2.</span> <span class="nav-text">自下而上兴趣图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#物体知识的表达"><span class="nav-number">1.11.4.3.</span> <span class="nav-text">物体知识的表达</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在目标检测中的应用"><span class="nav-number">1.11.4.4.</span> <span class="nav-text">在目标检测中的应用</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#值得研究的问题"><span class="nav-number">1.11.5.</span> <span class="nav-text">值得研究的问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-刘成林-从模式识别到类脑研究"><span class="nav-number">1.12.</span> <span class="nav-text">[12] 刘成林:从模式识别到类脑研究</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#模式识别"><span class="nav-number">1.12.1.</span> <span class="nav-text">模式识别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类脑智能"><span class="nav-number">1.12.2.</span> <span class="nav-text">类脑智能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-深度学习-多层神经网络的复兴与变革"><span class="nav-number">1.13.</span> <span class="nav-text">[13] 深度学习:多层神经网络的复兴与变革</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#深度学习成功的启示"><span class="nav-number">1.13.1.</span> <span class="nav-text">深度学习成功的启示</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#优化方法的变革是开启深度学习复兴之门的钥匙"><span class="nav-number">1.13.1.1.</span> <span class="nav-text">优化方法的变革是开启深度学习复兴之门的钥匙</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#从经验驱动的人造特征范式到数据驱动的表示学习范式"><span class="nav-number">1.13.1.2.</span> <span class="nav-text">从经验驱动的人造特征范式到数据驱动的表示学习范式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#从“分步分治”到“端到端的学习”"><span class="nav-number">1.13.1.3.</span> <span class="nav-text">从“分步分治”到“端到端的学习”</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#脑神经科学启发的思路值得更多的重视"><span class="nav-number">1.13.1.4.</span> <span class="nav-text">脑神经科学启发的思路值得更多的重视</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何赋予机器演绎推理能力"><span class="nav-number">1.13.2.</span> <span class="nav-text">如何赋予机器演绎推理能力</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-从脑网络到人工智能-——-类脑计算的机遇与挑战"><span class="nav-number">1.14.</span> <span class="nav-text">[14] 从脑网络到人工智能 —— 类脑计算的机遇与挑战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-人工智能在军事领域的渗透与应用思考"><span class="nav-number">1.15.</span> <span class="nav-text">[15] 人工智能在军事领域的渗透与应用思考</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#人工智能的三个层次"><span class="nav-number">1.15.1.</span> <span class="nav-text">人工智能的三个层次</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-感知智能到认知智能中对知识的思考"><span class="nav-number">1.16.</span> <span class="nav-text">[16] 感知智能到认知智能中对知识的思考</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-机器学习-现在与未来"><span class="nav-number">1.17.</span> <span class="nav-text">[17] 机器学习: 现在与未来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-小样本的类人概念学习与大数据的深度强化学习"><span class="nav-number">1.18.</span> <span class="nav-text">[18] 小样本的类人概念学习与大数据的深度强化学习</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-人工智能-“热闹”背后的“门道”"><span class="nav-number">1.19.</span> <span class="nav-text">[19] 人工智能: “热闹”背后的“门道”</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#人类智慧、人类智能、人工智能"><span class="nav-number">1.19.1.</span> <span class="nav-text">人类智慧、人类智能、人工智能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AI-时代的工作方式"><span class="nav-number">1.19.2.</span> <span class="nav-text">AI 时代的工作方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-人工智能研究的三大流派-比较与启示"><span class="nav-number">1.20.</span> <span class="nav-text">[20] 人工智能研究的三大流派: 比较与启示</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#符号主义-1"><span class="nav-number">1.20.1.</span> <span class="nav-text">符号主义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#联结主义"><span class="nav-number">1.20.2.</span> <span class="nav-text">联结主义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#行为主义"><span class="nav-number">1.20.3.</span> <span class="nav-text">行为主义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三大流派的比较"><span class="nav-number">1.20.4.</span> <span class="nav-text">三大流派的比较</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#归纳和演绎"><span class="nav-number">1.20.5.</span> <span class="nav-text">归纳和演绎</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#21-类脑智能研究的回顾与展望"><span class="nav-number">1.21.</span> <span class="nav-text">[21] 类脑智能研究的回顾与展望</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#图灵机模型和冯·诺依曼计算机体系结构"><span class="nav-number">1.21.1.</span> <span class="nav-text">图灵机模型和冯·诺依曼计算机体系结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类脑智能-1"><span class="nav-number">1.21.2.</span> <span class="nav-text">类脑智能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#什么是类脑智能？"><span class="nav-number">1.21.2.1.</span> <span class="nav-text">什么是类脑智能？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#为什么是借鉴而非模仿脑？"><span class="nav-number">1.21.2.2.</span> <span class="nav-text">为什么是借鉴而非模仿脑？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#认知科学中的类脑智能研究"><span class="nav-number">1.21.2.3.</span> <span class="nav-text">认知科学中的类脑智能研究</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#计算神经学中的类脑智能研究"><span class="nav-number">1.21.2.4.</span> <span class="nav-text">计算神经学中的类脑智能研究</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#传统计算神经学与类脑智能的区别"><span class="nav-number">1.21.2.4.1.</span> <span class="nav-text">传统计算神经学与类脑智能的区别</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#人工智能中的类脑智能研究"><span class="nav-number">1.21.2.5.</span> <span class="nav-text">人工智能中的类脑智能研究</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#认知脑计算模型的构建"><span class="nav-number">1.21.3.</span> <span class="nav-text">认知脑计算模型的构建</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#认知脑计算模型研究内容"><span class="nav-number">1.21.3.1.</span> <span class="nav-text">认知脑计算模型研究内容</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#认知脑计算模型-和-类脑信息处理-的区别？"><span class="nav-number">1.21.3.2.</span> <span class="nav-text">认知脑计算模型 和 类脑信息处理 的区别？</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#类脑信息处理"><span class="nav-number">1.21.4.</span> <span class="nav-text">类脑信息处理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#研究内容："><span class="nav-number">1.21.4.1.</span> <span class="nav-text">研究内容：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#我感兴趣的内容"><span class="nav-number">1.21.4.2.</span> <span class="nav-text">我感兴趣的内容</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#22-类脑计算芯片与类脑智能机器人发展现状与思考"><span class="nav-number">1.22.</span> <span class="nav-text">[22] 类脑计算芯片与类脑智能机器人发展现状与思考</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#类脑芯片研究的两大方向"><span class="nav-number">1.22.1.</span> <span class="nav-text">类脑芯片研究的两大方向</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#方向一：神经形态芯片"><span class="nav-number">1.22.1.1.</span> <span class="nav-text">方向一：神经形态芯片</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#方向二："><span class="nav-number">1.22.1.2.</span> <span class="nav-text">方向二：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#冯诺依曼架构-vs-大脑架构"><span class="nav-number">1.22.2.</span> <span class="nav-text">冯诺依曼架构 vs 大脑架构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#23-国务院关于印发新一代人工智能发展规划的通知"><span class="nav-number">1.23.</span> <span class="nav-text">[23] 国务院关于印发新一代人工智能发展规划的通知</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#适合我的人工智能关键共性技术"><span class="nav-number">1.23.1.</span> <span class="nav-text">适合我的人工智能关键共性技术</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#24-谈方法论：归纳与统计"><span class="nav-number">1.24.</span> <span class="nav-text">[24] 谈方法论：归纳与统计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#归纳"><span class="nav-number">1.24.1.</span> <span class="nav-text">归纳</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#统计"><span class="nav-number">1.24.2.</span> <span class="nav-text">统计</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#25-人工智能-天使还是魔鬼"><span class="nav-number">1.25.</span> <span class="nav-text">[25] 人工智能: 天使还是魔鬼?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#26-类脑智能研究现状与发展思考"><span class="nav-number">1.26.</span> <span class="nav-text">[26] 类脑智能研究现状与发展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#以往的人工智能"><span class="nav-number">1.26.1.</span> <span class="nav-text">以往的人工智能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#脑与神经科学对人工智能的潜在启发"><span class="nav-number">1.26.2.</span> <span class="nav-text">脑与神经科学对人工智能的潜在启发</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#脑的多尺度结构"><span class="nav-number">1.26.2.1.</span> <span class="nav-text">脑的多尺度结构</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新一代人工神经网络模型"><span class="nav-number">1.26.3.</span> <span class="nav-text">新一代人工神经网络模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基于记忆、推理和注意的认知"><span class="nav-number">1.26.4.</span> <span class="nav-text">基于记忆、推理和注意的认知</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#关于类脑智能模型的进一步思考"><span class="nav-number">1.26.5.</span> <span class="nav-text">关于类脑智能模型的进一步思考</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#目前脉冲神经网络的缺陷"><span class="nav-number">1.26.5.1.</span> <span class="nav-text">目前脉冲神经网络的缺陷</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#27-类脑-受脑启发的-计算的问题与视觉认知"><span class="nav-number">1.27.</span> <span class="nav-text">[27] 类脑(受脑启发的)计算的问题与视觉认知</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#目前深度学习模型的缺点："><span class="nav-number">1.27.0.1.</span> <span class="nav-text">目前深度学习模型的缺点：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#图灵机的局限（判符号主义死刑）"><span class="nav-number">1.27.0.2.</span> <span class="nav-text">图灵机的局限（判符号主义死刑）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#大脑认知的层次"><span class="nav-number">1.27.0.3.</span> <span class="nav-text">大脑认知的层次</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#传统人工智能的局限性"><span class="nav-number">1.27.0.4.</span> <span class="nav-text">传统人工智能的局限性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#冯诺依曼计算架构的面临的困境"><span class="nav-number">1.27.0.5.</span> <span class="nav-text">冯诺依曼计算架构的面临的困境</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#大脑网络连接与认知的关系"><span class="nav-number">1.27.1.</span> <span class="nav-text">大脑网络连接与认知的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#大脑的结构连接"><span class="nav-number">1.27.1.1.</span> <span class="nav-text">大脑的结构连接</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#大脑的功能连接"><span class="nav-number">1.27.1.2.</span> <span class="nav-text">大脑的功能连接</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#大脑的记忆"><span class="nav-number">1.27.2.</span> <span class="nav-text">大脑的记忆</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#神经记忆的特征"><span class="nav-number">1.27.2.1.</span> <span class="nav-text">神经记忆的特征</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#人脑强悍的计算能力"><span class="nav-number">1.27.2.2.</span> <span class="nav-text">人脑强悍的计算能力</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#三种类脑-受脑启发的-认知计算模型"><span class="nav-number">1.27.2.3.</span> <span class="nav-text">三种类脑(受脑启发的)认知计算模型</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#视觉计算"><span class="nav-number">1.27.3.</span> <span class="nav-text">视觉计算</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#视觉交互行为与注意力集中"><span class="nav-number">1.27.3.1.</span> <span class="nav-text">视觉交互行为与注意力集中</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#深度学习的问题"><span class="nav-number">1.27.3.2.</span> <span class="nav-text">深度学习的问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#视觉认知中的深度学习层次结构"><span class="nav-number">1.27.3.3.</span> <span class="nav-text">视觉认知中的深度学习层次结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#现有视觉计算架构的局限"><span class="nav-number">1.27.3.4.</span> <span class="nav-text">现有视觉计算架构的局限</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#脑启发的视觉处理计算架构"><span class="nav-number">1.27.3.5.</span> <span class="nav-text">脑启发的视觉处理计算架构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#28-机载激光雷达技术在长江三峡工程库区滑坡灾害调查和监测中的应用研究"><span class="nav-number">1.28.</span> <span class="nav-text">[28] 机载激光雷达技术在长江三峡工程库区滑坡灾害调查和监测中的应用研究</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#29-基于地面-LiDAR-的滑坡地表整体变形监测"><span class="nav-number">1.29.</span> <span class="nav-text">[29] 基于地面 LiDAR 的滑坡地表整体变形监测</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么要做点云匹配？"><span class="nav-number">1.29.1.</span> <span class="nav-text">为什么要做点云匹配？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#30-SuperPoint-Self-Supervised-Interest-Point-Detection-and-Description"><span class="nav-number">1.30.</span> <span class="nav-text">[30] SuperPoint: Self-Supervised Interest Point Detection and Description</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Motivation"><span class="nav-number">1.30.1.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Model"><span class="nav-number">1.30.2.</span> <span class="nav-text">Model</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Loss"><span class="nav-number">1.30.3.</span> <span class="nav-text">Loss</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#interest-point-detector-loss"><span class="nav-number">1.30.3.1.</span> <span class="nav-text">interest point detector loss</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#descriptor-loss"><span class="nav-number">1.30.3.2.</span> <span class="nav-text">descriptor loss</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#32-Single-Shot-Object-Detection-with-Enriched-Semantics"><span class="nav-number">1.31.</span> <span class="nav-text">[32] Single-Shot Object Detection with Enriched Semantics</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Motivation-1"><span class="nav-number">1.31.1.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Model-1"><span class="nav-number">1.31.2.</span> <span class="nav-text">Model</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Segmentation-branch"><span class="nav-number">1.31.2.1.</span> <span class="nav-text">Segmentation branch</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Loss-1"><span class="nav-number">1.31.3.</span> <span class="nav-text">Loss</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#33-Residual-Attention-Network-for-Image-Classification"><span class="nav-number">1.32.</span> <span class="nav-text">[33] Residual Attention Network for Image Classification</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Motivation-2"><span class="nav-number">1.32.1.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Model-2"><span class="nav-number">1.32.2.</span> <span class="nav-text">Model</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Attention-Module"><span class="nav-number">1.32.2.1.</span> <span class="nav-text">Attention Module</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Attention-Residual-Learning"><span class="nav-number">1.32.2.2.</span> <span class="nav-text">Attention Residual Learning</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Spatial-Attention-and-Channel-Attention"><span class="nav-number">1.32.2.3.</span> <span class="nav-text">Spatial Attention and Channel Attention</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Loss-2"><span class="nav-number">1.32.3.</span> <span class="nav-text">Loss</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#34-Semantic-Point-Detector"><span class="nav-number">1.33.</span> <span class="nav-text">[34] Semantic Point Detector</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Motivation-3"><span class="nav-number">1.33.1.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Model-3"><span class="nav-number">1.33.2.</span> <span class="nav-text">Model</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Loss-3"><span class="nav-number">1.33.3.</span> <span class="nav-text">Loss</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#35-图像物体分类与检测算法综述"><span class="nav-number">1.34.</span> <span class="nav-text">[35] 图像物体分类与检测算法综述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基于词包模型的物体分类"><span class="nav-number">1.34.1.</span> <span class="nav-text">基于词包模型的物体分类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Step-1-底层特征提取"><span class="nav-number">1.34.1.1.</span> <span class="nav-text">Step 1: 底层特征提取</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Step-2-特征编码"><span class="nav-number">1.34.1.2.</span> <span class="nav-text">Step 2: 特征编码</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#向量量化编码"><span class="nav-number">1.34.1.2.1.</span> <span class="nav-text">向量量化编码</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#软量化编码"><span class="nav-number">1.34.1.2.2.</span> <span class="nav-text">软量化编码</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#稀疏编码"><span class="nav-number">1.34.1.2.3.</span> <span class="nav-text">稀疏编码</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#局部线性约束编码"><span class="nav-number">1.34.1.2.4.</span> <span class="nav-text">局部线性约束编码</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#显著性编码"><span class="nav-number">1.34.1.2.5.</span> <span class="nav-text">显著性编码</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Fisher-向量编码"><span class="nav-number">1.34.1.2.6.</span> <span class="nav-text">Fisher 向量编码</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Step-3-空间特征汇聚"><span class="nav-number">1.34.1.3.</span> <span class="nav-text">Step 3: 空间特征汇聚</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#空间金字塔匹配"><span class="nav-number">1.34.1.3.1.</span> <span class="nav-text">空间金字塔匹配</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#深度学习模型"><span class="nav-number">1.34.2.</span> <span class="nav-text">深度学习模型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#词包模型与-CNN-的异同"><span class="nav-number">1.34.2.1.</span> <span class="nav-text">词包模型与 CNN 的异同</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#物体检测"><span class="nav-number">1.34.3.</span> <span class="nav-text">物体检测</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#结构化学习"><span class="nav-number">1.34.3.1.</span> <span class="nav-text">结构化学习</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#物体检测和物体分类的统一性"><span class="nav-number">1.34.4.</span> <span class="nav-text">物体检测和物体分类的统一性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#物体检测可以取代物体分类"><span class="nav-number">1.34.4.1.</span> <span class="nav-text">物体检测可以取代物体分类?</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#物体检测和物体分类之间的差异性和互补性"><span class="nav-number">1.34.4.2.</span> <span class="nav-text">物体检测和物体分类之间的差异性和互补性</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#物体分类与检测的发展方向"><span class="nav-number">1.34.5.</span> <span class="nav-text">物体分类与检测的发展方向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#层次化学习-深度学习-存在的难点与挑战"><span class="nav-number">1.34.6.</span> <span class="nav-text">层次化学习(深度学习)存在的难点与挑战</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#To-Read-List"><span class="nav-number">2.</span> <span class="nav-text">To Read List</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Look-and-Think-Twice-Capturing-Top-Down-Visual-Attention-with-Feedback-Convolutional-Neural-Networks"><span class="nav-number">2.1.</span> <span class="nav-text">Look and Think Twice: Capturing Top-Down Visual Attention with Feedback Convolutional Neural Networks</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#怎么看待目标检测？"><span class="nav-number">2.1.1.</span> <span class="nav-text">怎么看待目标检测？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deep-Image-Homography-Estimation"><span class="nav-number">2.2.</span> <span class="nav-text">Deep Image Homography Estimation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Discriminative-learning-of-deep-convolutional-feature-point-descriptors"><span class="nav-number">2.3.</span> <span class="nav-text">Discriminative learning of deep convolutional feature point descriptors</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3DMatch-Learning-Local-Geometric-Descriptors-from-RGB-D-Reconstructions"><span class="nav-number">2.4.</span> <span class="nav-text">3DMatch: Learning Local Geometric Descriptors from RGB-D Reconstructions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Discriminative-learning-of-deep-convolutional-feature-point-descriptors-1"><span class="nav-number">2.5.</span> <span class="nav-text">Discriminative learning of deep convolutional feature point descriptors</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Quad-networks-unsupervised-learning-to-rank-for-interest-point-detection"><span class="nav-number">2.6.</span> <span class="nav-text">Quad-networks: unsupervised learning to rank for interest point detection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LIFT-Learned-Invariant-Feature-Transform"><span class="nav-number">2.7.</span> <span class="nav-text">LIFT: Learned Invariant Feature Transform</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LF-Net-Learning-Local-Features-from-Images"><span class="nav-number">2.8.</span> <span class="nav-text">LF-Net: Learning Local Features from Images</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Efficient-Object-Detection-Using-Selective-Attention"><span class="nav-number">2.9.</span> <span class="nav-text">Fast Efficient Object Detection Using Selective Attention</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Motivation-4"><span class="nav-number">2.9.1.</span> <span class="nav-text">Motivation</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Understanding-Visual-Selective-Attention"><span class="nav-number"></span> <span class="nav-text">Understanding Visual Selective Attention</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Bottom-Up-Saliency"><span class="nav-number">1.</span> <span class="nav-text">Bottom-Up Saliency</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Biological-Mechanism"><span class="nav-number">1.1.</span> <span class="nav-text">Biological Mechanism</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Computational-Model"><span class="nav-number">1.2.</span> <span class="nav-text">Computational Model</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yimian Dai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Erstellt mit  <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.4.4</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v6.7.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
 </script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">Blog comments powered by <span class="logo-disqus">Disqus</span></a></div></article><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.css"/><script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script><script src="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.pack.js"></script><script>$(document).ready(function() {
-    $(".fancybox").fancybox();
-});
-</script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-e.src='//www.google-analytics.com/analytics.js';
-r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-ga('create','UA-88794833-1');ga('send','pageview');</script></body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
