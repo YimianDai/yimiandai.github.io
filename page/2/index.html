@@ -14,7 +14,7 @@
   
 
 
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next pisces use-motion" lang="zh-CN">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -100,7 +100,7 @@
 <meta property="og:title" content="Grok">
 <meta property="og:url" content="http://lowrank.science/page/2/index.html">
 <meta property="og:site_name" content="Grok">
-<meta property="og:locale" content="zh-Hans">
+<meta property="og:locale" content="zh-CN">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Grok">
 
@@ -160,7 +160,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
   
   
@@ -192,7 +192,7 @@
   </div>
 
   <div class="site-nav-toggle">
-    <button aria-label="Toggle navigation bar">
+    <button aria-label="切换导航栏">
       <span class="btn-bar"></span>
       <span class="btn-bar"></span>
       <span class="btn-bar"></span>
@@ -220,7 +220,41 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>Startseite</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories" rel="section"><i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br/>分类</a>
 
   </li>
         
@@ -237,7 +271,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>Archiv</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
 
   </li>
 
@@ -289,7 +323,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lowrank.science/Slurm/"/>
+    <link itemprop="mainEntityOfPage" href="http://lowrank.science/MXNet-Deployment/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yimian Dai"/>
@@ -309,7 +343,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/Slurm/" class="post-title-link" itemprop="url">Notes on Slurm</a>
+                <a href="/MXNet-Deployment/" class="post-title-link" itemprop="url">Notes on MXNet Deployment</a>
               
             
           </h1>
@@ -327,14 +361,14 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2018-08-14T00:00:00-07:00">2018-08-14</time>
+              <time title="创建时间：2018-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2018-08-14T00:00:00-07:00">2018-08-14</time>
             
 
             
@@ -349,9 +383,9 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:18:33" itemprop="dateModified" datetime="2019-01-22T15:18:33-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:18:28" itemprop="dateModified" datetime="2019-01-22T15:18:28-07:00">2019-01-22</time>
               
             
           </span>
@@ -365,10 +399,10 @@
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Technology/" itemprop="url" rel="index"><span itemprop="name">Technology</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
 
                 
                 
@@ -406,200 +440,17 @@
         
           
             <p>
-              为了解决抢占 GPU 资源的问题，最近 DIKU 开始推行 Slurm。
+              目前一直在学习 MXNet，这篇日志记录下 MXNet 在不同平台上的部署和使用。
+1. 在不同平台上的部署1.1 University Server学校或者系里的 Server 一般都是免费的，如果能够抢到机器当然是最好的啦。不过除了要抢之外，还需要注意以下几点：
 
-Slurm 任务调度工具（前身为极简 Linux 资源管理工具，英文：Simple Linux Utility for Resource Management，取首字母，简写为 SLURM），或 Slurm，是一个用于 Li
+没有 root 权限，这意味着
               ...
             </p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/Slurm/#more" rel="contents">
-                Weiterlesen &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lowrank.science/matplotlib/"/>
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Yimian Dai"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Grok"/>
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/matplotlib/" class="post-title-link" itemprop="url">Notes on matplotlib</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Veröffentlicht am</span>
-              
-
-              
-                
-              
-
-              <time title="Post created: 2018-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2018-08-14T00:00:00-07:00">2018-08-14</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Updated at: 2019-01-22 15:18:37" itemprop="dateModified" datetime="2019-01-22T15:18:37-07:00">2019-01-22</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">in</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Technology/" itemprop="url" rel="index"><span itemprop="name">Technology</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>
-              最近全面地从 MATLAB 转向 Python 了，而 matplotlib 是 Python 主要的画图包。这篇日志记录一些日常使用 matplotlib 的 tips.
-How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务器上跑程序，
-              ...
-            </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/matplotlib/#more" rel="contents">
-                Weiterlesen &raquo;
+              <a class="btn" href="/MXNet-Deployment/#more" rel="contents">
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -696,14 +547,14 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2018-08-14T00:00:00-07:00">2018-08-14</time>
+              <time title="创建时间：2018-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2018-08-14T00:00:00-07:00">2018-08-14</time>
             
 
             
@@ -718,9 +569,9 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:18:16" itemprop="dateModified" datetime="2019-01-22T15:18:16-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:18:16" itemprop="dateModified" datetime="2019-01-22T15:18:16-07:00">2019-01-22</time>
               
             
           </span>
@@ -734,7 +585,7 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Technology/" itemprop="url" rel="index"><span itemprop="name">Technology</span></a></span>
@@ -783,7 +634,191 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
           
             <div class="post-button text-center">
               <a class="btn" href="/Pycharm/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lowrank.science/matplotlib/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yimian Dai"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Grok"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/matplotlib/" class="post-title-link" itemprop="url">Notes on matplotlib</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2018-08-14T00:00:00-07:00">2018-08-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-01-22 15:18:37" itemprop="dateModified" datetime="2019-01-22T15:18:37-07:00">2019-01-22</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Technology/" itemprop="url" rel="index"><span itemprop="name">Technology</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              最近全面地从 MATLAB 转向 Python 了，而 matplotlib 是 Python 主要的画图包。这篇日志记录一些日常使用 matplotlib 的 tips.
+How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务器上跑程序，
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/matplotlib/#more" rel="contents">
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -880,14 +915,14 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-07-27 00:00:00" itemprop="dateCreated datePublished" datetime="2018-07-27T00:00:00-07:00">2018-07-27</time>
+              <time title="创建时间：2018-07-27 00:00:00" itemprop="dateCreated datePublished" datetime="2018-07-27T00:00:00-07:00">2018-07-27</time>
             
 
             
@@ -902,9 +937,9 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:18:22" itemprop="dateModified" datetime="2019-01-22T15:18:22-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:18:22" itemprop="dateModified" datetime="2019-01-22T15:18:22-07:00">2019-01-22</time>
               
             
           </span>
@@ -918,7 +953,7 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
@@ -966,7 +1001,7 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
           
             <div class="post-button text-center">
               <a class="btn" href="/GluonCV-VOCMApMetric/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -1063,14 +1098,14 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-05-06 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-06T00:00:00-07:00">2018-05-06</time>
+              <time title="创建时间：2018-05-06 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-06T00:00:00-07:00">2018-05-06</time>
             
 
             
@@ -1085,9 +1120,9 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:18:12" itemprop="dateModified" datetime="2019-01-22T15:18:12-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:18:12" itemprop="dateModified" datetime="2019-01-22T15:18:12-07:00">2019-01-22</time>
               
             
           </span>
@@ -1101,7 +1136,7 @@ How to save a figure remotely with pylab?如果是在 AWS 或者学校的服务�
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
@@ -1152,7 +1187,7 @@ He, K.; Zhang, X.; Ren, S. &amp; Sun, J.Spatial Pyramid Pooling in Deep Convolut
           
             <div class="post-button text-center">
               <a class="btn" href="/He-ECCV-14-SPP/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -1249,14 +1284,14 @@ He, K.; Zhang, X.; Ren, S. &amp; Sun, J.Spatial Pyramid Pooling in Deep Convolut
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-05-04 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-04T00:00:00-07:00">2018-05-04</time>
+              <time title="创建时间：2018-05-04 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-04T00:00:00-07:00">2018-05-04</time>
             
 
             
@@ -1271,9 +1306,9 @@ He, K.; Zhang, X.; Ren, S. &amp; Sun, J.Spatial Pyramid Pooling in Deep Convolut
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:18:07" itemprop="dateModified" datetime="2019-01-22T15:18:07-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:18:07" itemprop="dateModified" datetime="2019-01-22T15:18:07-07:00">2019-01-22</time>
               
             
           </span>
@@ -1287,7 +1322,7 @@ He, K.; Zhang, X.; Ren, S. &amp; Sun, J.Spatial Pyramid Pooling in Deep Convolut
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
@@ -1336,7 +1371,7 @@ Lazebnik, S.; Schmid, C. &amp; Ponce, J.Beyond Bags of Features: Spatial Pyramid
           
             <div class="post-button text-center">
               <a class="btn" href="/Lazebnik-CVPR-06-SPM/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -1433,14 +1468,14 @@ Lazebnik, S.; Schmid, C. &amp; Ponce, J.Beyond Bags of Features: Spatial Pyramid
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-05-03 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-03T00:00:00-07:00">2018-05-03</time>
+              <time title="创建时间：2018-05-03 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-03T00:00:00-07:00">2018-05-03</time>
             
 
             
@@ -1455,9 +1490,9 @@ Lazebnik, S.; Schmid, C. &amp; Ponce, J.Beyond Bags of Features: Spatial Pyramid
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:18:01" itemprop="dateModified" datetime="2019-01-22T15:18:01-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:18:01" itemprop="dateModified" datetime="2019-01-22T15:18:01-07:00">2019-01-22</time>
               
             
           </span>
@@ -1471,7 +1506,7 @@ Lazebnik, S.; Schmid, C. &amp; Ponce, J.Beyond Bags of Features: Spatial Pyramid
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
@@ -1523,7 +1558,7 @@ CVPR-15-Is object localizatio
           
             <div class="post-button text-center">
               <a class="btn" href="/Awesome-Titles/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -1620,14 +1655,14 @@ CVPR-15-Is object localizatio
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-05-02 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-02T00:00:00-07:00">2018-05-02</time>
+              <time title="创建时间：2018-05-02 00:00:00" itemprop="dateCreated datePublished" datetime="2018-05-02T00:00:00-07:00">2018-05-02</time>
             
 
             
@@ -1642,9 +1677,9 @@ CVPR-15-Is object localizatio
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:17:15" itemprop="dateModified" datetime="2019-01-22T15:17:15-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:17:15" itemprop="dateModified" datetime="2019-01-22T15:17:15-07:00">2019-01-22</time>
               
             
           </span>
@@ -1658,7 +1693,7 @@ CVPR-15-Is object localizatio
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
@@ -1711,7 +1746,7 @@ CVPR-14-Rich feature hierarchies for accurate object
           
             <div class="post-button text-center">
               <a class="btn" href="/Girshick-CVPR-14/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -1808,14 +1843,14 @@ CVPR-14-Rich feature hierarchies for accurate object
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-04-30 00:00:00" itemprop="dateCreated datePublished" datetime="2018-04-30T00:00:00-07:00">2018-04-30</time>
+              <time title="创建时间：2018-04-30 00:00:00" itemprop="dateCreated datePublished" datetime="2018-04-30T00:00:00-07:00">2018-04-30</time>
             
 
             
@@ -1830,9 +1865,9 @@ CVPR-14-Rich feature hierarchies for accurate object
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:17:54" itemprop="dateModified" datetime="2019-01-22T15:17:54-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:17:54" itemprop="dateModified" datetime="2019-01-22T15:17:54-07:00">2019-01-22</time>
               
             
           </span>
@@ -1846,7 +1881,7 @@ CVPR-14-Rich feature hierarchies for accurate object
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
@@ -1895,7 +1930,7 @@ CVPR-14-Rich feature hierarchies for accurate object
           
             <div class="post-button text-center">
               <a class="btn" href="/MLE-Cross-Entropy/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -1992,14 +2027,14 @@ CVPR-14-Rich feature hierarchies for accurate object
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
 
               
                 
               
 
-              <time title="Post created: 2018-02-01 00:00:00" itemprop="dateCreated datePublished" datetime="2018-02-01T00:00:00-07:00">2018-02-01</time>
+              <time title="创建时间：2018-02-01 00:00:00" itemprop="dateCreated datePublished" datetime="2018-02-01T00:00:00-07:00">2018-02-01</time>
             
 
             
@@ -2014,9 +2049,9 @@ CVPR-14-Rich feature hierarchies for accurate object
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 
-                  <span class="post-meta-item-text">Edited on</span>
+                  <span class="post-meta-item-text">更新于</span>
                 
-                <time title="Updated at: 2019-01-22 15:17:38" itemprop="dateModified" datetime="2019-01-22T15:17:38-07:00">2019-01-22</time>
+                <time title="修改时间：2019-01-22 15:17:38" itemprop="dateModified" datetime="2019-01-22T15:17:38-07:00">2019-01-22</time>
               
             
           </span>
@@ -2030,7 +2065,7 @@ CVPR-14-Rich feature hierarchies for accurate object
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
@@ -2079,7 +2114,7 @@ CVPR-14-Rich feature hierarchies for accurate object
           
             <div class="post-button text-center">
               <a class="btn" href="/Siva-ECCV-12/#more" rel="contents">
-                Weiterlesen &raquo;
+                阅读全文 &raquo;
               </a>
             </div>
           
@@ -2127,7 +2162,7 @@ CVPR-14-Rich feature hierarchies for accurate object
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -2171,7 +2206,7 @@ CVPR-14-Rich feature hierarchies for accurate object
                   <a href="/archives/">
                 
                     <span class="site-state-item-count">37</span>
-                    <span class="site-state-item-name">Artikel</span>
+                    <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
               
@@ -2190,7 +2225,7 @@ CVPR-14-Rich feature hierarchies for accurate object
                       
                     
                     <span class="site-state-item-count">3</span>
-                    <span class="site-state-item-name">Kategorien</span>
+                    <span class="site-state-item-name">分类</span>
                   
                 </div>
               
@@ -2275,7 +2310,7 @@ CVPR-14-Rich feature hierarchies for accurate object
                       
                     
                     <span class="site-state-item-count">36</span>
-                    <span class="site-state-item-name">Tags</span>
+                    <span class="site-state-item-name">标签</span>
                   
                 </div>
               
@@ -2325,7 +2360,7 @@ CVPR-14-Rich feature hierarchies for accurate object
 </div>
 
 
-  <div class="powered-by">Erstellt mit  <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.4.4</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.4.4</div>
 
 
 
@@ -2333,7 +2368,7 @@ CVPR-14-Rich feature hierarchies for accurate object
 
 
 
-  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v6.7.0</div>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v6.7.0</div>
 
 
 
@@ -2455,6 +2490,35 @@ CVPR-14-Rich feature hierarchies for accurate object
   
 
   
+  
+
+  
+  
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+
+  
+
 
   
 
