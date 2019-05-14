@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="这篇是对下面两篇文章的笔记整理。两篇文章都是同一个作者，前一篇是 ECCV 2018 的文章，后面作者挂在了 arXiv 上，看样子是投 CVPR 的。  Yohanandan, ECCV 2018, Saliency Preservation in Low-Resolution Grayscale ImagesYohanandan, arXiv 2018, Fast Efficient Obje">
+<meta name="keywords" content="Computer-Vision,Object-Detection,Attention-Mechanism">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Biological Explanation on Visual Selective Attention">
+<meta property="og:url" content="http://lowrank.science/Biological-VSA/index.html">
+<meta property="og:site_name" content="Grok">
+<meta property="og:description" content="这篇是对下面两篇文章的笔记整理。两篇文章都是同一个作者，前一篇是 ECCV 2018 的文章，后面作者挂在了 arXiv 上，看样子是投 CVPR 的。  Yohanandan, ECCV 2018, Saliency Preservation in Low-Resolution Grayscale ImagesYohanandan, arXiv 2018, Fast Efficient Obje">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20ECCV%2018%20Fig%202a.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%202.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20ECCV%2018%20Fig%202b.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png">
+<meta property="og:updated_time" content="2019-01-28T19:44:11.683Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Biological Explanation on Visual Selective Attention">
+<meta name="twitter:description" content="这篇是对下面两篇文章的笔记整理。两篇文章都是同一个作者，前一篇是 ECCV 2018 的文章，后面作者挂在了 arXiv 上，看样子是投 CVPR 的。  Yohanandan, ECCV 2018, Saliency Preservation in Low-Resolution Grayscale ImagesYohanandan, arXiv 2018, Fast Efficient Obje">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20ECCV%2018%20Fig%202a.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://lowrank.science/Biological-VSA/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Biological Explanation on Visual Selective Attention | Grok</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Grok</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">抱残守缺</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags" rel="section"><i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories" rel="section"><i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lowrank.science/Biological-VSA/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yimian Dai"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Grok"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Biological Explanation on Visual Selective Attention
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-28 00:00:00 / 修改时间：12:44:11" itemprop="dateCreated datePublished" datetime="2019-01-28T00:00:00-07:00">2019-01-28</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Research/" itemprop="url" rel="index"><span itemprop="name">Research</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这篇是对下面两篇文章的笔记整理。两篇文章都是同一个作者，前一篇是 ECCV 2018 的文章，后面作者挂在了 arXiv 上，看样子是投 CVPR 的。</p>
+<blockquote>
+<p>Yohanandan, ECCV 2018, Saliency Preservation in Low-Resolution Grayscale Images<br>Yohanandan, arXiv 2018, Fast Efficient Object Detection Using Selective Attention</p>
+</blockquote>
+<p>注意力机制一般分为 bottom-up 和 top-down 两种。Bottom-up 的注意力机制是外界刺激和特征驱动的，负责快速、自动且不由自主的注意力和凝视的快速转变；相反，top-down 机制是任务驱动、基于经验（记忆）的，因人而已。这篇笔记，或者说上面两篇论文<strong>只针对 Bottom-up</strong>，主要内容是<strong>从生理机制上解释为何人类的显著性检测和选择性注意力能够如此高效</strong>。此外，对我而言，读完这两篇文章另外一个收获是对于 Object Detection 中的 One-stage method 和 Two-stage method 中的选择，让我坚定了对 Two-stage method 的信仰，因为在我看来人眼 Bottom-up 的视觉选择性注意就是一个 two-stage 过程。</p>
+<h2 id="Biological-Explanation"><a href="#Biological-Explanation" class="headerlink" title="Biological Explanation"></a>Biological Explanation</h2><p>作者先是讲了一个生物视觉进化的故事：</p>
+<ol>
+<li>最早的生物都是没有视觉的</li>
+<li>后来略微进化出一点感光细胞，有了 discriminated night and day 的能力；</li>
+<li>再后来，有了一点光源定位的能力，能够 distinguishing light from shadow；</li>
+<li>接着是进化出能够粗略认出周围物体的能力，这被认为是 the birth of stimulus-driven, bottom-up visual salience detection，到这一阶段是 <strong>blurry achromatic peripheral vision</strong>，模糊的消色的外围视觉</li>
+<li>然后，进化出 focus-sharpening lenses</li>
+<li>再然后是 foveated central vision</li>
+<li>最后才是感知 彩色 的能力，到这一步才有 <strong>high-acuity chromatic central vision</strong>，高度敏锐的彩色中央视觉</li>
+</ol>
+<p>从这个故事叙述里，作者已经开始在暗示 彩色 和 高敏锐度的视觉都是在 粗略认出周围物体的能力 之后发展出来的。如果只是要模拟粗略认出周围物体的能力（这就是 Region Proposal 干的事情），那么就不需要在我们的 computational model 里面去涉及对彩色 和 高敏锐度的视觉的模拟，彩色就是彩色，高敏锐度的视觉则指的是高分辨率图像，也就是说 Region Proposal 或者 Saliency Detection 不需要在彩色高分辨率图像上做，只要 blurry achromatic peripheral vision 就可以了。</p>
+<p>由此可见，人类 bottom-up Attention 其实有两部分构成，一部分是 blurry achromatic peripheral vision，另一部分是 high-acuity chromatic central vision。<strong>Peripheral vision 相当于 Region Proposal</strong>，负责 bottom-up visual salience detection，用来指示 the sharper, high-resolution foveated (sometimes chromatic) vision to investigate objects and regions further，由此实现了人类可以 rapidly shift foveal gaze to salient regions 的能力。但这样机制的背后，是有具体的生理基础。</p>
+<p>总所周知，我们视网膜上的感光细胞分为<strong>视杆细胞</strong>（Rods）和<strong>视锥细胞</strong>（Cones），这两种细胞在分工、数量、分布和连接的后续细胞的数量上都有以下不同：</p>
+<ol>
+<li>在分工上，Rods primarily encode achromatic luminance (brightness) information；而 cones encode chrominance (color)；</li>
+<li>在分布上，Rods have a higher distribution outside the fovea；而 are concentrated in the fovea (center of the retina)，这就是为什么一个被叫做 peripheral vision，一个被叫做 foveated central vision，下图展示了 Rods 和 Cones 的分布情况</li>
+<li>在连接的后续细胞的数量上，multiple rods converge to and activate a single retinal ganglion neuron，而 each cone activates multiple ganglion neurons。这个 Retinal ganglion cells (RGCs) 是 Final output neurons of the retina，可以代表输出图像的分辨率。因为连接的后续细胞的数量上，Rods 少于 Cones，这也是为什么 rod vision has <strong>lower spatial resolution</strong>，而 Cones vision 是 higher acuity vision。为什么最后输出的图像分辨率会不同，因为决定感知到的图像分辨率（perceived image resolution）的 并不是 光感受体（photoreceptors）数量，而是 视网膜传入神经节神经元 RGCs，而视锥细胞连接的 视网膜传入神经节神经元 比 视杆细胞多。</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20ECCV%2018%20Fig%202a.png" alt=""></p>
+<p>因此，可以稍微概括下，<strong>Cones</strong>, concentrated in the <strong>fovea</strong>, encode <strong>high-resolution color</strong>. <strong>Rod</strong> photoreceptors distributed <strong>outside the fovea</strong> encode <strong>low-resolution grayscale</strong> information。</p>
+<p>那么具体 Rods 对应的 RGCs 和 Cones 对应的 RGCs 分别是什么，又是怎么一个数量关系呢？RGCs 作为视网膜最后的输出神经元，有 P$\beta$ RGCs，P$\alpha$ RGCs 和 P$\gamma/\epsilon$ RGCs 三类。其中，P$\beta$ RGCs 负责通过 longwave (red), medium-wave (green), and shortwave (blue) sensitive detectors 表现 color opponency 颜色对比。什么是这些 RGB sensitive detectors 呢？就是 Cones 视锥细胞。而 P$\alpha$ RGCs 和 P$\gamma/\epsilon$ RGCs 是消色的，编码 primarily luminance information。P$\beta$ RGCs，P$\alpha$ RGCs 和 P$\gamma/\epsilon$ RGCs 的分布分别是 Laplacian，Gaussian 和 Poisson，前两者分布相对集中、中心化，而后者分布相对均匀、平坦。具体如下图所示。</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%202.png" alt=""></p>
+<p>在所有 RGCs 中，大约 80% 是表现颜色对比度的 P$\beta$ RGCs；大约 10% 的 RGCs 是消色的 P$\alpha$ neurons，他们的轴突投射都是从视网膜的 foveal region 到 lateral geniculate nucleus 外侧膝状体，简称 LGN。只有剩下 10% 的 P$\gamma$ RGCs 和 P$\epsilon$ RGCs 以及某一些 P$\alpha$ RGCs，被投影到了一个叫做  optic tectum，中文叫视顶盖，也叫 superior colliculus，中文叫 上丘 的结构，简称 SC。由于 SC 接收到的信息只有所有 RGCs 的 10%，这就是为什么论文中会说 SC 所接收的信息只有输入视网膜信息的 10% 的依据，是属于较低分辨率的视觉信息，且是消色的。而近年来神经科学的研究发现，<strong>SC 是负责产生显著性图的区域</strong>，是 bottom-up salience detection 的先驱。 此外，SC 还对眼部肌肉有着直接控制，direct retinal input into the SC 引发由脑干动眼神经核控制的反射般的跳视 reflex-like saccades，这个应该是为了输入 High-Resolution Color Foveal Image。Eye movements align objects with the high-acuity fovea of the retina, making it possible to gather detailed information about the world。因此，在我看来，Rods 负责完成消色下采样，<strong>SC 负责 generate Saliency map 并在此基础上做 Region Proposal（通过 control eye muscles 实现）</strong>。</p>
+<p>多提一句 Saliency map 的价值在于 This mapping projects the locations of salient and interesting regions in visual space, thus making vision more efficient by narrowing down the regions an observer must attend to in a typically large visual field. 这是 Region Proposal 的作用。</p>
+<p>这里表明，人类视觉有两条视觉通路，一条是开始与消色的 Rods 光感受体 -&gt; P$\gamma$ RGCs 和 P$\epsilon$ RGCs -&gt; SC 的通路，这条通路叫作 the retinocollicular pathway，也是下图中红色箭头所指的；另一条是 Cones -&gt; P$\beta$ RGCs 和 P$\alpha$ RGCs -&gt; LGN -&gt; V1 的通路，具体如下图所示。两条通路这件事对我震动蛮大的，以前人们认为 the saliency map was generated in the primary visual cortex (V1)，也就是认为图像只有一个输入，就是高分辨率的输入；但现在发现，图像其实有 两个输入，<strong>different visual pathways</strong>，一个是输入 SC 的 LG 图像，另一个是根据 SC 产生的 Saliency Map 指导下输入的 high-resolution region。但目前我们 end-to-end 的算法都只有高分辨率输入，要不要为此做出相应的改变呢？</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20ECCV%2018%20Fig%202b.png" alt=""></p>
+<p>现在我们已经知道人类视觉是在以 Rods 为起点的 blurry achromatic peripheral vision 通路，和以 Cones 为起点的 high-acuity chromatic central vision 两条通路合作下工作的，那么它们是怎么合作的呢？</p>
+<p>快速高效的 Bottom-Up Visual Attention 的机制如下，关键在于 processing low-resolution achromatic visual information from the retina:</p>
+<ol>
+<li>首先，the retinocollicular pathway shrinks the high-resolution color image projected onto the retina from the visual field into a tiny colorless, e.g. low-resolution grayscale, image, which can then be scanned quickly by the SC to highlight peripheral regions worth attending to via the saliency map. </li>
+<li>The SC then aligns the fovea to attend to one of these regions, thereby sending higher-acuity, e.g. high-resolution color, visual information to the LGN and beyond for further processing.</li>
+<li>In doing so, a new image of the visual field is now projected onto the retina, and the cycle repeats. </li>
+</ol>
+<p>具体的示意图如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/YimianDai/images/master/Yohanandan%20Selective%20Attention%20Fig%203.png" alt=""></p>
+<p>由此可见，Visual signals from the retina to the cerebral cortex are mediated through the primary visual cortex (V1) and the superior colliculus (sSC and dSC). 输入大脑皮层的视觉信息同时受到 primary visual cortex (V1)  和 superior colliculus 的调解，这也应了一个很早以前就看到的观点，大脑并不是一个中央处理器，而是由多个处理器共同决策、控制的结果。</p>
+<p>除了输入是 Low-Resolution Grayscale Images 之外，Visual Saliency Attention 能够快速有效的还有一个生理基础在于存在一个 <strong>a shortcut</strong> from the superficial (sSC) to the deep (dSC) superior colliculus, which then sends outputs directly to the brainstem oculomotor nuclei, resulting in rapid saccades，也就是 现在的 shortcut 是 retina -&gt; sSC -&gt; dSC -&gt; brain-stem -&gt; retina，否则得话，我看图上有 retina -&gt; LGN -&gt; V1 -&gt; V4 -&gt; FEF -&gt; dSC -&gt; brain-stem -&gt; retina 这种绕一圈的通路，这就没法 rapid 了。</p>
+<h2 id="Computational-Approximation"><a href="#Computational-Approximation" class="headerlink" title="Computational Approximation"></a>Computational Approximation</h2><p>我们稍微概括一下上面的生物机制，然后看看如何用计算模型模拟这种生物机制</p>
+<ol>
+<li>SC 是产生显著性图的地方</li>
+<li>SC 的输入是 low-resolution grayscale image</li>
+</ol>
+<p>对上述生物机制的计算模型逼近显然易见，就是<strong>在 Low-Resolution Grayscale Images 上计算显著性图，并以此显著性检测的结果作为高分辨彩色输入图像上的 Region Proposal，然后再进一步识别。</strong> 在 Low-Resolution Grayscale Images 上计算显著性图先比在 High-Resolution Color Images 上计算并不会有什么信息缺失，这一点不管是上面的生物机制启示还是论文后面的数值实验都验证了，这就是论文标题的 Argument， Saliency Preservation in Low-Resolution Grayscale Images，而这么做的好处是非常高效。</p>
+<ol>
+<li>怎么将 High-Resolution Color Images 降采样成 Low-Resolution Grayscale Images？（模拟 视杆细胞 负责对图像下采样）</li>
+<li>怎么在 Low-Resolution Grayscale Images 上实现显著性检测？（模拟 SC 负责的基于显著性检测的 Region Proposal）</li>
+<li>怎么对 High-Resolution Color 的 Foveal Image（比如上图右上角的长颈鹿所在的 Region Proposal）实现识别？</li>
+</ol>
+<p>那么降采样改怎么做呢？分为两步。感觉这个就很平常了</p>
+<ol>
+<li>第一步，transforming the color space of high-resolution color (HC) images $I_HC$ to 8-bit grayscale $I_HG$</li>
+<li>第二步是 down-sampled the original image resolution using bicubic interpolation (单边 64 像素，或者 downsample the original image to 10% of its original size，但作者也提到了，10% 是依据猕猴的生理机制来的，未必对于计算机视觉里的Object Detection 就是最优的)</li>
+</ol>
+<p>但作者说这篇文章是提出本文是最早提出 Saliency Preservation in Low-Resolution Grayscale Images，感觉也有点过了，我印象里至少 Hou Xiaodi 在 CVPR 2007 的 Spectral Residual 里面就提到 64 x 64 就足好地可以计算显著性了。</p>
+<p>至于怎么实现显著性检测，作者虽然给了方案，但是太简略了，也不是我对论文感兴趣的原因。至于第三个问题，论文中也没有提。</p>
+<h2 id="对目标检测的启示"><a href="#对目标检测的启示" class="headerlink" title="对目标检测的启示"></a>对目标检测的启示</h2><p>目前方法慢的原因：不管是 One-Stage 还是 Two-Stage 的 Region Proposal 阶段，虽然他们都是在 downsampling 后的 feature map 上做的，但是这些 feature map 都来自于 <strong>High-Resolution</strong> Color Images。从 <strong>High-Resolution</strong> Color Images 得到这些 Feature Map 需要消耗很多的计算量，这是一个慢的原因。另一个慢的原因是 exhaustive classification，为了要 densely covering many different spatial positions, scales, and aspect ratios 需要 evaluate $10^4 − 10^5$ candidate regions per image. 但我不是很赞成后面一点，因为在不知道目标可能在哪之前，总要考虑所有区域，做 Saliency Detection 本身也是一件需要 exhaustive search 的事情，计算的绝大多数区域而是一样的 uninformative background。</p>
+<p>而在 Low-Resolution Grayscale Images 上做 Region Proposal 的好处是，significantly reducing the visual search space of objects and regions of interest；因为 输入是 LG，总的计算量不大，另外一个好处是，generating a saliency map 只要 a relatively small and simple neural network 就够了，模型不需要很大。</p>
+<p>作者这里还有一个 argument，是 detecting the presence of an object，如果仅仅是 detect 也就是判断有无，而不是判断哪一类（Classification），那么high-resolution details about objects, such as texture, patterns, and shape 这些是没有用的，color or other feature-specific properties are seem only essential for classification，这个 argument 支持了为什么 natural vision 会有 LG transformation。但作者这里的 Detect 是 Region Proposal 阶段的 Saliency Detection，并不是现在我们常说的 Object Detection 的 Detection。</p>
+<p>最后的最后，这篇文章给我留下的疑惑是，这丫不就又回到 R-CNN，Region Proposal 和后面的 Classification 分开做，且 Region 要 resize 之后的路线了么？</p>
+<p>最后，推荐下知乎上的两篇专栏文章，介绍了 视网膜神经回路、外侧膝状体和初级视觉皮层。</p>
+<blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/43182345" target="_blank" rel="noopener">视觉（1）：视网膜神经回路</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/44178208" target="_blank" rel="noopener">视觉（2）：外侧膝状体和初级视觉皮层</a></p>
+</blockquote>
+<hr>
+<p>如果您觉得我的文章对您有所帮助，不妨小额捐助一下，您的鼓励是我长期坚持的动力。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png" alt="Alipay_Middle"></th>
+<th style="text-align:left"><img src="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png" alt="Wechat_Middle"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Computer-Vision/" rel="tag"># Computer-Vision</a>
+          
+            <a href="/tags/Object-Detection/" rel="tag"># Object-Detection</a>
+          
+            <a href="/tags/Attention-Mechanism/" rel="tag"># Attention-Mechanism</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Git/" rel="next" title="Notes on Git and GitHub">
+                <i class="fa fa-chevron-left"></i> Notes on Git and GitHub
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Notes 2019-01/" rel="prev" title="Notes 2019-01">
+                Notes 2019-01 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yimian Dai</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Biological-Explanation"><span class="nav-number">1.</span> <span class="nav-text">Biological Explanation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Computational-Approximation"><span class="nav-number">2.</span> <span class="nav-text">Computational Approximation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对目标检测的启示"><span class="nav-number">3.</span> <span class="nav-text">对目标检测的启示</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yimian Dai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.4.4</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v6.7.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.7.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.7.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

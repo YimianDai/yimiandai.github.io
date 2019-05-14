@@ -114,7 +114,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/CBAM%20Eq%203.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Alipay_Middle.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/YimianDai/images/master/Wechat_Middle.png">
-<meta property="og:updated_time" content="2019-01-13T17:28:17.481Z">
+<meta property="og:updated_time" content="2019-04-03T23:04:30.392Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Notes 2018-12">
 <meta name="twitter:description" content="论文[1] Non-local Neural NetworksSelf-Attention 的代表作，按照 Self-attention 自注意力，就是 feature map 间的自主学习，分配权重 这个定义，的确 non-local neural networks 是算 Self-attention 的  首先对输入的 feature map X 进行线性映射（说白了就是 111 卷积，来压缩">
@@ -398,7 +398,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-01-13 10:28:17" itemprop="dateModified" datetime="2019-01-13T10:28:17-07:00">2019-01-13</time>
+                <time title="修改时间：2019-04-03 16:04:30" itemprop="dateModified" datetime="2019-04-03T16:04:30-07:00">2019-04-03</time>
               
             
           </span>
@@ -488,6 +488,7 @@
 <blockquote>
 <p>请假一下，按理说普通网络顶层接的卷积或全连接层应该会自动挑选、组合底层的特征啊，为什么还要明确让网络加权一遍？<br>网络自己决定的权重是通用的，通过网络输出 attention 权重是根据当前图片决定的。 by <a href="https://www.zhihu.com/question/63460684" target="_blank" rel="noopener">王峰</a>，这句话我没看懂<br>区别就是….attention 的 weight 是 data dependent …conv 的权重是训练完之后就固定了 by <a href="https://www.zhihu.com/question/65044831" target="_blank" rel="noopener">Alan Huang</a></p>
 </blockquote>
+<p>我个人的理解是，虽然 SE Block 的操作顺序是 output_feature = attention_weight <em> (conv_filter </em> input_feature)，但因为卷积是线性运算，有结合律，也等于 output_feature = (attention_weight <em> conv_filter) </em> input_feature，就相当于最后的 conv_filter 的权重实现了根据 data 的自适应。由此也就有了 网络自己决定的权重是通用的，通过网络输出 attention 权重是根据当前图片决定的。</p>
 <p>为什么拿 SE Block 做 Attention 效果会好？</p>
 <blockquote>
 <p>大网络 channel 维度有很多冗余，se 操作能起到很强的正则化作用，防止过拟合，有助于抽出更好的特征 by <a href="https://www.zhihu.com/question/63460684" target="_blank" rel="noopener">Wheatley</a><br>注意到这个加权利用到了全局信息，而在传统的 CNN 只有到最后才综合全局信息。 by <a href="https://www.zhihu.com/question/63460684" target="_blank" rel="noopener">ling wei</a></p>
@@ -967,7 +968,7 @@ CBAM 没有采用 Residual 的模式，就是串行的计算特征 Forward，具
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-count">41</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1071,7 +1072,9 @@ CBAM 没有采用 Residual 的模式，就是串行的计算特征 Forward，具
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">标签</span>
                   
                 </div>
